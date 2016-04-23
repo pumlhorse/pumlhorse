@@ -1,0 +1,9 @@
+name: Use a custom module
+modules:
+- myCustomModule
+- myCustomModule2
+steps:
+  # Print You are successfully using a custom module!
+  - printCustomModuleMessage
+  # Print You are successfully using ANOTHER custom module!
+  - printCustomModule2Message

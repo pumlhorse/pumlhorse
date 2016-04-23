@@ -1,0 +1,5 @@
+include:
+  - .
+filters:
+  - rejectingFilter.js
+maxConcurrent: 1 # Improves readability to only run one at a time

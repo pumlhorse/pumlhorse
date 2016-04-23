@@ -1,0 +1,6 @@
+include:
+  - test1.puml
+  - test2.puml
+filters:
+  - basicFilter.js
+maxConcurrent: 1 # Improves readability to only run one at a time

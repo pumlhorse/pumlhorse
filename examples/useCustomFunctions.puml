@@ -1,0 +1,16 @@
+name: useCustomFunctions
+functions:
+  getCurrentDate: return new Date()
+  timeInUtc:
+  - dt
+  - return dt.toGMTString()
+steps:
+- currentDate = getCurrentDate
+- log:
+  - The current date is %s 
+  - $currentDate
+- currentDateInUtc = timeInUtc:
+    dt: $currentDate
+- log:
+  - The current date in UTC is %s
+  - $currentDateInUtc

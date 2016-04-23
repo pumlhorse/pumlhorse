@@ -1,0 +1,17 @@
+name: Use 'value' function
+steps:
+- val3 = good
+- myObject = value:
+    val1: 3
+    val2: 15
+    nested:
+      val3: a $val3 value
+- areEqual:
+    expected: 3
+    actual: $myObject.val1
+- areEqual:
+    expected: 15
+    actual: $myObject.val2
+- areEqual:
+    expected: a good value
+    actual: $myObject.nested.val3

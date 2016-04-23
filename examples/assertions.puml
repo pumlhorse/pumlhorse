@@ -1,0 +1,33 @@
+name: Use assertions
+steps:
+# all of these assertions succeed
+- isTrue: ${5 == 7 - 2}
+- isFalse: ${Math.PI == 3}
+- areEqual: 
+    expected: men 
+    actual: ${"women".substr(2)}
+- areEqual:
+    expected:
+      game: horseshoe
+    actual:
+      game: horseshoe
+      another: handgrenades
+    partial: true # Only properties in expected value will be checked in actual value
+- areNotEqual:
+    expected: free as in beer
+    actual: free as in speech
+- isEmpty: ${[]}
+- isNotEmpty: ${[3, 4, 5]}
+- contains: 
+    array: 
+      - 4
+      - 5
+      - 6
+    value: 6
+- contains:
+    array:
+      - game: horseshoe
+        another: handgrenades
+    value:
+    game: horseshoe 
+    partial: true

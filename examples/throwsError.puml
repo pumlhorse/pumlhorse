@@ -1,0 +1,5 @@
+name: Throws an error
+steps:
+- areEqual:
+    expected: 1
+    actual: 2

@@ -1,0 +1,8 @@
+name: Print context info
+description: |
+  Displays information about the context that was passed info. Run with context1.json or 
+  context2.yml
+functions:
+steps:
+- log: Name is $name
+- log: Favorite color is $favoriteColor
