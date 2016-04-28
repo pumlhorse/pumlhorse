@@ -45,7 +45,9 @@ describe("Modules", function () {
             
             //Act
             _modules.addModule("test")
-                .function("functionName", ["param1", "param2", _modules.defer("deferMe"), func])
+                .function("functionName", ["param1", "param2", "deferMe", func], {
+                    deferredParameters: ["deferMe"]
+                })
             
             //Assert
             var m = _modules.modules["test"]

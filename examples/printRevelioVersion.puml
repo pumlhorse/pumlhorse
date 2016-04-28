@@ -3,11 +3,9 @@ description: retrieves the version from the Revelio demo site
 steps:
 - baseUrl = http://demo.getrevelio.com 
 - start = startTimer
-- version = get:
+- version = http.get:
     url: $baseUrl/api/version
-- areEqual:
-    expected: 200
-    actual: $version.statusCode
+- http.isOk: $version
 - stopTimer: $start
 - log:
   - Current Revelio version is %s. That took %s milliseconds

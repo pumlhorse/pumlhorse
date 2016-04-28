@@ -576,6 +576,29 @@ describe("Run Script", function () {
             })
             .finally(assertPromiseResolved(promise, done))
         });
+		
+		it("provides the correct scope to namespaced modules", function (done) {
+			//Arrange
+            var passedScope
+            pumlhorse.module("goodModule")
+                .function("sayHello", function () {
+					passedScope = this;
+				})
+            var script = new Script({
+                modules: ["myModule = goodModule"],
+                steps: ["myModule.sayHello"]
+            });
+            
+            //Act
+            var promise = script.run();
+            
+            //Assert
+            promise.then(function () {
+				expect(passedScope).toBeDefined();
+				expect(passedScope.$emit).toBeDefined();
+            })
+            .finally(assertPromiseResolved(promise, done))
+		})
         
         it("allows a module to access another module through $module", function (done) {
             //Arrange
@@ -777,6 +800,283 @@ describe("Run Script", function () {
             })
             .finally(assertPromiseRejected(promise, done))
         });
+	})
+	
+	describe("with steps", function () {
+		describe("no declared parameters", function () {
+			
+			it("handles zero parameters", function (done) {
+				//Arrange
+				var script = new Script({
+					steps: [
+						"noParam"
+					]
+				})
+				var spy = jasmine.createSpy();
+				script.addFunction("noParam", spy)
+				
+				//Act
+				var promise = script.run();
+				
+				//Assert
+				promise.then(function () {
+					expect(spy).toHaveBeenCalledWith();
+				})
+				.finally(assertPromiseResolved(promise, done))			
+			});
+			
+			it("handles a string parameter", function (done) {
+				//Arrange
+				var script = new Script({
+					steps: [
+						{ noParam: "a value" }
+					]
+				})
+				var spy = jasmine.createSpy();
+				script.addFunction("noParam", spy)
+				
+				//Act
+				var promise = script.run();
+				
+				//Assert
+				promise.then(function () {
+					expect(spy).toHaveBeenCalledWith("a value");
+				})
+				.finally(assertPromiseResolved(promise, done))			
+			});
+			
+			it("handles an array parameter", function (done) {
+				//Arrange
+				var script = new Script({
+					steps: [
+						{ noParam: ["val1", "val2"] }
+					]
+				})
+				var spy = jasmine.createSpy();
+				script.addFunction("noParam", spy)
+				
+				//Act
+				var promise = script.run();
+				
+				//Assert
+				promise.then(function () {
+					expect(spy).toHaveBeenCalledWith("val1", "val2");
+				})
+				.finally(assertPromiseResolved(promise, done))			
+			});
+			
+			it("handles a variable parameter", function (done) {
+				//Arrange
+				var script = new Script({
+					steps: [
+						{ noParam: "$myVal" }
+					]
+				})
+				var spy = jasmine.createSpy();
+				script.addFunction("noParam", spy)
+				
+				//Act
+				var promise = script.run({myVal: 12345});
+				
+				//Assert
+				promise.then(function () {
+					expect(spy).toHaveBeenCalledWith(12345);
+				})
+				.finally(assertPromiseResolved(promise, done))			
+			});
+			
+			it("handles a variable (array) parameter", function (done) {
+				//Arrange
+				var script = new Script({
+					steps: [
+						{ noParam: "$myVal" }
+					]
+				})
+				var spy = jasmine.createSpy();
+				script.addFunction("noParam", spy)
+				
+				//Act
+				var promise = script.run({myVal: [12345, 67890]});
+				
+				//Assert
+				promise.then(function () {
+					expect(spy).toHaveBeenCalledWith([12345, 67890]);
+				})
+				.finally(assertPromiseResolved(promise, done))			
+			});
+			
+			it("handles a function with an unnamed inline javascript parameter", function (done) {
+				//Arrange
+				var script = new Script({
+					steps: [
+						{ noParam: "${2 * 3}" }
+					]
+				})
+				var spy = jasmine.createSpy();
+				script.addFunction("noParam", spy)
+				
+				//Act
+				var promise = script.run();
+				
+				//Assert
+				promise.then(function () {
+					expect(spy).toHaveBeenCalledWith(6);
+				})
+				.finally(assertPromiseResolved(promise, done))			
+			});
+			
+			it("handles a function with an unnamed inline javascript (array) parameter", function (done) {
+				//Arrange
+				var script = new Script({
+					steps: [
+						{ noParam: "${[3, 4]}" }
+					]
+				})
+				var spy = jasmine.createSpy();
+				script.addFunction("noParam", spy)
+				
+				//Act
+				var promise = script.run();
+				
+				//Assert
+				promise.then(function () {
+					expect(spy).toHaveBeenCalledWith([3, 4]);
+				})
+				.finally(assertPromiseResolved(promise, done))			
+			});
+		})
+		
+		
+		it("handles a function with a named string parameter", function (done) {
+			//Arrange
+			var script = new Script({
+				steps: [
+					{ 
+						withParam: {
+							myVal: "a value"
+						}
+					}
+				]
+			})
+			var spy = jasmine.createSpy()
+			var mockFunc = function (myVal) { spy.apply(spy, arguments) }
+			script.addFunction("withParam", mockFunc)
+			
+			//Act
+			var promise = script.run();
+			
+			//Assert
+			promise.then(function () {
+				expect(spy).toHaveBeenCalledWith("a value");
+			})
+			.finally(assertPromiseResolved(promise, done))			
+		});
+		
+		it("handles a function with a named object parameter", function (done) {
+			//Arrange
+			var script = new Script({
+				steps: [
+					{ 
+						withParam: {
+							myVal: {
+								obj: true
+							}
+						}
+					}
+				]
+			})
+			var spy = jasmine.createSpy()
+			var mockFunc = function (myVal) { spy.apply(spy, arguments) }
+			script.addFunction("withParam", mockFunc)
+			
+			//Act
+			var promise = script.run();
+			
+			//Assert
+			promise.then(function () {
+				expect(spy).toHaveBeenCalledWith({obj: true});
+			})
+			.finally(assertPromiseResolved(promise, done))			
+		});
+		
+		it("handles a function with a named array parameter", function (done) {
+			//Arrange
+			var script = new Script({
+				steps: [
+					{ 
+						withParam: {
+							myVal: [1, 2]
+						}
+					}
+				]
+			})
+			var spy = jasmine.createSpy()
+			var mockFunc = function (myVal) { spy.apply(spy, arguments) }
+			script.addFunction("withParam", mockFunc)
+			
+			//Act
+			var promise = script.run();
+			
+			//Assert
+			promise.then(function () {
+				expect(spy).toHaveBeenCalledWith([1, 2]);
+			})
+			.finally(assertPromiseResolved(promise, done))			
+		});
+		
+		it("handles a function with a named variable parameter", function (done) {
+			//Arrange
+			var script = new Script({
+				steps: [
+					{ 
+						withParam: {
+							myVal: "$val"
+						}
+					}
+				]
+			})
+			var spy = jasmine.createSpy()
+			var mockFunc = function (myVal) { spy.apply(spy, arguments) }
+			script.addFunction("withParam", mockFunc)
+			
+			//Act
+			var promise = script.run({ val: 1234});
+			
+			//Assert
+			promise.then(function () {
+				expect(spy).toHaveBeenCalledWith(1234);
+			})
+			.finally(assertPromiseResolved(promise, done))			
+		});
+		
+		it("handles a function with a named inline javascript parameter", function (done) {
+			//Arrange
+			var script = new Script({
+				steps: [
+					{ 
+						withParam: {
+							myVal: "${3 * 2}"
+						}
+					}
+				]
+			})
+			var spy = jasmine.createSpy()
+			var mockFunc = function (myVal) { spy.apply(spy, arguments) }
+			script.addFunction("withParam", mockFunc)
+			
+			//Act
+			var promise = script.run();
+			
+			//Assert
+			promise.then(function () {
+				expect(spy).toHaveBeenCalledWith(6);
+			})
+			.finally(assertPromiseResolved(promise, done))			
+		});
+		
+		//Named parameter array
+		//Named parameter variable
+		//Named parameter inline JavaScript
 	})
 });
 

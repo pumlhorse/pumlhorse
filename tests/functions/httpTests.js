@@ -181,6 +181,123 @@ describe("HTTP function", function () {
         
     })
     
+    describe("assertions", function () {
+        
+        var ranges = [
+            {
+                name: "isInformational",
+                start: 100,
+                end: 199,
+                success: [100, 101, 105, 199],
+                error: [99, 201, 211, 1000, 305, 1]
+            },
+            {
+                name: "isSuccess",
+                start: 200,
+                end: 299,
+                success: [200, 201, 205, 299],
+                error: [100, 199, 2, 2000, 300]
+            },
+            {
+                name: "isRedirect",
+                start: 300,
+                end: 399,
+                success: [300, 301, 305, 399],
+                error: [200, 299, 3, 3000, 400]
+            },
+            {
+                name: "isError",
+                start: 400,
+                end: 599,
+                success: [400, 401, 499, 500, 501, 599],
+                error: [300, 399, 4, 5, 4000, 5000, 600]
+            }
+        ]
+        
+        ranges.forEach(function (range) {
+            range.success.forEach(function (code) {
+                it("passes " + code + " for " + range.name + " range", function () {
+                    //Arrange
+                    
+                    //Act
+                    http[range.name]({ statusCode: code })
+                    
+                    //Assert
+                });
+            })
+            
+            range.error.forEach(function (code) {
+                it("fails " + code + " for " + range.name + " range", function () {
+                    //Arrange
+                    
+                    //Act
+                    try {
+                        http[range.name]({ statusCode: code })
+                        fail()
+                    }
+                    catch (err) {
+                        //Assert
+                        expect(err.message).toBe("Expected code between " + range.start + " and " +
+                            range.end + ", actual: " + code)
+                    }
+                });
+            })
+            
+        })
+        
+        var codes = [
+            {
+                name: "isOk",
+                code: 200                
+            },
+            {
+                name: "isNotModified",
+                code: 304                
+            },
+            {
+                name: "isBadRequest",
+                code: 400                
+            },
+            {
+                name: "isUnauthorized",
+                code: 401                
+            },
+            {
+                name: "isForbidden",
+                code: 403                
+            },
+            {
+                name: "isNotFound",
+                code: 404                
+            },
+            {
+                name: "isNotAllowed",
+                code: 405                
+            }
+        ]
+        
+        codes.forEach(function (code) {
+            it("passes " + code.code + " for " + code.name, function () {
+                http[code.name]({statusCode: code.code})
+            });
+            
+            it("fails for non-" + code.code + " for " + code.name, function () {
+                //Arrange
+                var badCode = code.code - 1
+                
+                //Act
+                try {
+                    http[code.name]({statusCode: badCode })
+                    fail()
+                }
+                catch (err) {
+                    //Assert
+                    expect(err.message).toBe("Expected status code " + code.code + ", actual: " + badCode)
+                }
+            })
+        })        
+    })
+    
     function getMockResponse(status, statusMessage, body, headers) {
         return {
             statusCode: status,

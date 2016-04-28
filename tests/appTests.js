@@ -28,6 +28,10 @@ describe("App", function () {
         onSessionFinished: filterNoop
     }
     
+    var settingsMock = {
+        addSetting: function () {}
+    }
+    
     beforeEach(function () {
         yamlMock = {
             parse: jasmine.createSpy("parse").and.returnValue(mockYamlResult)
@@ -79,6 +83,7 @@ describe("App", function () {
             "./script": scriptMock,
             "pumlhorse-yamljs": yamlMock,
             "./filters": filterMock,
+            "./settings": settingsMock,
             "@noCallThru": true
         })
         //app.setLoggers(loggerMock)
@@ -552,6 +557,35 @@ describe("App", function () {
             })
                 .finally(assertPromiseResolved(promise, done))
         });
+        
+        it("adds any settings in the profile", function (done) {
+            //Arrange
+            addDirectory("some/dir1")
+            addFile("file3.js", "file3.puml")
+            setDirFiles(["file1.js", "file2.puml"])
+            setFileValue("file text")
+            spyOn(settingsMock, "addSetting")
+            var profileSettings = {
+                sample: "setting1",
+                another: {
+                    complex: "setting 2"
+                }
+            }
+            
+            //Act
+            var promise = runProfile({
+                include: ["file3.puml"],
+                settings: profileSettings
+            });
+
+            promise.then(function () {
+                //Assert
+                expect(settingsMock.addSetting).toHaveBeenCalledWith("sample", "setting1")
+                expect(settingsMock.addSetting).toHaveBeenCalledWith("another", profileSettings.another)
+            })
+                .finally(assertPromiseResolved(promise, done))
+        });
+        
         
         describe("with filters", function () {
         
