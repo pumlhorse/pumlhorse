@@ -39,7 +39,8 @@ describe("App", function () {
         mockScript = {
             run: jasmine.createSpy("run").and.returnValue(getMockPromise({})),
             addFunction: jasmine.createSpy("addFunction"),
-            id: "mockScriptId"
+            id: "mockScriptId",
+            listen: function () {}
         }
         scriptMock = jasmine.createSpy("script").and.returnValue(mockScript)
         
@@ -165,12 +166,14 @@ describe("App", function () {
                 name: "script1",
                 run: jasmine.createSpy("run").and.returnValue(getMockPromise({})),
                 addFunction: jasmine.createSpy("addFunction"),
+                listen: function () {}
             },
             {
                 id: "mockScriptId2",
                 name: "script2",
                 run: jasmine.createSpy("run").and.returnValue(getMockPromise({})),
                 addFunction: jasmine.createSpy("addFunction"),
+                listen: function () {}
             })
             
             //Act
@@ -445,7 +448,8 @@ describe("App", function () {
                         })
                     })
                  },
-                addFunction: function () {}
+                addFunction: function () {},
+                listen: function () {}
             }
             var script2Mock = {
                 run: function () {
@@ -455,7 +459,8 @@ describe("App", function () {
                         resolve()
                     })
                  },
-                addFunction: function () {}
+                addFunction: function () {},
+                listen: function () {}
             }
             scriptMock = jasmine.createSpy().and.returnValues(script1Mock, script2Mock)
             
@@ -491,7 +496,8 @@ describe("App", function () {
                         })
                     })
                  },
-                addFunction: function () {}
+                addFunction: function () {},
+                listen: function () {}
             }
             var script2Mock = {
                 run: function () {
@@ -501,7 +507,8 @@ describe("App", function () {
                         resolve()
                     })
                  },
-                addFunction: function () {}
+                addFunction: function () {},
+                listen: function () {}
             }
             scriptMock = jasmine.createSpy().and.returnValues(script1Mock, script2Mock)
             
@@ -537,7 +544,8 @@ describe("App", function () {
                         })
                     })
                  },
-                addFunction: function () {}
+                addFunction: function () {},
+                listen: function () {}
             }
             scriptMock = jasmine.createSpy().and.returnValue(mockScript)
             
@@ -659,7 +667,9 @@ describe("App", function () {
 
     function assertPromiseResolved(promise, doneFunc) {
         return function () {
-            if (promise.isRejected()) console.error(promise.reason())
+            if (promise.isRejected()) {
+                console.error(promise.reason())
+            }
             expect(promise.isFulfilled()).toBe(true);
             doneFunc();
         }

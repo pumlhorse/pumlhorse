@@ -1,0 +1,10 @@
+name: Use custom modules with namespaces 
+modules:
+- myNamespace = myCustomModule
+- another.namespace = myCustomModule2
+steps:
+  # Print You are successfully using a custom module!
+  - myNamespace.printCustomModuleMessage
+  # Print You are successfully using ANOTHER custom module!
+  - another.namespace.printCustomModule2Message
+  

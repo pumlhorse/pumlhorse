@@ -1,13 +1,13 @@
 name: printRevelioVersion
 description: retrieves the version from the Revelio demo site
 steps:
-- baseUrl = http://demo.getrevelio.com 
-- start = startTimer
-- version = http.get:
-    url: $baseUrl/api/version
-- http.isOk: $version
-- stopTimer: $start
-- log:
-  - Current Revelio version is %s. That took %s milliseconds
-  - $version.body
-  - $start.milliseconds
+  - baseUrl = http://demo.getrevelio.com 
+  - start = startTimer
+  - version = http.get:
+      url: $baseUrl/api/version
+  - http.isOk: $version
+  - stopTimer: $start
+  - log:
+    - Current Revelio version is %s. That took %s milliseconds
+    - $version.body
+    - $start.milliseconds

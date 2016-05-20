@@ -34,7 +34,7 @@
     "bluebird": "^3.3.0",
     "colors": "^1.1.2",
     "command-line-args": "^2.1.6",
-    "http-client-factory": "^0.3.0",
+    "http-client-factory": "^0.3.1",
     "node-uuid": "^1.4.7",
     "promise-queue": "^2.2.3",
     "pumlhorse-yamljs": "^0.2.9",

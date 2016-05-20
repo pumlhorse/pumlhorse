@@ -212,6 +212,51 @@ describe("Command line", function () {
                 .finally(assertPromiseResolved(promise, done))
         });
         
+        it("defaults to current directory if no files/dirs are specified", function (done) {
+            //Arrange
+            spyOn(fsMock, "stat").and.returnValue(getMockPromise(
+                {
+                    isFile: function () { return true },
+                    isDirectory: function () { return false }
+                }))
+            var profile = {}
+            spyOn(fsMock, "readAsYaml").and.returnValue(profile)
+            
+            //Act
+            var promise = runCli(["--profile", "profile.pumlprofile"])
+            
+            //Assert
+            promise.then(function () {
+                expect(appMock.runProfile).toHaveBeenCalledWith(jasmine.objectContaining({
+                    include: ["."]
+                }), jasmine.any(Object))
+            })
+                .finally(assertPromiseResolved(promise, done))            
+        });
+        
+        it("uses parameter if current directory is specified", function (done) {
+            //Arrange
+            spyOn(fsMock, "stat").and.returnValue(getMockPromise(
+                {
+                    isFile: function () { return true },
+                    isDirectory: function () { return false }
+                }))
+            var profile = {}
+            spyOn(fsMock, "readAsYaml").and.returnValue(profile)
+            
+            //Act
+            var promise = runCli([".", "--profile", "profile.pumlprofile"])
+            
+            //Assert
+            promise.then(function () {
+                expect(appMock.runProfile).toHaveBeenCalledWith(jasmine.objectContaining({
+                    include: ["."]
+                }), jasmine.any(Object))
+            })
+                .finally(assertPromiseResolved(promise, done))            
+        });
+        
+        
         it("supports additional parameters with profile", function (done) {
             //Arrange
             spyOn(fsMock, "stat").and.returnValue(getMockPromise(

@@ -309,6 +309,59 @@ describe("Run Script", function () {
             .finally(assertPromiseResolved(promise, done));
         });
         
+        it("passes simple arguments items for anonymous parameter", function (done) {
+            //Arrange
+			var calledVar1;
+			var func = function (val) {
+				calledVar1 = val;
+			}
+			func.__alias = ["@"]
+			addFunction("testWithAnonymousParameter", func);
+			var test = getScript([
+				{
+					"testWithAnonymousParameter": 456
+				}
+			]);
+
+			//Act
+			var promise = test.run();
+
+			//Assert
+			promise.then(function() {
+				expect(calledVar1).toBe(456);
+			})
+        		.finally(assertPromiseResolved(promise, done));
+        });
+        
+        it("passes complex arguments items for anonymous parameter", function (done) {
+            //Arrange
+			var calledVar1;
+			var func = function (val) {
+				calledVar1 = val;
+			}
+			func.__alias = ["@"]
+			func.__passAsObject = true;
+			addFunction("testWithAnonymousParameter", func);
+			var test = getScript([
+				{
+					"testWithAnonymousParameter": {
+						testVal: 456,
+						complex: { val: "here"}
+					}
+				}
+			]);
+
+			//Act
+			var promise = test.run();
+
+			//Assert
+			promise.then(function() {
+				expect(calledVar1.testVal).toBe(456);
+				expect(calledVar1.complex.val).toBe("here");
+			})
+        		.finally(assertPromiseResolved(promise, done));
+        });
+        
 	});
 
 	describe("Functions", function() {

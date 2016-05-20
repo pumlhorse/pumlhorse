@@ -64,6 +64,26 @@ describe("HTTP function", function () {
             }
         })
         
+        it("catches network error and returns a better message", (done) => {
+            //Arrange
+            httpClientMock[v] = jasmine.createSpy().and
+                .returnValue(Promise.reject({
+                    code: "ENOTFOUND",
+                    hostname: "invalid host name"
+                }))
+            
+            //Act
+            var promise = http[v].call(scopeMock, "http://www.baseurl/some/path")
+            
+            //Assert
+            promise.catch((err) => {
+                expect(err.message).toBe("Unable to resolve host 'invalid host name'")
+            })
+                .finally(assertPromiseRejected(promise, done))
+            
+        });
+        
+        
         it("handles input to " + v, function (done) {
             //Arrange
             var body = { some: "body", items: "here"}
