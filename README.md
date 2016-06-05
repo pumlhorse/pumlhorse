@@ -19,11 +19,6 @@ For a complete reference, visit [pumlhorse.com](http://www.pumlhorse.com)
   - [HTTP requests](#http)
   - [Timers](#timers)
   - [Helpers](#helpers)
-- [Command-line parameters](pumlhorse.com/v1/commandLine)
-- [Using filters](pumlhorse.com/v1/filters)
-- Modules
- - [Using custom modules](pumlhorse.com/v1/scripts/usingModules)
- - [Writing custom modules](pumlhorse.com/v1/modules/customModules)
 
 <a name="spec"></a>
 #Specification
