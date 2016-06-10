@@ -652,6 +652,29 @@ describe("Run Script", function () {
             })
             .finally(assertPromiseResolved(promise, done))
 		})
+		
+		it("provides the correct scope to namespaced modules with parameters", function (done) {
+			//Arrange
+            var passedScope
+            pumlhorse.module("goodModule")
+                .function("sayHello", function (param1, param2) {
+					passedScope = this;
+				})
+            var script = new Script({
+                modules: ["myModule = goodModule"],
+                steps: [{ "myModule.sayHello": { param1: 1, param2: 2 }}]
+            });
+            
+            //Act
+            var promise = script.run();
+            
+            //Assert
+            promise.then(function () {
+				expect(passedScope).toBeDefined();
+				expect(passedScope.$emit).toBeDefined();
+            })
+            .finally(assertPromiseResolved(promise, done))
+		})
         
         it("allows a module to access another module through $module", function (done) {
             //Arrange
@@ -794,6 +817,68 @@ describe("Run Script", function () {
             //Assert
             promise.then(function () {
                 expect(loggerMocks.log).toHaveBeenCalledWith("This is in cleanup")
+            })
+            .finally(assertPromiseResolved(promise, done))
+        });
+        
+        it("runs cleanup tasks in reverse order", function (done) {
+            //Arrange
+            var script = new Script({
+                steps: [
+                    "methodWithCleanup",
+                    "methodWithCleanup",
+                    "methodWithCleanup"					
+                ]
+            })
+			var arr = []
+			var i = 0;
+            script.addFunction("methodWithCleanup", function () {
+                var scope = this;
+				var num = i++
+                scope.$cleanup(function () {
+                    arr.push(num)
+                })
+            })
+            
+            //Act
+            var promise = script.run();
+            
+            //Assert
+            promise.then(function () {
+                expect(arr[0]).toBe(2)
+                expect(arr[1]).toBe(1)
+                expect(arr[2]).toBe(0)
+            })
+            .finally(assertPromiseResolved(promise, done))
+        });
+        
+        it("allows cleanup tasks to be prepended", function (done) {
+            //Arrange
+            var script = new Script({
+                steps: [
+                    "methodWithCleanup",
+                    "methodWithCleanup",
+                    "methodWithCleanup"					
+                ]
+            })
+			var arr = []
+			var i = 0;
+            script.addFunction("methodWithCleanup", function () {
+                var scope = this;
+				var num = i++
+                scope.$cleanup.push(function () {
+                    arr.push(num)
+                })
+            })
+            
+            //Act
+            var promise = script.run();
+            
+            //Assert
+            promise.then(function () {
+                expect(arr[0]).toBe(0)
+                expect(arr[1]).toBe(1)
+                expect(arr[2]).toBe(2)
             })
             .finally(assertPromiseResolved(promise, done))
         });
