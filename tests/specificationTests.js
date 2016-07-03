@@ -143,6 +143,70 @@ describe("Specification tests", function () {
             .finally(assertPromiseResolved(promise, done))
         });
         
+        it("allows multiple variables in a single line", function (done) {
+            //Arrange
+            var script = getScript(
+                "steps: ",
+                "  - myFavoriteNumber = 42",
+                "  - anotherNumber = 13",
+                "  - warn: Here are two numbers: $myFavoriteNumber and $anotherNumber"
+            )
+            
+            //Act
+            var promise = script.run()
+            
+            promise.then(function () {
+                //Assert
+                expect(loggerMocks.warn)
+                    .toHaveBeenCalledWith("Here are two numbers: 42 and 13")
+            })
+            .finally(assertPromiseResolved(promise, done))
+        });
+        
+        it("allows a function call on a variable", function (done) {
+            //Arrange
+            var script = getScript(
+                "functions:",
+                "  getDate:",
+                "    - return new Date('2000-01-01 12:00:00')",
+                "steps: ",
+                "  - myVal = getDate",
+                "  - warn: The world survived $myVal.toDateString() thanks to hard work and planning"
+            )
+            
+            //Act
+            var promise = script.run()
+            
+            promise.then(function () {
+                //Assert
+                expect(loggerMocks.warn)
+                    .toHaveBeenCalledWith("The world survived Sat Jan 01 2000 thanks to hard work and planning")
+            })
+            .finally(assertPromiseResolved(promise, done))
+        });
+        
+        it("allows a function call with variables", function (done) {
+            //Arrange
+            var script = getScript(
+                "functions:",
+                "  getDate:",
+                "    - return new Date('2000-01-01 12:00:00')",
+                "steps: ",
+                "  - myVal = getDate",
+                "  - $myVal.setDate('2')",
+                "  - warn: And $myVal.toDateString() was just another day"
+            )
+            
+            //Act
+            var promise = script.run()
+            
+            promise.then(function () {
+                //Assert
+                expect(loggerMocks.warn)
+                    .toHaveBeenCalledWith("And Sun Jan 02 2000 was just another day")
+            })
+            .finally(assertPromiseResolved(promise, done))
+        });
     })
     
     // describe("for timers", function () {

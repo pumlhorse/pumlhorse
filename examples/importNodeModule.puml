@@ -1,0 +1,12 @@
+name: Import Node module
+description: Import a plain Node module (not a Pumlhorse module)
+steps:
+  # Log OS information using the Node 'os' module
+  - osMod = import: os
+  - log: OPERATING SYSTEM: $osMod.type() $osMod.arch()
+  - log: CPU CORES: $osMod.cpus().length
+  - log: TOTAL MEMORY: ${ osMod.totalmem() / 1000000 } MB
+  # Import a custom Node module (examples/node_modules/plainNodeModule.js)
+  - custom = import: plainNodeModule
+  - currentDate = ${ Date() }
+  - log: $custom.getModuleInfo(currentDate)
