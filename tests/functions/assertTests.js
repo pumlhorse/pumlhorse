@@ -481,6 +481,22 @@ describe("With Assert Parameters", function () {
                 expect(err.message).toBe("No array passed to 'contains'");
             }
         });
+
+        it("throws an exception if array is empty", () => {
+            //Arrange
+            
+            
+            //Act
+            try {
+                assert.contains([], 3);
+                fail();
+            }
+            catch (err) {
+                //assert
+                expect(err.message).toBe("Array does not contain value '3'. The array is empty");
+            }
+        });
+        
         
         it("throws an exception if array is not an array", function () {
             //Arrange
