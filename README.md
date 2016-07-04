@@ -13,6 +13,7 @@ For a complete reference, visit [pumlhorse.com](http://www.pumlhorse.com)
    - [Passing parameters](#parameters)
    - [Variables](#variables)
    - [Inline JavaScript](#inline-javascript)
+   - [Conditionals](#conditionals)
    - [Loops](#loops)
    - [Logging](#logging)
   - [Assertions](#assertions)
@@ -116,6 +117,27 @@ steps:
       name: $myInfo.name
       age: $myInfo.age
   # logs "My name is John Smith and I am 25 years old"
+```
+<a name="conditionals"></a>
+##Conditionals
+```yaml
+name: Simple if/then example
+functions:
+  getTodaysDate:
+    - return new Date().getDay()
+steps:
+  - dayOfWeek = $getTodaysDate()
+  - if:
+      value: ${ dayOfWeek == 5 }
+      is true:
+        - log: Congratulations, today is Friday!
+      is false:
+        - if:
+            value: ${ dayOfWeek == 6 || dayOfWeek == 0}
+            is true:
+              - log: Congratulations, it's the weekend!
+            is false:
+              - log: Hang in there, you'll make it to the weekend!
 ```
 <a name="loops"></a>
 ##Loops
