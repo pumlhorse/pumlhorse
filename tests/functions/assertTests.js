@@ -326,7 +326,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("No parameter passed to 'isEmpty'");
+                expect(err.message).toBe("Parameter is required");
             }
         });
         
@@ -340,7 +340,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("No parameter passed to 'isEmpty'");
+                expect(err.message).toBe("Parameter cannot be null");
             }
         });
         
@@ -354,7 +354,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("Parameter passed to 'isEmpty' is not an array");
+                expect(err.message).toBe("Parameter must be an array");
             }
         });
         
@@ -396,7 +396,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("No parameter passed to 'isNotEmpty'");
+                expect(err.message).toBe("Parameter is required");
             }
         });
         
@@ -410,7 +410,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("No parameter passed to 'isNotEmpty'");
+                expect(err.message).toBe("Parameter cannot be null");
             }
         });
         
@@ -424,7 +424,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("Parameter passed to 'isNotEmpty' is not an array");
+                expect(err.message).toBe("Parameter must be an array");
             }
         });
         
@@ -464,7 +464,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("No array passed to 'contains'");
+                expect(err.message).toBe("Parameter 'array' is required");
             }
         });
         
@@ -478,7 +478,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("No array passed to 'contains'");
+                expect(err.message).toBe("Parameter 'array' cannot be null");
             }
         });
 
@@ -508,7 +508,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("Parameter passed to 'contains' is not an array");
+                expect(err.message).toBe("Parameter 'array' must be an array");
             }
         });
         
@@ -522,7 +522,7 @@ describe("With Assert Parameters", function () {
             }
             catch (err) {
                 //assert
-                expect(err.message).toBe("No value passed to 'contains'");
+                expect(err.message).toBe("Parameter 'value' is required");
             }
         });
         

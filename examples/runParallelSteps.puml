@@ -1,0 +1,15 @@
+name: Run parallel steps
+description: >
+  While most scripts rely on their steps being run sequentially,
+  some can run multiple steps at the same time.
+functions:
+  logMessageInRandomOrder:
+    - message
+    - var scope = this; return new scope.$Promise((resolve, reject) => { setTimeout(function() { scope.log(message); resolve(); }, Math.random() * 100) })
+steps:
+  - parallel:
+      - logMessageInRandomOrder: One
+      - logMessageInRandomOrder: Two
+      - logMessageInRandomOrder: Three
+      - logMessageInRandomOrder: Four
+  - log: All messages logged

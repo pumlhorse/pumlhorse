@@ -8,5 +8,5 @@ steps:
   - log: TOTAL MEMORY: ${ osMod.totalmem() / 1000000 } MB
   # Import a custom Node module (examples/node_modules/plainNodeModule.js)
   - custom = import: plainNodeModule
-  - currentDate = ${ Date() }
+  - currentDate = November 25th, 2016
   - log: $custom.getModuleInfo(currentDate)

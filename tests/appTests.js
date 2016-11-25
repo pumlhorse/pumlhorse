@@ -594,6 +594,40 @@ describe("App", function () {
                 .finally(assertPromiseResolved(promise, done))
         });
         
+        // it("adds any included modules", function (done) {
+        //     //Arrange
+        //     addFile("file1.puml", "file2.puml", "file3.puml", "file4.puml")
+        //     setFileValue("file text")
+        //     var mockScript = {
+        //         run: function () { return Promise.resolve({})},
+        //         addFunction: function () {},
+        //         addModule: jasmine.createSpy(),
+        //         listen: function () {}
+        //     }
+        //     scriptMock = jasmine.createSpy().and.returnValue(mockScript)
+            
+        //     //Act
+        //     var promise = runProfile({
+        //         include: ["file1.puml", "file2.puml"],
+        //         modules: [{
+        //                 name: "mod1",
+        //                 path: "../module1.js"
+        //             }, 
+        //             {
+        //                 name: "mod2",
+        //                 path: "../path2/module2.js"
+        //             },]
+        //     });
+
+        //     promise.then(function () {
+        //         //Assert
+        //         expect(mockScript.addModule).toHaveBeenCalledTimes(4)
+        //         expect(mockScript.addModule).toHaveBeenCalledWith("mod1")
+        //         expect(mockScript.addModule).toHaveBeenCalledWith("mod2")
+        //     })
+        //         .finally(assertPromiseResolved(promise, done))
+        // });
+        
         
         describe("with filters", function () {
         
@@ -661,9 +695,9 @@ describe("App", function () {
                     .finally(assertPromiseRejected(promise, done))
                 
             });
-        })
+        });
         
-    })
+    });
 
     function assertPromiseResolved(promise, doneFunc) {
         return function () {
@@ -691,4 +725,4 @@ describe("App", function () {
     function getMockPromise(result, err) {
         return result ? Promise.resolve(result) : Promise.reject(err);
     }
-})
+});

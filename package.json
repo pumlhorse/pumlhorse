@@ -1,6 +1,6 @@
 {
   "name": "pumlhorse",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Utility for creating readable and reusable scripts",
   "main": "./lib/app.js",
   "bin": "bin/cli.js",
@@ -12,7 +12,6 @@
     "url": "git+https://github.com/pumlhorse/pumlhorse.git"
   },
   "keywords": [
-    "javascript",
     "utility",
     "test",
     "yaml",

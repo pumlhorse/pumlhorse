@@ -29,5 +29,5 @@ steps:
       - game: horseshoe
         another: handgrenades
     value:
-    game: horseshoe 
+      game: horseshoe 
     partial: true

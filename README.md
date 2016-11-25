@@ -19,6 +19,7 @@ For a complete reference, visit [pumlhorse.com](http://www.pumlhorse.com)
   - [Assertions](#assertions)
   - [HTTP requests](#http)
   - [Timers](#timers)
+  - [Parallel tasks](#parallel)
   - [Helpers](#helpers)
 
 <a name="spec"></a>
@@ -212,6 +213,8 @@ steps:
   # all of these assertions succeed
   - isTrue: ${5 == 7 - 2}
   - isFalse: ${Math.PI == 3}
+  - isNull: $fhqwhgads # Variable doesn't exist
+  - isNotNull: 42
   - areEqual: 
       expected: men 
       actual: ${"women".substr(2)}
@@ -293,6 +296,18 @@ steps:
       - that took %s seconds
       - $timer1.seconds
 ```
+
+<a name="parallel"></a>
+## Parallel tasks
+```yaml
+name: Run multiple steps in parallel
+steps:
+  - parallel:
+      - postUpdateToFacebook: This is my new status!
+      - postUpdateToTwitter: This is my new tweet!
+      - postUpdateToInstagram: This is a picture of my cat!
+```
+
 
 <a name="helpers"></a>
 ## Helpers

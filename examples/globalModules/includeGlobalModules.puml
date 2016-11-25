@@ -1,0 +1,7 @@
+name: Include global modules
+description: >
+             This script should be run with the globalModules profile.
+             The profile will automatically load a custom module, which we call below
+steps:
+  - printCustomModule2Message
+ 
