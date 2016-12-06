@@ -13,11 +13,9 @@ var loggerMocks = {
 
 describe("Run Script", function () {
 		
-    var promiseResult;
 	beforeEach(function() {
         functions = {};
 		addFunction("noop", function() {});
-        promiseResult = jasmine.createSpy("result");
         loggers.setLoggers(loggerMocks)
 	});
 

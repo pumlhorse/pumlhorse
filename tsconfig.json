@@ -1,0 +1,10 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "allowJs": true,
+        "target": "es5",
+        "removeComments": true,
+        "moduleResolution": "node",
+        "sourceMap": true
+    }
+}

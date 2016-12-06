@@ -1,11 +1,7 @@
 var app = require("../lib/app.js")
 var loggers = require("../lib/loggers.js")
 
-var loggerMocks = {
-    log: function () {},
-    warn: function () {},
-    error: function () {}
-}
+var loggerMocks = jasmine.createSpyObj("loggers", ["log", "warn", "error"]);
         
 describe("Specification tests", function () {
 	
@@ -35,7 +31,6 @@ describe("Specification tests", function () {
         
         it("allows declared javascript functions", function (done) {
             //Arrange
-		    spyOn(loggerMocks, "log");
             var script = getScript(
                 "functions:",
                 "  getMyInfo: return { name: 'John Smith', age: 25 }",
@@ -65,9 +60,9 @@ describe("Specification tests", function () {
     describe("for logging", function () {
         
         beforeEach(function () {
-		    spyOn(loggerMocks, "log");
-		    spyOn(loggerMocks, "warn");
-		    spyOn(loggerMocks, "error");
+		    // spyOn(loggerMocks, "log");
+		    // spyOn(loggerMocks, "warn");
+		    // spyOn(loggerMocks, "error");
         })
         
         it("allows basic logging", function (done) {
@@ -162,52 +157,103 @@ describe("Specification tests", function () {
             })
             .finally(assertPromiseResolved(promise, done))
         });
+    });
         
-        it("allows a function call on a variable", function (done) {
-            //Arrange
-            var script = getScript(
-                "functions:",
-                "  getDate:",
-                "    - return new Date('2000-01-01 12:00:00')",
-                "steps: ",
-                "  - myVal = getDate",
-                "  - warn: The world survived $myVal.toDateString() thanks to hard work and planning"
-            )
-            
-            //Act
-            var promise = script.run()
-            
-            promise.then(function () {
-                //Assert
-                expect(loggerMocks.warn)
-                    .toHaveBeenCalledWith("The world survived Sat Jan 01 2000 thanks to hard work and planning")
-            })
-            .finally(assertPromiseResolved(promise, done))
-        });
+    it("allows a function call on a variable", function (done) {
+        //Arrange
+        var script = getScript(
+            "functions:",
+            "  getDate:",
+            "    - return new Date('2000-01-01 12:00:00')",
+            "steps: ",
+            "  - myVal = getDate",
+            "  - warn: The world survived $myVal.toDateString() thanks to hard work and planning"
+        )
         
-        it("allows a function call with variables", function (done) {
-            //Arrange
-            var script = getScript(
-                "functions:",
-                "  getDate:",
-                "    - return new Date('2000-01-01 12:00:00')",
-                "steps: ",
-                "  - myVal = getDate",
-                "  - $myVal.setDate('2')",
-                "  - warn: And $myVal.toDateString() was just another day"
-            )
-            
-            //Act
-            var promise = script.run()
-            
-            promise.then(function () {
-                //Assert
-                expect(loggerMocks.warn)
-                    .toHaveBeenCalledWith("And Sun Jan 02 2000 was just another day")
-            })
-            .finally(assertPromiseResolved(promise, done))
-        });
-    })
+        //Act
+        var promise = script.run()
+        
+        promise.then(function () {
+            //Assert
+            expect(loggerMocks.warn)
+                .toHaveBeenCalledWith("The world survived Sat Jan 01 2000 thanks to hard work and planning")
+        })
+        .finally(assertPromiseResolved(promise, done))
+    });
+    
+    it("allows a variable function to be used as a step", function (done) {
+        //Arrange
+        var script = getScript(
+            "steps: ",
+            "  - myObj = getObject",
+            "  - favoriteThings = myObj.printItems:",
+            "      number: 42",
+            "      color: red",
+            "  - warn: $favoriteThings"
+        );
+        var obj = {
+            printItems: (color, number) => 'My favorite color is ' + color + ' and my favorite number is ' + number
+        }
+        script.addFunction("getObject", () => obj);
+        
+        //Act
+        var promise = script.run()
+        
+        promise.then(function () {
+            //Assert
+            expect(loggerMocks.warn)
+                .toHaveBeenCalledWith("My favorite color is red and my favorite number is 42")
+        })
+        .finally(assertPromiseResolved(promise, done))
+    });
+    
+    it("allows a function call with variables", function (done) {
+        //Arrange
+        var script = getScript(
+            "functions:",
+            "  getDate:",
+            "    - return new Date('2000-01-01 12:00:00')",
+            "steps: ",
+            "  - myVal = getDate",
+            "  - $myVal.setDate('2')",
+            "  - warn: And $myVal.toDateString() was just another day"
+        )
+        
+        //Act
+        var promise = script.run()
+        
+        promise.then(function () {
+            //Assert
+            expect(loggerMocks.warn)
+                .toHaveBeenCalledWith("And Sun Jan 02 2000 was just another day")
+        })
+        .finally(assertPromiseResolved(promise, done))
+    });
+
+    it("allows a script to be interrupted without an error", (done) => {
+        //Arrange
+        var script = getScript(
+            "steps: ",
+            "  - log: step 1",
+            "  - $end",
+            "  - log: step 2"
+        );
+        
+        //Act
+        var promise = script.run()
+        
+        promise.then(function () {
+            //Assert
+            expect(loggerMocks.log).toHaveBeenCalledWith("step 1");
+            expect(loggerMocks.log).not.toHaveBeenCalledWith("step 2");
+        })
+        .finally(assertPromiseResolved(promise, done))
+    });
+
+    //TODO: cleanup tasks
+
+    //TODO: modules
+    
     
     // describe("for timers", function () {
     //     it("starts and stops a timer", function (done) {
