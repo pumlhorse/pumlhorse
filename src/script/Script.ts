@@ -1,19 +1,17 @@
-
 import { ModuleLoader, ModuleLocator } from './ModuleLoader';
 import { ScriptInterrupt } from './ScriptInterrupt';
 import * as _ from 'underscore';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { IScriptDefinition } from './IScriptDefinition';
-import { IPromise } from './IPromise';
 import { IScriptInternal } from './IScriptInternal';
-import { Guid } from './Guid';
+import { Guid } from '../util/Guid';
 import { IScript } from './IScript';
 import { IScope } from './IScope';
 import { Scope } from './Scope';
 import { ModuleRepository } from './Modules';
 import validateScriptDefinition from './scriptDefinitionValidator';
 import * as loggers from './loggers';
-import * as helpers from './helpers';
+import * as helpers from '../util/helpers';
 import * as stringParser from './StringParser';
 import * as Expression from 'angular-expressions';
 
@@ -23,13 +21,18 @@ export var pumlhorse = {
     //filter: filters.getFilterBuilder
 };
 
-global['pumlhorse'] = pumlhorse; 
+global['pumlhorse'] = pumlhorse;
+
+/* Load default modules */
+pumlhorse.module('log')
+    .function('log', loggers.log)
+    .function('warn', loggers.warn)
+    .function('error', loggers.error);
 
 export class Script implements IScript {
     id: string;
     
     private internalScript: IScriptInternal;
-    private functions: Function[];
 
     constructor(private scriptDefinition: IScriptDefinition) {
 
@@ -40,26 +43,24 @@ export class Script implements IScript {
 
         this.loadModules();
         this.loadFunctions();
+        this.loadCleanupSteps();
     }
 
-    run(context?: any): IPromise<any> {
-        let isSuccess = false;
+    async run(context?: any): Promise<any> {
         const scope = new Scope(this.internalScript, context);
-        let mainException;
-        return this.internalScript.runSteps(this.scriptDefinition.steps, scope)
-            .catch(e => {
-                if (e instanceof ScriptInterrupt) {
-                    return Promise.resolve({});
-                }
-
-                mainException = e;
-            })
-            .finally(() => {
-                return this.runCleanupTasks(scope)
-                    .finally(() => {
-                        if (mainException != null) throw mainException;
-                    })
-            });
+        
+        try {
+            return await this.internalScript.runSteps(this.scriptDefinition.steps, scope);
+        }
+        catch (e) {
+            if (e instanceof ScriptInterrupt) {
+                return Promise.resolve({});
+            }
+            throw e;
+        }
+        finally {
+            await this.runCleanupTasks(scope);
+        }
     }
 
     addFunction(name: string, func: Function): void {
@@ -73,19 +74,20 @@ export class Script implements IScript {
         if (mod == null) throw new Error(`Module "${moduleLocator.name}" does not exist`);
 
         if (moduleLocator.hasNamespace) {
-            helpers.assignObjectByString(this.internalScript.functions, moduleLocator.namespace, mod);
+            helpers.assignObjectByString(this.internalScript.modules, moduleLocator.namespace, mod);
         }
         else {
-            _.extend(this.internalScript.functions, mod);
+            _.extend(this.internalScript.modules, mod);
         }
     }
 
+    private static readonly DefaultModules = ['log'];
     private loadModules() {
-        if (this.scriptDefinition.modules == null) {
-            return;
-        }
-
-        this.scriptDefinition.modules.forEach(def => this.addModule(def));
+        let modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
+            ? []
+            : this.scriptDefinition.modules)
+        
+        modules.forEach(def => this.addModule(def));
     }
 
     private loadFunctions() {
@@ -95,14 +97,26 @@ export class Script implements IScript {
         _.mapObject(this.scriptDefinition.functions, (name, def) => this.addFunction(name, new Function(def)));
     }
 
-    private runCleanupTasks(scope: Scope): IPromise<any> {
+    private loadCleanupSteps() {
+        if (this.scriptDefinition.cleanup == null) {
+            return;
+        }
+        this.scriptDefinition.cleanup.map((step) => this.internalScript.cleanup.push(step));
+    }
+
+    private async runCleanupTasks(scope: Scope): Promise<any> {
         if (this.internalScript.cleanup == null) {
-            return Promise.resolve({});
+            return;
         }
 
-        return Promise.all(this.internalScript.cleanup.map(task => {
-            return this.internalScript.runSteps([task], scope)
-                .catch(e => loggers.error(`Error in cleanup task: ${e.message}`));
+        return await Promise.all(this.internalScript.cleanup.map(task => {
+            try {
+                return this.internalScript.runSteps([task], scope);
+            }
+            catch (e) {
+                loggers.error(`Error in cleanup task: ${e.message}`);
+                return Promise.resolve({});
+            }
         }));
     }
 }
@@ -120,6 +134,7 @@ class InternalScript implements IScriptInternal {
         this.functions = [];
         this.steps = [];
         this.cleanup = [];
+
     }
 
     emit(eventName: string, eventInfo: any): void {
@@ -135,21 +150,22 @@ class InternalScript implements IScriptInternal {
         return this.modules[moduleName];
     }
 
-    runSteps(steps: any[], scope: IScope): IPromise<any> {
+    async runSteps(steps: any[], scope: IScope): Promise<any> {
         if (steps == null || steps.length == 0) {
             loggers.warn('Script does not contain any steps');
         }
 
-        _.extend(scope, this.functions);
+        _.extend(scope, this.modules, this.functions);
 
-        return Promise.mapSeries(steps, step => this.runStep(step, scope));
+        return await Bluebird.mapSeries(steps, step => this.runStep(step, scope));
     }
 
-    private runStep(stepDefinition: any, scope: IScope) {
+    private async runStep(stepDefinition: any, scope: IScope) {
 
         if (_.isFunction(stepDefinition)) {
             // If we programatically added a function as a step, just shortcut and run it
-            return new Promise((resolve) => resolve(stepDefinition.call(scope)));
+            stepDefinition.call(scope);
+            return;
         }
 
         let step: Step;
@@ -161,7 +177,7 @@ class InternalScript implements IScriptInternal {
             step = new Step(functionName, stepDefinition[functionName], scope);
         }
 
-        return step.run();
+        return await step.run();
     }
 
 }
@@ -192,7 +208,7 @@ class Step {
         return this.assignment != null;
     }
 
-    run() {
+    async run() {
         if (this.isAssignment() && this.assignment.length == 0) {
             throw new Error('Assignment statement must have a variable name');
         }
@@ -201,23 +217,23 @@ class Step {
 
         if (this.runFunc == null) {
             if (this.parameters == null) {
-                return Promise.resolve(this.doAssignment(this.runSimpleStep()));
+                this.doAssignment(await this.runSimpleStep());
+                return;
             }
 
-            return Promise.reject(`Function "${this.functionName}" does not exist`);
+            throw new Error(`Function "${this.functionName}" does not exist`);
         }
 
-        return this.runComplexStep();
+        return await this.runComplexStep();
     }
 
     // Run a step that does not contain any parameters
-    private runSimpleStep(): IPromise<any> {
-        return doEval(this.functionName, true, this.scope);
+    private async runSimpleStep() {
+        return await doEval(this.functionName, true, this.scope);
     }
 
-    private runComplexStep(): IPromise<any> {
+    private async runComplexStep() {
         var evalParameters = null;
-        var $this = this;
         if (this.parameters != null) {
             if (_.isArray(this.parameters)) evalParameters = this.parameters.map(p => this.compileParameter(p))
             else if (_.isString(this.parameters)) evalParameters = this.compileParameter(this.parameters)
@@ -227,27 +243,26 @@ class Step {
 
         var functionParameterNames = helpers.getParameters(this.runFunc);
 
-        return Promise.mapSeries(functionParameterNames, 
-                (name) => this.getParameter(evalParameters, name, StepFunction.getAliases(this.runFunc)))
-            .then((params) => {
-                var passedParams;
-                                    
-                if (evalParameters === null) passedParams = null;
-                else if (StepFunction.passAsObject($this.runFunc)) passedParams = [evalParameters];
-                else if (helpers.isValueType(evalParameters)) passedParams = [evalParameters];
-                else if (_.isString(evalParameters)) passedParams = [evalParameters];
-                else if (_.isArray(evalParameters) && _.isArray($this.parameters)) passedParams = evalParameters;
-                else if (_.isString($this.parameters) && _.isObject(evalParameters)) passedParams = [evalParameters];
-                else passedParams = params.length > 0 ? params : [evalParameters];
+        var params = await Bluebird.mapSeries(functionParameterNames, 
+                (name) => this.getParameter(evalParameters, name, StepFunction.getAliases(this.runFunc)));
+        
+        var passedParams;
+                            
+        if (evalParameters === null) passedParams = null;
+        else if (StepFunction.passAsObject(this.runFunc)) passedParams = [evalParameters];
+        else if (helpers.isValueType(evalParameters)) passedParams = [evalParameters];
+        else if (_.isString(evalParameters)) passedParams = [evalParameters];
+        else if (_.isArray(evalParameters) && _.isArray(this.parameters)) passedParams = evalParameters;
+        else if (_.isString(this.parameters) && _.isObject(evalParameters)) passedParams = [evalParameters];
+        else passedParams = params.length > 0 ? params : [evalParameters];
                 
-                var result = $this.runFunc.apply($this.scope, passedParams);
-                
-                if (result && result.then && typeof result.then === "function") {
-                    return result.then(r => $this.doAssignment(r));
-                }
-                
-                return $this.doAssignment(result);
-            });
+        var result = await this.runFunc.apply(this.scope, passedParams);
+        
+        // if (result && result.then && typeof result.then === "function") {
+        //     return result.then(r => this.doAssignment(r));
+        // }
+        this.doAssignment(result);
+        return;
     }
 
     private compileParameter(value, key?) {

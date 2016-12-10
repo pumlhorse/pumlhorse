@@ -41,3 +41,5 @@ jsconfig.json
 # TypeScript transpiling
 src/*.js
 src/*.map
+newTests/*.js
+newTests/*.map

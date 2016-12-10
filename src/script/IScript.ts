@@ -1,7 +1,5 @@
-import { IPromise } from './IPromise';
-
 export interface IScript {
-    run(context: any): IPromise<any>;
+    run(context: any): Promise<any>;
 
     addFunction(name: string, func: Function): void;
 

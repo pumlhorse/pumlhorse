@@ -1,4 +1,3 @@
-import { IPromise } from './IPromise';
 export interface IScope {
 
     $_: Object;
@@ -17,7 +16,7 @@ export interface IScope {
 
     $new(scope?: IScope): IScope;
 
-    $runSteps(steps: any[], scope: IScope): IPromise<any>;
+    $runSteps(steps: any[], scope: IScope): Promise<any>;
 
     $scriptId(): string;
 

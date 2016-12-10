@@ -6,5 +6,8 @@
         "removeComments": true,
         "moduleResolution": "node",
         "sourceMap": true
-    }
+    },
+    "include": [
+        "./node_modules/es6-promise/lib/es6-promise.js"
+    ]
 }

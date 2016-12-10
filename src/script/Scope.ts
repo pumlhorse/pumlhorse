@@ -1,11 +1,11 @@
 import { ScriptInterrupt } from './ScriptInterrupt';
 import * as _ from 'underscore';
-import * as Promise from 'bluebird';
-import enforce from './enforce';
-import { Guid } from './Guid';
-import { IPromise } from './IPromise';
+import * as Bluebird from 'bluebird';
+import enforce from '../util/enforce';
+import { Guid } from '../util/Guid';
 import { IScope } from './IScope';
 import { IScriptInternal } from './IScriptInternal';
+import { ModuleRepository } from './Modules';
 
 export class Scope implements IScope {
 
@@ -16,7 +16,7 @@ export class Scope implements IScope {
     constructor(private script: IScriptInternal,
         scope?: IScope) {
         this.$_ = _;
-        this.$Promise = Promise;
+        this.$Promise = Bluebird;
 
         _.extend(this, scope);
     }
@@ -38,12 +38,12 @@ export class Scope implements IScope {
     }
 
     $module(moduleName: string): any {
-        enforce(name).isNotNull();
+        enforce(moduleName).isNotNull();
 
-        const mod = this.script.getModule(name);
+        const mod = ModuleRepository.lookup[moduleName];
 
         if (mod == null) {
-            throw new Error(`Module '${moduleName} has not been registered`);
+            throw new Error(`Module '${moduleName}' has not been registered`);
         }
 
         return mod;
@@ -53,8 +53,8 @@ export class Scope implements IScope {
         return new Scope(this.script, _.extend({}, this, scope));
     }
 
-    $runSteps(steps: any[], scope: IScope): IPromise<any> {
-        return this.script.runSteps(steps, scope);
+    async $runSteps(steps: any[], scope: IScope) {
+        return await this.script.runSteps(steps, scope);
     }
 
     $scriptId(): string {

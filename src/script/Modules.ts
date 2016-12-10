@@ -1,5 +1,5 @@
-import enforce from './enforce';
-import * as helpers from './helpers';
+import enforce from '../util/enforce';
+import * as helpers from '../util/helpers';
 import * as _ from 'underscore';
 
 export class ModuleRepository {
@@ -14,7 +14,6 @@ export class ModuleRepository {
 }
 
 class ModuleBuilder {
-
     constructor(private module: any) {
     }
 
@@ -50,7 +49,7 @@ class ModuleFunction {
         else if (_.isArray(declaration)) {
             //Function declaration is ['parameter1', 'parameter2', ..., Function]
             enforce(declaration).isNotEmptyArray();
-            funcArray = declaration;
+            funcArray = <any[]>declaration;
             declaration = funcArray.pop();
             enforce(declaration).isFunction('Final parameter in array must be a function');
 

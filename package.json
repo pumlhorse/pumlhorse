@@ -27,7 +27,8 @@
   "devDependencies": {
     "@types/uuid": "^2.0.29",
     "jasmine": "^2.5.2",
-    "proxyquire": "^1.7.4"
+    "proxyquire": "^1.7.4",
+    "typescript": "^2.1.4"
   },
   "dependencies": {
     "angular-expressions": "^0.3.0",

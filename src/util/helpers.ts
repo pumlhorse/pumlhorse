@@ -12,8 +12,7 @@ function getParameters(func): string[] {
 function isValueType(s) {
     var t = typeof(s)
     
-    return t === "boolean" ||
-        t === "number"
+    return t === "boolean" || t === "number";
 }
 
 function objectByString<T>(o: Object, s: string): T {
@@ -25,7 +24,7 @@ function objectByString<T>(o: Object, s: string): T {
         if (k in o) {
             o = o[k];
         } else {
-            return;
+            return null;
         }
     }
     return <T>o;

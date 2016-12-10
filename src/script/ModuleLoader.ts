@@ -1,9 +1,9 @@
 import { IScriptDefinition } from './IScriptDefinition';
 import * as path from 'path';
 import * as _ from 'underscore';
-import enforce from './enforce';
+import enforce from '../util/enforce';
 
-const requireFromPath = require('./requireFromPath');
+const requireFromPath = require('../util/./requireFromPath');
 
 export class ModuleLoader {
 
