@@ -1,8 +1,8 @@
 "use strict";
 var path = require("path");
 var _ = require("underscore");
-var enforce_1 = require("./enforce");
-var requireFromPath = require('./requireFromPath');
+var enforce_1 = require("../util/enforce");
+var requireFromPath = require('../util/./requireFromPath');
 var ModuleLoader = (function () {
     function ModuleLoader() {
     }

@@ -37,8 +37,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var ScriptInterrupt_1 = require("./ScriptInterrupt");
 var _ = require("underscore");
 var Bluebird = require("bluebird");
-var enforce_1 = require("./enforce");
-var Guid_1 = require("./Guid");
+var enforce_1 = require("../util/enforce");
+var Guid_1 = require("../util/Guid");
 var Modules_1 = require("./Modules");
 var Scope = (function () {
     function Scope(script, scope) {

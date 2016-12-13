@@ -39,7 +39,7 @@ jsconfig.json
 !examples/modules/node_modules
 
 # TypeScript transpiling
-src/*.js
-src/*.map
-newTests/*.js
-newTests/*.map
+src/**/*.js
+src/**/*.js.map
+newTests/**/*.js
+newTests/**/*.js.map

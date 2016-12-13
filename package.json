@@ -26,6 +26,7 @@
   "homepage": "https://github.com/pumlhorse/pumlhorse#readme",
   "devDependencies": {
     "@types/uuid": "^2.0.29",
+    "es6-promise": "^4.0.5",
     "jasmine": "^2.5.2",
     "proxyquire": "^1.7.4",
     "typescript": "^2.1.4"

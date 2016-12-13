@@ -1,5 +1,7 @@
-import { pumlhorse, Script } from '../src/Script';
-import { setLoggers } from '../src/loggers';
+/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+
+import { pumlhorse, Script } from '../../src/script/Script';
+import { setLoggers } from '../../src/script/loggers';
 
 describe('Script', () => {
     var loggerMocks;

@@ -1,13 +1,21 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
+        "lib": [ "es2015"],
         "allowJs": true,
         "target": "es5",
         "removeComments": true,
         "moduleResolution": "node",
         "sourceMap": true
     },
+    "typeAcquisition": {
+        "enable": true
+    },
     "include": [
-        "./node_modules/es6-promise/lib/es6-promise.js"
+        "./src/**/*",
+        "./newTests/**/*"
+    ],
+    "exclude": [
+        "./src/util/requireFromPath.js"
     ]
 }

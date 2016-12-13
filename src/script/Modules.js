@@ -1,6 +1,6 @@
 "use strict";
-var enforce_1 = require("./enforce");
-var helpers = require("./helpers");
+var enforce_1 = require("../util/enforce");
+var helpers = require("../util/helpers");
 var _ = require("underscore");
 var ModuleRepository = (function () {
     function ModuleRepository() {

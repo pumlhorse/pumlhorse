@@ -17,7 +17,7 @@ class ModuleBuilder {
     constructor(private module: any) {
     }
 
-    function(name: string, func: Function, options?: IFunctionOptions): ModuleBuilder {
+    function(name: string, func: Function | any[], options?: IFunctionOptions): ModuleBuilder {
         var f = new ModuleFunction(name, func, options == null ? {} : options);
         this.module[name] = f.declaration;
 
