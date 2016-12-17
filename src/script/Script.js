@@ -34,6 +34,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var PumlhorseGlobal_1 = require("./PumlhorseGlobal");
 var ModuleLoader_1 = require("./ModuleLoader");
 var ScriptInterrupt_1 = require("./ScriptInterrupt");
 var _ = require("underscore");
@@ -46,11 +47,11 @@ var loggers = require("./loggers");
 var helpers = require("../util/helpers");
 var stringParser = require("./StringParser");
 var Expression = require("angular-expressions");
-exports.pumlhorse = {
-    module: Modules_1.ModuleRepository.addModule,
-};
-global['pumlhorse'] = exports.pumlhorse;
-exports.pumlhorse.module('log')
+require("./modules/assert");
+require("./modules/async");
+require("./modules/conditional");
+require("./modules/http");
+PumlhorseGlobal_1.pumlhorse.module('log')
     .function('log', loggers.log)
     .function('warn', loggers.warn)
     .function('error', loggers.error);
@@ -152,7 +153,7 @@ var Script = (function () {
     };
     return Script;
 }());
-Script.DefaultModules = ['log'];
+Script.DefaultModules = ['log', 'assert', 'async', 'conditional'];
 exports.Script = Script;
 var InternalScript = (function () {
     function InternalScript(id) {
@@ -271,7 +272,7 @@ var Step = (function () {
     Step.prototype.runComplexStep = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var evalParameters, functionParameterNames, params, passedParams, result;
+            var evalParameters, functionParameterNames, aliases, params, passedParams, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -287,13 +288,12 @@ var Step = (function () {
                                 evalParameters = this.compileParameter(this.parameters);
                         }
                         functionParameterNames = helpers.getParameters(this.runFunc);
-                        return [4 /*yield*/, Bluebird.mapSeries(functionParameterNames, function (name) { return _this.getParameter(evalParameters, name, StepFunction.getAliases(_this.runFunc)); })];
+                        aliases = StepFunction.getAliases(this.runFunc);
+                        return [4 /*yield*/, Bluebird.mapSeries(functionParameterNames, function (name) { return _this.getParameter(evalParameters, name, aliases); })];
                     case 1:
                         params = _a.sent();
                         if (evalParameters === null)
                             passedParams = null;
-                        else if (StepFunction.passAsObject(this.runFunc))
-                            passedParams = [evalParameters];
                         else if (helpers.isValueType(evalParameters))
                             passedParams = [evalParameters];
                         else if (_.isString(evalParameters))
@@ -319,6 +319,10 @@ var Step = (function () {
         return doEval(value, true, this.scope);
     };
     Step.prototype.getParameter = function (parameters, name, aliases) {
+        if (this.isParameterName('$scope', name, aliases))
+            return this.scope;
+        if (this.isParameterName('$all', name, aliases))
+            return parameters;
         var parameterValue = undefined;
         if (parameters != null) {
             parameterValue = parameters[name];
@@ -327,6 +331,9 @@ var Step = (function () {
             }
         }
         return parameterValue;
+    };
+    Step.prototype.isParameterName = function (expectedName, actualName, aliases) {
+        return actualName == expectedName || (aliases != null && aliases[actualName] == expectedName);
     };
     Step.prototype.doAssignment = function (result) {
         if (this.isAssignment()) {
@@ -344,9 +351,6 @@ var StepFunction = (function () {
         if (this['__deferEval'] == null)
             return false;
         return this['__deferEval'].indexOf(parameterName) > -1;
-    };
-    StepFunction.passAsObject = function (func) {
-        return func['__passAsObject'];
     };
     StepFunction.getAliases = function (func) {
         return func['__alias'];

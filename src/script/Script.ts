@@ -1,3 +1,4 @@
+import { pumlhorse } from './PumlhorseGlobal';
 import { ModuleLoader, ModuleLocator } from './ModuleLoader';
 import { ScriptInterrupt } from './ScriptInterrupt';
 import * as _ from 'underscore';
@@ -14,14 +15,10 @@ import * as loggers from './loggers';
 import * as helpers from '../util/helpers';
 import * as stringParser from './StringParser';
 import * as Expression from 'angular-expressions';
-
-
-export var pumlhorse = {
-    module: ModuleRepository.addModule,
-    //filter: filters.getFilterBuilder
-};
-
-global['pumlhorse'] = pumlhorse;
+import './modules/assert';
+import './modules/async';
+import './modules/conditional';
+import './modules/http';
 
 /* Load default modules */
 pumlhorse.module('log')
@@ -81,7 +78,7 @@ export class Script implements IScript {
         }
     }
 
-    private static readonly DefaultModules = ['log'];
+    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional'];
     private loadModules() {
         let modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
             ? []
@@ -243,13 +240,13 @@ class Step {
 
         var functionParameterNames = helpers.getParameters(this.runFunc);
 
+        const aliases = StepFunction.getAliases(this.runFunc);
         var params = await Bluebird.mapSeries(functionParameterNames, 
-                (name) => this.getParameter(evalParameters, name, StepFunction.getAliases(this.runFunc)));
+                (name) => this.getParameter(evalParameters, name, aliases));
         
-        var passedParams;
+        let passedParams;
                             
         if (evalParameters === null) passedParams = null;
-        else if (StepFunction.passAsObject(this.runFunc)) passedParams = [evalParameters];
         else if (helpers.isValueType(evalParameters)) passedParams = [evalParameters];
         else if (_.isString(evalParameters)) passedParams = [evalParameters];
         else if (_.isArray(evalParameters) && _.isArray(this.parameters)) passedParams = evalParameters;
@@ -258,9 +255,6 @@ class Step {
                 
         var result = await this.runFunc.apply(this.scope, passedParams);
         
-        // if (result && result.then && typeof result.then === "function") {
-        //     return result.then(r => this.doAssignment(r));
-        // }
         this.doAssignment(result);
         return;
     }
@@ -272,6 +266,10 @@ class Step {
     }
 
     private getParameter(parameters: any, name: string, aliases: string[]): any {
+        
+        if (this.isParameterName('$scope', name, aliases)) return this.scope;        
+        if (this.isParameterName('$all', name, aliases)) return parameters;
+
         let parameterValue = undefined;
         if (parameters != null) {
             parameterValue = parameters[name];
@@ -281,6 +279,10 @@ class Step {
         }
 
         return parameterValue;
+    }
+
+    private isParameterName(expectedName: string, actualName: string, aliases: string[]): boolean {
+        return actualName == expectedName || (aliases != null && aliases[actualName] == expectedName)
     }
 
     private doAssignment(result: any) {
@@ -296,10 +298,6 @@ class StepFunction {
     static hasDeferredParameter(func: Function, parameterName: string) : boolean {
         if (this['__deferEval'] == null) return false;
         return this['__deferEval'].indexOf(parameterName) > -1;
-    }
-
-    static passAsObject(func: Function): boolean {
-        return func['__passAsObject'];
     }
 
     static getAliases(func: Function): string[] {

@@ -41,7 +41,7 @@ var ModuleFunction = (function () {
             funcArray = funcParams;
         }
         else if (_.isArray(declaration)) {
-            enforce_1.default(declaration).isNotEmptyArray();
+            enforce_1.default(declaration).isNotEmpty();
             funcArray = declaration;
             declaration = funcArray.pop();
             enforce_1.default(declaration).isFunction('Final parameter in array must be a function');
@@ -55,7 +55,6 @@ var ModuleFunction = (function () {
         this.declaration = declaration;
         this.declaration['__alias'] = _.object(funcParams, funcArray.map(function (s) { return s.toString(); }));
         this.declaration['__deferEval'] = options.deferredParameters;
-        this.declaration['__passAsObject'] = options.passAsObject;
     }
     return ModuleFunction;
 }());

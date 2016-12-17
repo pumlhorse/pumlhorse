@@ -20,22 +20,22 @@ class Enforcement {
     }
 
     isArray(): Enforcement {
-        if (!_.isArray(this.value)) this.throwError('must be an array');
+        if (this.value != null && !_.isArray(this.value)) this.throwError('must be an array');
         return this;
     }
 
-    isNotEmptyArray(): Enforcement {
+    isNotEmpty(): Enforcement {
         if (this.value.length == 0) this.throwError('cannot be empty');
         return this;
     }
 
     isString(): Enforcement {
-        if (!_.isString(this.value)) this.throwError('must be a string');
+        if (this.value != null && !_.isString(this.value)) this.throwError('must be a string');
         return this;
     }
 
     isFunction(overrideMessage?: string): Enforcement {
-        if (!_.isFunction(this.value)) this.throwError('must be a function', overrideMessage);
+        if (this.value != null && !_.isFunction(this.value)) this.throwError('must be a function', overrideMessage);
         return this;
     }
 
@@ -44,7 +44,7 @@ class Enforcement {
         
         var prefix = this.parameterName == null
             ? 'Parameter '
-            : `Parameter '${this.parameterName}'`;
+            : `Parameter "${this.parameterName}" `;
         throw new Error(prefix + message)
     }
 }

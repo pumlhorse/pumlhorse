@@ -1,6 +1,7 @@
+import { pumlhorse } from '../../src/script/PumlhorseGlobal';
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-import { pumlhorse, Script } from '../../src/script/Script';
+import { Script } from '../../src/script/Script';
 import { setLoggers } from '../../src/script/loggers';
 
 describe('Script', () => {
@@ -244,7 +245,7 @@ describe('Script', () => {
             var func = function (val) {
 				mock(val);
 			}
-			func['__alias'] = ['@'];
+			func['__alias'] = {'val': '$all'};
             var script = getScript([
 				{
 					testWithAnonymousParameter: 456
@@ -265,8 +266,7 @@ describe('Script', () => {
             var func = function (val) {
 				mock(val);
 			}
-			func['__alias'] = ['@'];
-			func['__passAsObject'] = true;
+			func['__alias'] = {'val': '$all'};
             var script = getScript([
 				{
 					testWithAnonymousParameter: {
@@ -285,6 +285,60 @@ describe('Script', () => {
                 testVal: 456,
                 complex: { val: "here"}
             });
+        }));
+
+        it('passes the scope to a $scope parameter',testAsync(async () => {
+            // Arrange
+            var func = function (val, scope) {
+				mock(val, scope);
+			}
+			func['__alias'] = {val: 'val1', 'scope': '$scope'};
+            var script = getScript([
+				{
+					testWithScopeParameter: {
+						val1: 456
+					}
+				}
+            ]);
+            script.addFunction('testWithScopeParameter', func);
+            
+            // Act
+            await script.run({someVal: 321});
+            
+            // Assert
+            expect(mock).toHaveBeenCalledWith(456, jasmine.objectContaining({
+                $emit: jasmine.any(Function),
+                someVal: 321
+            }));
+        }));
+
+        it('passes the scope to a $scope parameter with anonymous parameter',testAsync(async () => {
+            // Arrange
+            var func = function (val, scope) {
+				mock(val, scope);
+			}
+			func['__alias'] = {'val': '$all', 'scope': '$scope'};
+            var script = getScript([
+				{
+					testWithScopeParameter: {
+						testVal: 456,
+						complex: { val: "here"}
+					}
+				}
+            ]);
+            script.addFunction('testWithScopeParameter', func);
+            
+            // Act
+            await script.run({someVal: 321});
+            
+            // Assert
+            expect(mock).toHaveBeenCalledWith({
+                testVal: 456,
+                complex: { val: "here"}
+            },jasmine.objectContaining({
+                $emit: jasmine.any(Function),
+                someVal: 321
+            }));
         }));
     });
 

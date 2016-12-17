@@ -18,22 +18,22 @@ var Enforcement = (function () {
         return this;
     };
     Enforcement.prototype.isArray = function () {
-        if (!_.isArray(this.value))
+        if (this.value != null && !_.isArray(this.value))
             this.throwError('must be an array');
         return this;
     };
-    Enforcement.prototype.isNotEmptyArray = function () {
+    Enforcement.prototype.isNotEmpty = function () {
         if (this.value.length == 0)
             this.throwError('cannot be empty');
         return this;
     };
     Enforcement.prototype.isString = function () {
-        if (!_.isString(this.value))
+        if (this.value != null && !_.isString(this.value))
             this.throwError('must be a string');
         return this;
     };
     Enforcement.prototype.isFunction = function (overrideMessage) {
-        if (!_.isFunction(this.value))
+        if (this.value != null && !_.isFunction(this.value))
             this.throwError('must be a function', overrideMessage);
         return this;
     };
@@ -42,7 +42,7 @@ var Enforcement = (function () {
             throw new Error(overrideMessage);
         var prefix = this.parameterName == null
             ? 'Parameter '
-            : "Parameter '" + this.parameterName + "'";
+            : "Parameter \"" + this.parameterName + "\" ";
         throw new Error(prefix + message);
     };
     return Enforcement;

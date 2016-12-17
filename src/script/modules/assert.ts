@@ -1,6 +1,6 @@
+import { pumlhorse } from '../PumlhorseGlobal';
 import * as _ from 'underscore';
 import enforce from '../../util/enforce';
-import { pumlhorse } from '../Script';
 
 export class AssertModule {
     public static isTrue(result): void {
@@ -104,12 +104,12 @@ export class AssertModule {
 }
 
 pumlhorse.module('assert')
-    .function('isTrue', ['@', AssertModule.isTrue], { passAsObject: true})
-    .function('isFalse', ['@', AssertModule.isFalse], { passAsObject: true})
-    .function('isNull', ['@', AssertModule.isNull], { passAsObject: true})
-    .function('isNotNull', ['@', AssertModule.isNotNull], { passAsObject: true})
+    .function('isTrue', ['$all', AssertModule.isTrue])
+    .function('isFalse', ['$all', AssertModule.isFalse])
+    .function('isNull', ['$all', AssertModule.isNull])
+    .function('isNotNull', ['$all', AssertModule.isNotNull])
     .function('areEqual', AssertModule.areEqual)
     .function('areNotEqual', AssertModule.areNotEqual)
-    .function('isEmpty', ['@', AssertModule.isEmpty], { passAsObject: true })
-    .function('isNotEmpty', ['@', AssertModule.isNotEmpty], { passAsObject: true })
+    .function('isEmpty', ['$all', AssertModule.isEmpty])
+    .function('isNotEmpty', ['$all', AssertModule.isNotEmpty])
     .function('contains', ['array', 'value', 'partial', AssertModule.contains]);

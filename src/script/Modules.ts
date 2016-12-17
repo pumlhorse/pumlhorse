@@ -45,10 +45,10 @@ class ModuleFunction {
         let funcArray: any[];
         if (_.isFunction(declaration)) {
             funcArray = funcParams;
-        }
+        }   
         else if (_.isArray(declaration)) {
             //Function declaration is ['parameter1', 'parameter2', ..., Function]
-            enforce(declaration).isNotEmptyArray();
+            enforce(declaration).isNotEmpty();
             funcArray = <any[]>declaration;
             declaration = funcArray.pop();
             enforce(declaration).isFunction('Final parameter in array must be a function');
@@ -64,11 +64,9 @@ class ModuleFunction {
         this.declaration = <Function>declaration;
         this.declaration['__alias'] = _.object(funcParams, funcArray.map((s) => s.toString()));
         this.declaration['__deferEval'] = options.deferredParameters;
-        this.declaration['__passAsObject'] = options.passAsObject;
     }
 }
 
 interface IFunctionOptions {
-    passAsObject?: boolean;
     deferredParameters?: string[];
 }
