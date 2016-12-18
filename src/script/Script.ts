@@ -19,6 +19,11 @@ import './modules/assert';
 import './modules/async';
 import './modules/conditional';
 import './modules/http';
+import './modules/json';
+import './modules/loop';
+import './modules/misc';
+import './modules/timer';
+import './modules/wait';
 
 /* Load default modules */
 pumlhorse.module('log')
@@ -78,7 +83,7 @@ export class Script implements IScript {
         }
     }
 
-    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional'];
+    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait'];
     private loadModules() {
         let modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
             ? []
@@ -296,8 +301,8 @@ class Step {
 
 class StepFunction {
     static hasDeferredParameter(func: Function, parameterName: string) : boolean {
-        if (this['__deferEval'] == null) return false;
-        return this['__deferEval'].indexOf(parameterName) > -1;
+        if (func['__deferEval'] == null) return false;
+        return func['__deferEval'].indexOf(parameterName) > -1;
     }
 
     static getAliases(func: Function): string[] {

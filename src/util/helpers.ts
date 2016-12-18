@@ -1,4 +1,6 @@
-export { getParameters, isValueType, objectByString, assignObjectByString }
+import * as _ from 'underscore';
+
+export { getParameters, isValueType, objectByString, assignObjectByString, getItemCount }
 
 var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var ARGUMENT_NAMES = /([^\s,]+)/g;
@@ -42,4 +44,17 @@ function assignObjectByString(obj: Object, str: string, value: any) {
         obj = obj[k];
     }
     obj[a[i]] = value;
+}
+
+
+function getItemCount(obj: any[] | Object) {
+    if (_.isArray(obj)) {
+        return obj.length
+    }
+    
+    if (_.isObject(obj)) {
+        return Object.keys(obj).length;
+    }
+    
+    return undefined;
 }

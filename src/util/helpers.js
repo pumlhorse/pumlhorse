@@ -1,4 +1,5 @@
 "use strict";
+var _ = require("underscore");
 var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var ARGUMENT_NAMES = /([^\s,]+)/g;
 function getParameters(func) {
@@ -42,4 +43,14 @@ function assignObjectByString(obj, str, value) {
     obj[a[i]] = value;
 }
 exports.assignObjectByString = assignObjectByString;
+function getItemCount(obj) {
+    if (_.isArray(obj)) {
+        return obj.length;
+    }
+    if (_.isObject(obj)) {
+        return Object.keys(obj).length;
+    }
+    return undefined;
+}
+exports.getItemCount = getItemCount;
 //# sourceMappingURL=helpers.js.map

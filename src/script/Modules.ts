@@ -17,8 +17,8 @@ class ModuleBuilder {
     constructor(private module: any) {
     }
 
-    function(name: string, func: Function | any[], options?: IFunctionOptions): ModuleBuilder {
-        var f = new ModuleFunction(name, func, options == null ? {} : options);
+    function(name: string, func: Function | any[]): ModuleBuilder {
+        var f = new ModuleFunction(name, func);
         this.module[name] = f.declaration;
 
         return this;
@@ -29,22 +29,25 @@ class ModuleBuilder {
     }
 }
 
+const AliasListKey = '__alias';
+const DeferredListKey = '__deferEval';
+const DeferredPrefix = '$deferred.';
 class ModuleFunction {
+
     declaration: Function;
 
     constructor(
         public name: string,
-        declaration: Function | any[],
-        options: IFunctionOptions) {
+        declaration: Function | any[]) {
         enforce(name, 'name')
             .isNotNull()
             .isString();
         enforce(declaration, 'declaration').isNotNull();
 
-        const funcParams = helpers.getParameters(declaration);
+        const actualParams = helpers.getParameters(declaration);
         let funcArray: any[];
         if (_.isFunction(declaration)) {
-            funcArray = funcParams;
+            funcArray = actualParams;
         }   
         else if (_.isArray(declaration)) {
             //Function declaration is ['parameter1', 'parameter2', ..., Function]
@@ -53,8 +56,8 @@ class ModuleFunction {
             declaration = funcArray.pop();
             enforce(declaration).isFunction('Final parameter in array must be a function');
 
-            if (funcParams.length != funcArray.length) {
-                throw new Error(`Parameter count mismatch between parameter and function declarations. Expected ${funcParams.length}, got ${funcArray.length}`);
+            if (actualParams.length != funcArray.length) {
+                throw new Error(`Parameter count mismatch between parameter and function declarations. Expected ${actualParams.length}, got ${funcArray.length}`);
             }
         }
         else {
@@ -62,11 +65,21 @@ class ModuleFunction {
         }
 
         this.declaration = <Function>declaration;
-        this.declaration['__alias'] = _.object(funcParams, funcArray.map((s) => s.toString()));
-        this.declaration['__deferEval'] = options.deferredParameters;
-    }
-}
 
-interface IFunctionOptions {
-    deferredParameters?: string[];
+        this.declaration[DeferredListKey] = [];
+        this.declaration[AliasListKey] = {};
+
+        for (var i in funcArray) {
+            var alias = <string>funcArray[i];
+            var actual = actualParams[i];
+
+            if (alias.startsWith(DeferredPrefix)) {
+                alias = alias.substring(DeferredPrefix.length);
+                this.declaration[DeferredListKey].push(alias);
+            }
+
+            this.declaration[AliasListKey][actual] = alias;
+        }
+    }
+
 }

@@ -18,8 +18,8 @@ var ModuleBuilder = (function () {
     function ModuleBuilder(module) {
         this.module = module;
     }
-    ModuleBuilder.prototype.function = function (name, func, options) {
-        var f = new ModuleFunction(name, func, options == null ? {} : options);
+    ModuleBuilder.prototype.function = function (name, func) {
+        var f = new ModuleFunction(name, func);
         this.module[name] = f.declaration;
         return this;
     };
@@ -28,33 +28,45 @@ var ModuleBuilder = (function () {
     };
     return ModuleBuilder;
 }());
+var AliasListKey = '__alias';
+var DeferredListKey = '__deferEval';
+var DeferredPrefix = '$deferred.';
 var ModuleFunction = (function () {
-    function ModuleFunction(name, declaration, options) {
+    function ModuleFunction(name, declaration) {
         this.name = name;
         enforce_1.default(name, 'name')
             .isNotNull()
             .isString();
         enforce_1.default(declaration, 'declaration').isNotNull();
-        var funcParams = helpers.getParameters(declaration);
+        var actualParams = helpers.getParameters(declaration);
         var funcArray;
         if (_.isFunction(declaration)) {
-            funcArray = funcParams;
+            funcArray = actualParams;
         }
         else if (_.isArray(declaration)) {
             enforce_1.default(declaration).isNotEmpty();
             funcArray = declaration;
             declaration = funcArray.pop();
             enforce_1.default(declaration).isFunction('Final parameter in array must be a function');
-            if (funcParams.length != funcArray.length) {
-                throw new Error("Parameter count mismatch between parameter and function declarations. Expected " + funcParams.length + ", got " + funcArray.length);
+            if (actualParams.length != funcArray.length) {
+                throw new Error("Parameter count mismatch between parameter and function declarations. Expected " + actualParams.length + ", got " + funcArray.length);
             }
         }
         else {
             throw new Error("Expected '" + declaration + "' to be a function or an array");
         }
         this.declaration = declaration;
-        this.declaration['__alias'] = _.object(funcParams, funcArray.map(function (s) { return s.toString(); }));
-        this.declaration['__deferEval'] = options.deferredParameters;
+        this.declaration[DeferredListKey] = [];
+        this.declaration[AliasListKey] = {};
+        for (var i in funcArray) {
+            var alias = funcArray[i];
+            var actual = actualParams[i];
+            if (alias.startsWith(DeferredPrefix)) {
+                alias = alias.substring(DeferredPrefix.length);
+                this.declaration[DeferredListKey].push(alias);
+            }
+            this.declaration[AliasListKey][actual] = alias;
+        }
     }
     return ModuleFunction;
 }());

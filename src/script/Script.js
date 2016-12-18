@@ -51,6 +51,11 @@ require("./modules/assert");
 require("./modules/async");
 require("./modules/conditional");
 require("./modules/http");
+require("./modules/json");
+require("./modules/loop");
+require("./modules/misc");
+require("./modules/timer");
+require("./modules/wait");
 PumlhorseGlobal_1.pumlhorse.module('log')
     .function('log', loggers.log)
     .function('warn', loggers.warn)
@@ -153,7 +158,7 @@ var Script = (function () {
     };
     return Script;
 }());
-Script.DefaultModules = ['log', 'assert', 'async', 'conditional'];
+Script.DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait'];
 exports.Script = Script;
 var InternalScript = (function () {
     function InternalScript(id) {
@@ -348,9 +353,9 @@ var StepFunction = (function () {
     function StepFunction() {
     }
     StepFunction.hasDeferredParameter = function (func, parameterName) {
-        if (this['__deferEval'] == null)
+        if (func['__deferEval'] == null)
             return false;
-        return this['__deferEval'].indexOf(parameterName) > -1;
+        return func['__deferEval'].indexOf(parameterName) > -1;
     };
     StepFunction.getAliases = function (func) {
         return func['__alias'];
