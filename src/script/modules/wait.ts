@@ -1,6 +1,7 @@
+import { pumlhorse } from '../PumlhorseGlobal';
 export class WaitModule {
     //TODO: add implementation, add misc/timer/wait to Script as default modules
-    wait(milliseconds: number, seconds: number, minutes: number, hours: number): Promise<any> {
+    static wait(milliseconds: number, seconds: number, minutes: number, hours: number): Promise<any> {
         
         const totalMs = WaitModule.convertToMs(milliseconds, 1) +
             WaitModule.convertToMs(seconds, 1000) +
@@ -17,3 +18,6 @@ export class WaitModule {
         return value ? value * factor : 0
     }
 }
+
+pumlhorse.module('wait')
+    .function('wait', WaitModule.wait);
