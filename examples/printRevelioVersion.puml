@@ -1,5 +1,7 @@
 name: printRevelioVersion
 description: retrieves the version from the Revelio demo site
+modules:
+  - http = http
 steps:
   - baseUrl = http://demo.getrevelio.com 
   - start = startTimer

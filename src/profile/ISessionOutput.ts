@@ -1,12 +1,10 @@
 export interface ISessionOutput {
     onSessionStarted();
-    onSessionFinished();
-    onScriptPending();
-    onScriptStarted();
-    onScriptFinished();
-    onLog();
-    onStepStarted();
-    onStepFinished();
+    onSessionFinished(scriptsPassed: number, scriptsFailed: number);
+    onScriptPending(scriptId: string, scriptName: string);
+    onScriptStarted(scriptId: string);
+    onScriptFinished(scriptId: string, error: any);
+    onLog(scriptId: string, logLevel: string, message: string);
     onHttpSent();
     onHttpReceived();
 }

@@ -1,5 +1,5 @@
 export interface IProfile {
-    contexts: Object[];
+    contexts: string[];
     filters: string[];
     include: string[];
     isRecursive: boolean;

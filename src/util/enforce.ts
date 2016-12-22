@@ -20,6 +20,7 @@ class Enforcement {
     }
 
     isArray(): Enforcement {
+        console.log(this.value);
         if (this.value != null && !_.isArray(this.value)) this.throwError('must be an array');
         return this;
     }

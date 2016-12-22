@@ -2,8 +2,8 @@ name: useCustomFunctions
 functions:
   getCurrentDate: return new Date()
   timeInUtc:
-  - dt
-  - return dt.toGMTString()
+    - dt
+    - return dt.toGMTString()
 steps:
 - currentDate = getCurrentDate
 - log:

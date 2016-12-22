@@ -7,7 +7,7 @@ let loggers: ILogger = {
 }
 
 function log(...args: string[]) {
-    loggers.log.apply(this, args);
+    loggers.log.apply(loggers, args);
 }
 
 function warn(...args: string[]) {

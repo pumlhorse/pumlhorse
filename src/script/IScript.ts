@@ -6,4 +6,5 @@ export interface IScript {
     addModule(moduleDescriptor: string): void;
 
     id: string;
+    name: string;
 }

@@ -33,6 +33,7 @@ pumlhorse.module('log')
 
 export class Script implements IScript {
     id: string;
+    name: string;
     
     private internalScript: IScriptInternal;
 
@@ -41,9 +42,11 @@ export class Script implements IScript {
         validateScriptDefinition(this.scriptDefinition);
 
         this.id = new Guid().value;
+        this.name = scriptDefinition.name;
         this.internalScript = new InternalScript(this.id);
 
         this.loadModules();
+
         this.loadFunctions();
         this.loadCleanupSteps();
     }
@@ -52,11 +55,11 @@ export class Script implements IScript {
         const scope = new Scope(this.internalScript, context);
         
         try {
-            return await this.internalScript.runSteps(this.scriptDefinition.steps, scope);
+            await this.internalScript.runSteps(this.scriptDefinition.steps, scope);
         }
         catch (e) {
             if (e instanceof ScriptInterrupt) {
-                return Promise.resolve({});
+                return;
             }
             throw e;
         }
@@ -96,7 +99,24 @@ export class Script implements IScript {
         if (this.scriptDefinition.functions == null) {
             return;
         }
-        _.mapObject(this.scriptDefinition.functions, (name, def) => this.addFunction(name, new Function(def)));
+        
+        _.mapObject(this.scriptDefinition.functions, (def, name) => this.addFunction(name, this.createFunction(def)));
+    }
+
+    
+    private createFunction(val) {
+        
+        if (_.isString(val)) return new Function(val)
+        
+        function construct(args) {
+            function DeclaredFunction(): void {
+                return Function.apply(this, args);
+            }
+            DeclaredFunction.prototype = Function.prototype;
+            return new DeclaredFunction();
+        }
+        
+        return construct(val)
     }
 
     private loadCleanupSteps() {
@@ -159,7 +179,7 @@ class InternalScript implements IScriptInternal {
 
         _.extend(scope, this.modules, this.functions);
 
-        return await Bluebird.mapSeries(steps, step => this.runStep(step, scope));
+        await Bluebird.mapSeries(steps, step => this.runStep(step, scope));
     }
 
     private async runStep(stepDefinition: any, scope: IScope) {
@@ -179,7 +199,7 @@ class InternalScript implements IScriptInternal {
             step = new Step(functionName, stepDefinition[functionName], scope);
         }
 
-        return await step.run();
+        await step.run();
     }
 
 }
@@ -226,7 +246,7 @@ class Step {
             throw new Error(`Function "${this.functionName}" does not exist`);
         }
 
-        return await this.runComplexStep();
+        await this.runComplexStep();
     }
 
     // Run a step that does not contain any parameters

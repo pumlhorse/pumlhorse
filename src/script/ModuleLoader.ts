@@ -7,11 +7,11 @@ const requireFromPath = require('../util/./requireFromPath');
 
 export class ModuleLoader {
 
-    static load(fileName: string, script: IScriptDefinition): any {
-        if (script.modules == null) return [];
+    static load(fileName: string, modules: string[]): any {
+        if (modules == null) return [];
 
         const scriptDir = path.dirname(fileName);
-        return script.modules.map((mod) => this.resolveModule(mod, scriptDir));
+        return modules.map((mod) => this.resolveModule(mod, scriptDir));
     }
 
     static getModuleLocator(moduleDescriptor: string): ModuleLocator {

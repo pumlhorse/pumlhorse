@@ -5,7 +5,7 @@ import { pumlhorse } from '../PumlhorseGlobal';
 
 export class AsyncModule {
     static runParallel(steps, scope: IScope) {        
-        enforce(steps)
+        enforce(steps, 'steps')
             .isNotNull()
             .isArray();
 

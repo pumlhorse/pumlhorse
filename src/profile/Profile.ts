@@ -1,6 +1,6 @@
 import { IProfile, Module } from './IProfile';
 export class Profile implements IProfile {
-    contexts: Object[];
+    contexts: string[];
     filters: string[];
     include: string[];
     isRecursive: boolean;
