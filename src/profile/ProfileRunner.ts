@@ -140,9 +140,9 @@ export class ProfileRunner {
     private async runScript(scriptContainer: LoadedScript): Promise<any> {
         this.sessionEvents.onScriptStarted(scriptContainer.script.id);
         await this.loadModules(scriptContainer);
-        // scriptContainer.script.addFunction('log',  scriptContainer.log);
-        // scriptContainer.script.addFunction('warn', scriptContainer.warn)
-        // scriptContainer.script.addFunction('error', scriptContainer.error)
+        scriptContainer.script.addFunction('log', function() { scriptContainer.log.apply(scriptContainer, arguments); });
+        scriptContainer.script.addFunction('warn', function() { scriptContainer.log.apply(scriptContainer, arguments); })
+        scriptContainer.script.addFunction('error', function() { scriptContainer.log.apply(scriptContainer, arguments); })
 
         const start = new Date();
 
@@ -187,7 +187,6 @@ class LoadedScript {
 
     log() {
         var message = util.format.apply(util, arguments);
-        console.log('toot' + this.emitter);
         this.emitter.onLog(this.script.id, 'log', message);
     }
     

@@ -79,7 +79,7 @@ async function buildProfile(args: any[]): Promise<IProfile> {
         return null;
     }
     
-    let profile;
+    let profile: IProfile;
     if (argObj.profile == null) {
         profile = new Profile();
     }
@@ -95,9 +95,9 @@ async function buildProfile(args: any[]): Promise<IProfile> {
     }
 
     profile.contexts = combine(profile.contexts, argObj.context)
-    profile.recursive = override(argObj.recursive, profile.recursive)
-    profile.synchronous = override(argObj.sync, profile.synchronous)
-    profile.maxConcurrent = override(argObj['max-concurrent'], profile.maxConcurrent)
+    profile.isRecursive = override(argObj.recursive, profile.isRecursive)
+    profile.isSynchronous = override(argObj.sync, profile.isSynchronous)
+    profile.maxConcurrentFiles = override(argObj['max-concurrent'], profile.maxConcurrentFiles)
                     
     return profile;
 }

@@ -472,14 +472,15 @@ describe('Script', () => {
 
         it('throws an error if module doesnt exist',testAsync(async () => {
             // Arrange
+            var script = new Script({
+                name: 'test script',
+                modules: ['badModule'],
+                steps: ['noop']
+            });
 
             try {
                 //Act
-                var script = new Script({
-                    name: 'test script',
-                    modules: ['badModule'],
-                    steps: ['noop']
-                });
+                await script.run();
                 fail();
             }
             catch (err) {
@@ -933,6 +934,7 @@ describe('Script', () => {
             // Assert
             expect(mock).toHaveBeenCalledWith(1234);
         }));
+        
     });
 
 });

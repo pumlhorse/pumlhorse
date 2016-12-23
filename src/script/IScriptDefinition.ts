@@ -5,7 +5,7 @@ export interface IScriptDefinition {
 
     modules?: any[];
 
-    functions?: any[];
+    functions?: Object;
 
     steps: any[];
 
