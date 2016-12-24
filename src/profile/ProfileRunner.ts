@@ -153,6 +153,7 @@ export class ProfileRunner {
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, null);
         }
         catch (err) {
+            console.log(err);
             this.failedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, err);
         }

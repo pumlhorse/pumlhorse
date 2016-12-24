@@ -1,3 +1,4 @@
+import { Script } from './Script';
 import { IScriptDefinition } from './IScriptDefinition';
 import * as path from 'path';
 import * as _ from 'underscore';
@@ -33,6 +34,9 @@ export class ModuleLoader {
     private static resolveModule(modDescriptor: any, directory: string): any {
         var moduleLocator = this.getModuleLocator(modDescriptor);
 
+        if (_.some(Script.StandardModules, mod => mod == moduleLocator.name)) {
+            return undefined;
+        }
         return requireFromPath(moduleLocator.path, directory);
     }
 }

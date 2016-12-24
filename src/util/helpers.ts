@@ -12,9 +12,10 @@ function getParameters(func): string[] {
 }
 
 function isValueType(s) {
-    var t = typeof(s)
-    
-    return t === "boolean" || t === "number" || t === "string" || t === "Date";
+    return _.isNumber(s) ||
+        _.isString(s) ||
+        _.isBoolean(s) ||
+        _.isDate(s);
 }
 
 function objectByString<T>(o: Object, s: string): T {

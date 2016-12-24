@@ -1,0 +1,27 @@
+name: Statistics functionality
+modules:
+  - stats # Must include stats module
+steps:
+  - list = value:
+      - 4
+      - 19
+      - 21
+      - 5
+      - 88
+  - avg = average: $list
+  - areEqual:
+      expected: 27.4
+      actual: $avg
+  - med = median: $list
+  - areEqual:
+      expected: 19
+      actual: $med
+  - min = minimum: $list
+  - areEqual:
+      expected: 4
+      actual: $min
+  - max = maximum: $list
+  - areEqual:
+      expected: 88
+      actual: $max
+  

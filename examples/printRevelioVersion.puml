@@ -5,11 +5,9 @@ modules:
 steps:
   - baseUrl = http://demo.getrevelio.com 
   - start = startTimer
-  - version = http.get:
+  - response = http.get:
       url: $baseUrl/api/version
-  - http.isOk: $version
+  - http.isOk: $response
+  - version = http.body: $response
   - stopTimer: $start
-  - log:
-    - Current Revelio version is %s. That took %s milliseconds
-    - $version.body
-    - $start.milliseconds
+  - log: Current Revelio version is ${version}. That took $start.milliseconds milliseconds

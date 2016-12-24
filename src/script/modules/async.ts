@@ -3,8 +3,7 @@ import enforce from '../../util/enforce';
 import * as _ from 'underscore';
 import { pumlhorse } from '../PumlhorseGlobal';
 
-function runParallel() {        
-        var steps = Array.prototype.slice.call(arguments);
+function runParallel(steps) {        
         enforce(steps, 'steps')
             .isNotNull()
             .isArray();

@@ -54,62 +54,57 @@ export class Step {
     }
 
     private async runComplexStep() {
-        var suppliedParameters = this.evaluateParameter(this.parameters);
-
-        var definedParameterNames = helpers.getParameters(this.runFunc);
-
-        const aliases = StepFunction.getAliases(this.runFunc);
-        var params = definedParameterNames.map((name) => this.getParameter(suppliedParameters, name, aliases));
         
-        let passedParams = params;
-
-        if (suppliedParameters === null) passedParams = null;
-        else if (helpers.isValueType(suppliedParameters)) passedParams = [suppliedParameters];
-        else if (_.isString(suppliedParameters)) passedParams = [suppliedParameters];
-        else if (_.isArray(suppliedParameters) && _.isArray(this.parameters)) passedParams = suppliedParameters;
-        else if (_.isString(this.parameters) && _.isObject(suppliedParameters)) passedParams = [suppliedParameters];
-        else passedParams = params.length > 0 ? params : [suppliedParameters];
-         
-                            
-        // if (suppliedParameters === null) passedParams = params;
-        // else if (helpers.isValueType(suppliedParameters)) passedParams = [suppliedParameters];
-        // else if (_.isArray(suppliedParameters) || params.length == 0)  {
-        //     passedParams = [suppliedParameters];
-        // }
-        // // else if (_.isArray(evalParameters) && _.isArray(this.parameters)) passedParams = params;
-        // // else if (_.isString(this.parameters) && _.isObject(evalParameters)) passedParams = [evalParameters];
-        // // else passedParams = params.length > 0 ? params : [evalParameters];
+        const params = this.getParameterList(); 
                 
-        var result = await this.runFunc.apply(this.scope, passedParams);
+        var result = await this.runFunc.apply(this.scope, params);
         
         this.doAssignment(result);
         return;
+    }
+
+    private getParameterList(): any[] {
+        var definedParameterNames = helpers.getParameters(this.runFunc);
+
+        if (definedParameterNames.length == 0) {
+            return [this.evaluateParameter(this.parameters)];
+        }
+
+        const aliases = StepFunction.getAliases(this.runFunc);
+        var params = definedParameterNames.map((name, i) => this.getParameter(name, aliases, i));
+        
+        return params;
+    }
+
+    private getParameter(name: string, aliases: string[], index: number): any {
+        
+        if (this.isParameterName('$scope', name, aliases)) return this.scope;        
+        if (this.isParameterName('$all', name, aliases)) {
+            return this.evaluateParameter(this.parameters);
+        }
+
+        let parameterValue = undefined;
+        if (index == 0 && 
+            (_.isArray(this.parameters) || helpers.isValueType(this.parameters))) {
+            return this.evaluateParameter(this.parameters)
+        }
+        else if (this.parameters != null && 
+            _.isObject(this.parameters)) {
+            parameterValue = this.parameters[name];
+            if (parameterValue == null && aliases != null) {
+                parameterValue = this.parameters[aliases[name]];
+            }
+        }
+
+        return parameterValue == undefined
+            ? undefined
+            : this.evaluateParameter(parameterValue);
     }
 
     private evaluateParameter(value, key?) {
         if (StepFunction.hasDeferredParameter(this.runFunc, key)) return value;
             
         return doEval(value, true, this.scope);
-    }
-
-    private getParameter(parameters: any, name: string, aliases: string[]): any {
-        
-        if (this.isParameterName('$scope', name, aliases)) return this.scope;        
-        if (this.isParameterName('$all', name, aliases)) {
-            return _.isArray(parameters)
-                ? [parameters]
-                : parameters;
-        }
-
-        let parameterValue = undefined;
-        if (parameters != null) {
-            parameterValue = parameters[name];
-            if (parameterValue == null && aliases != null) {
-                parameterValue = parameters[aliases[name]];
-            }
-        }
-
-        return parameterValue;
     }
 
     private isParameterName(expectedName: string, actualName: string, aliases: string[]): boolean {

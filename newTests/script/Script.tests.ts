@@ -205,6 +205,7 @@ describe('Script', () => {
             var dt = new Date()
             var script = getScript([
 				'date = returnDate',
+
 				{
 					testObj: '$date'
 				}
@@ -783,7 +784,7 @@ describe('Script', () => {
                 await script.run();
                 
                 // Assert
-                expect(mock).toHaveBeenCalledWith('val1', 'val2');
+                expect(mock).toHaveBeenCalledWith(['val1', 'val2']);
             }));
             
             it('handles a variable parameter',testAsync(async () => {

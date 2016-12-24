@@ -21,10 +21,11 @@ import './modules/http';
 import './modules/json';
 import './modules/loop';
 import './modules/misc';
+import './modules/stats';
 import './modules/timer';
 import './modules/wait';
 
-/* Load default modules */
+
 pumlhorse.module('log')
     .function('log', loggers.log)
     .function('warn', loggers.warn)
@@ -35,6 +36,9 @@ export class Script implements IScript {
     name: string;
     
     private internalScript: IScriptInternal;
+
+    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait'];
+    public static readonly StandardModules = Script.DefaultModules.concat(['http', 'stats']);
 
     constructor(private scriptDefinition: IScriptDefinition) {
 
@@ -86,7 +90,6 @@ export class Script implements IScript {
         }
     }
 
-    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait'];
     private loadModules() {
         let modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
             ? []

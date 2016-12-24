@@ -6,11 +6,7 @@ functions:
     - return dt.toGMTString()
 steps:
 - currentDate = getCurrentDate
-- log:
-  - The current date is %s 
-  - $currentDate
+- log: The current date is $currentDate 
 - currentDateInUtc = timeInUtc:
     dt: $currentDate
-- log:
-  - The current date in UTC is %s
-  - $currentDateInUtc
+- log: The current date in UTC is $currentDateInUtc
