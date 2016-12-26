@@ -194,12 +194,13 @@ class InternalScript implements IScriptInternal {
         }
 
         let step: Step;
+        const lineNumber = stepDefinition.getLineNumber == null ? null : stepDefinition.getLineNumber();
         if (_.isString(stepDefinition)) {
-            step = new Step(stepDefinition, null, scope);
+            step = new Step(stepDefinition, null, scope, lineNumber);
         }
         else {
             var functionName = _.keys(stepDefinition)[0];
-            step = new Step(functionName, stepDefinition[functionName], scope);
+            step = new Step(functionName, stepDefinition[functionName], scope, lineNumber);
         }
 
         await step.run();

@@ -24,4 +24,31 @@ steps:
   - areEqual:
       expected: 88
       actual: $max
+  #
+  # Use complex objects
+  #
+  - states = value:
+      - name: California
+        geography:
+          squareMiles: 163696
+          highestPointInFeet: 14505
+      - name: Alaska
+        geography:
+          squareMiles: 663268
+          highestPointInFeet: 20310
+      - name: South Carolina
+        geography:
+          squareMiles: 32020
+          highestPointInFeet: 3560
+      - name: Iowa
+        geography:
+          squareMiles: 56272.81
+          highestPointInFeet: 1671
+  - avgSquareMiles = average: 
+      values: $states
+      field: geography.squareMiles
+  - minSquareMiles = minimum:
+      values: $states
+      field: geography.squareMiles
+  - isTrue: ${avgSquareMiles > minSquareMiles}
   

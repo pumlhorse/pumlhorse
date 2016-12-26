@@ -1,3 +1,4 @@
+import { ScriptError } from './ScriptError';
 import * as _ from 'underscore';
 import * as Expression from 'angular-expressions';
 import * as helpers from '../util/helpers';
@@ -12,7 +13,8 @@ export class Step {
 
     constructor(funcName: string, 
         private parameters: any,
-        private scope) {
+        private scope,
+        private lineNumber?: number) {
         const match = funcName.match(assignmentRegex);
 
         if (match == null) {
@@ -36,7 +38,7 @@ export class Step {
 
         this.runFunc = helpers.objectByString<Function>(this.scope, this.functionName);
 
-        if (this.runFunc == null) {
+        if (this.runFunc == null || !_.isFunction(this.runFunc)) {
             if (this.parameters == null) {
                 this.doAssignment(await this.runSimpleStep());
                 return;
@@ -56,8 +58,13 @@ export class Step {
     private async runComplexStep() {
         
         const params = this.getParameterList(); 
-                
-        var result = await this.runFunc.apply(this.scope, params);
+        
+        try {
+            var result = await this.runFunc.apply(this.scope, params);
+        }
+        catch (err) {
+            throw new ScriptError(err, this.lineNumber);
+        }
         
         this.doAssignment(result);
         return;
