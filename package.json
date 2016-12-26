@@ -38,7 +38,7 @@
     "command-line-args": "^2.1.6",
     "http-client-factory": "^0.3.1",
     "promise-queue": "^2.2.3",
-    "pumlhorse-yamljs": "^0.2.10",
+    "pumlhorse-yamljs": "^0.2.11",
     "recursive-readdir": "^1.3.0",
     "underscore": "^1.8.3",
     "uuid": "^3.0.0"

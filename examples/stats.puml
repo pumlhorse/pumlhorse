@@ -1,4 +1,7 @@
 name: Statistics functionality
+#
+#
+#
 modules:
   - stats # Must include stats module
 steps:
@@ -9,6 +12,8 @@ steps:
       - 5
       - 88
   - avg = average: $list
+   #
+   #
   - areEqual:
       expected: 27.4
       actual: $avg
@@ -24,9 +29,15 @@ steps:
   - areEqual:
       expected: 88
       actual: $max
-  #
-  # Use complex objects
-  #
+#
+# Use complex objects
+#
+#
+
+#
+
+
+#
   - states = value:
       - name: California
         geography:
@@ -51,4 +62,3 @@ steps:
       values: $states
       field: geography.squareMiles
   - isTrue: ${avgSquareMiles > minSquareMiles}
-  

@@ -44,7 +44,7 @@ export class Step {
                 return;
             }
 
-            throw new Error(`Function "${this.functionName}" does not exist`);
+            throw new ScriptError(new Error(`Function "${this.functionName}" does not exist`), this.lineNumber);
         }
 
         await this.runComplexStep();
