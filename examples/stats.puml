@@ -1,7 +1,4 @@
 name: Statistics functionality
-#
-#
-#
 modules:
   - stats # Must include stats module
 steps:
@@ -12,8 +9,6 @@ steps:
       - 5
       - 88
   - avg = average: $list
-   #
-   #
   - areEqual:
       expected: 27.4
       actual: $avg
@@ -31,12 +26,6 @@ steps:
       actual: $max
 #
 # Use complex objects
-#
-#
-
-#
-
-
 #
   - states = value:
       - name: California
