@@ -7,6 +7,7 @@ export class ModuleRepository {
 
     static addModule(name: string): ModuleBuilder {
         var module = {};
+
         ModuleRepository.lookup[name] = module;
 
         return new ModuleBuilder(module);

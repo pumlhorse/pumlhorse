@@ -1,5 +1,7 @@
 name: Import Node module
 description: Import a plain Node module (not a Pumlhorse module)
+functions:
+  getCurrentDate: return new Date()
 steps:
   # Log OS information using the Node 'os' module
   - osMod = import: os
@@ -8,5 +10,5 @@ steps:
   - log: TOTAL MEMORY: ${ osMod.totalmem() / 1000000 } MB
   # Import a custom Node module (examples/node_modules/plainNodeModule.js)
   - custom = import: plainNodeModule
-  - currentDate = November 25th, 2016
+  - currentDate = getCurrentDate
   - log: $custom.getModuleInfo(currentDate)

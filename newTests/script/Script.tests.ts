@@ -1,4 +1,4 @@
-import { pumlhorse } from '../../src/script/PumlhorseGlobal';
+import { pumlhorse } from '../../src/PumlhorseGlobal';
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
 import { Script } from '../../src/script/Script';

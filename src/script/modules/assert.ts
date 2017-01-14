@@ -1,4 +1,4 @@
-import { pumlhorse } from '../PumlhorseGlobal';
+import { pumlhorse } from '../../PumlhorseGlobal';
 import * as _ from 'underscore';
 import enforce from '../../util/enforce';
 

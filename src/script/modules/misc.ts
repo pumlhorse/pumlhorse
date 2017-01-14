@@ -1,4 +1,4 @@
-import { pumlhorse } from '../PumlhorseGlobal';
+import { pumlhorse } from '../../PumlhorseGlobal';
 
 var requireFromPath = require('../../util/requireFromPath');
 

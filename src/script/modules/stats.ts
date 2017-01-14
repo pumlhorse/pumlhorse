@@ -1,4 +1,4 @@
-import { pumlhorse } from '../PumlhorseGlobal';
+import { pumlhorse } from '../../PumlhorseGlobal';
 import * as helpers from '../../util/helpers';
 import * as _ from 'underscore';
 
@@ -19,8 +19,8 @@ class StatsModule {
             return _.min(values);
         }
 
-        let accessor = n => helpers.objectByString(n, field);
-        return accessor(_.min(values, accessor));
+        let accessor = n => helpers.objectByString<number>(n, field);
+        return accessor(_.min<number>(values, accessor));
     }
 
     static maximum(values: number[], field: string): number {
@@ -28,8 +28,8 @@ class StatsModule {
             return _.max(values);
         }
 
-        let accessor = n => helpers.objectByString(n, field);
-        return accessor(_.min(values, accessor));
+        let accessor = n => helpers.objectByString<number>(n, field);
+        return accessor(_.max(values, accessor));
     }
 
     static median(values: number[], field: string): number {

@@ -1,4 +1,4 @@
-import { pumlhorse } from '../PumlhorseGlobal';
+import { pumlhorse } from '../../PumlhorseGlobal';
 import { IScope } from '../IScope';
 import * as http from 'http-client-factory';
 import enforce from '../../util/enforce';

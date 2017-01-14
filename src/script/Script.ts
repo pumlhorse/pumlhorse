@@ -1,5 +1,5 @@
 import { Step } from './Step';
-import { pumlhorse } from './PumlhorseGlobal';
+import { pumlhorse } from '../PumlhorseGlobal';
 import { ModuleLoader, ModuleLocator } from './ModuleLoader';
 import { ScriptInterrupt } from './ScriptInterrupt';
 import * as _ from 'underscore';
@@ -9,8 +9,8 @@ import { IScriptInternal } from './IScriptInternal';
 import { Guid } from '../util/Guid';
 import { IScript } from './IScript';
 import { IScope } from './IScope';
-import { Scope } from './Scope';
 import { ModuleRepository } from './Modules';
+import { Scope } from './Scope';
 import validateScriptDefinition from './scriptDefinitionValidator';
 import * as loggers from './loggers';
 import * as helpers from '../util/helpers';
@@ -80,6 +80,7 @@ export class Script implements IScript {
         const moduleLocator = ModuleLoader.getModuleLocator(moduleDescriptor);
 
         const mod = ModuleRepository.lookup[moduleLocator.name];
+        
         if (mod == null) throw new Error(`Module "${moduleLocator.name}" does not exist`);
 
         if (moduleLocator.hasNamespace) {

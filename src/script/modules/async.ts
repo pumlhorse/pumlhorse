@@ -1,7 +1,7 @@
 import { IScope } from '../IScope';
 import enforce from '../../util/enforce';
 import * as _ from 'underscore';
-import { pumlhorse } from '../PumlhorseGlobal';
+import { pumlhorse } from '../../PumlhorseGlobal';
 
 function runParallel(steps) {        
         enforce(steps, 'steps')

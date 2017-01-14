@@ -1,4 +1,4 @@
-import { pumlhorse } from '../PumlhorseGlobal';
+import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
 
 export class JsonModule {

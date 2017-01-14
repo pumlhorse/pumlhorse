@@ -1,12 +1,12 @@
 import { ModuleLoader } from '../script/ModuleLoader';
 import { SessionEvents } from './SessionEvents';
 import { ISessionOutput } from './ISessionOutput';
-import { IScriptDefinition } from '../Script/IScriptDefinition';
-import { Script } from '../Script/Script';
+import { IScriptDefinition } from '../script/IScriptDefinition';
+import { Script } from '../script/Script';
 import { Profile } from './Profile';
 import { IProfile } from './IProfile';
-import { IScript } from '../Script/IScript';
-import * as loggers from '../Script/loggers';
+import { IScript } from '../script/IScript';
+import * as loggers from '../script/loggers';
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
 import * as Bluebird from 'bluebird';
@@ -14,6 +14,7 @@ import * as fs from '../util/asyncFs';
 import * as path from 'path';
 import * as Queue from 'promise-queue';
 import * as util from 'util';
+import { runner } from './filters';
 
 export class ProfileRunner {
     private sessionEvents: ISessionOutput;
@@ -34,7 +35,9 @@ export class ProfileRunner {
         const context = null;
 
         try {
-            //await filters.onSessionStarting();
+            if (!await runner.onSessionStarting()) {
+                return;
+            }
             this.sessionEvents.onSessionStarted()
             await Promise.all([
                 this.buildContext(),
@@ -44,7 +47,7 @@ export class ProfileRunner {
             this.sessionEvents.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
         }
         finally {
-            //await filters.onSessionFinished(scriptsRun);
+            await runner.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
         }
     }
 
@@ -138,6 +141,10 @@ export class ProfileRunner {
     }
 
     private async runScript(scriptContainer: LoadedScript): Promise<any> {
+        if (!await runner.onScriptStarting(scriptContainer.script)) {
+            return;
+        }
+
         this.sessionEvents.onScriptStarted(scriptContainer.script.id);
         await this.loadModules(scriptContainer);
         scriptContainer.script.addFunction('log', function() { scriptContainer.log.apply(scriptContainer, arguments); });
@@ -151,10 +158,12 @@ export class ProfileRunner {
             await scriptContainer.script.run(this.context);
             this.passedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, null);
+            runner.onScriptFinished(scriptContainer.script, true);
         }
         catch (err) {
             this.failedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, err);
+            runner.onScriptFinished(scriptContainer.script, false);
         }
     }
 

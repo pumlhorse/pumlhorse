@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { IScope } from '../IScope';
 import * as Bluebird from 'bluebird';
-import { pumlhorse } from '../PumlhorseGlobal';
+import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
 import * as helpers from '../../util/helpers';
 
