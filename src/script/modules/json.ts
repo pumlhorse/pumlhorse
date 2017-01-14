@@ -1,5 +1,6 @@
 import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
+import * as util from 'util';
 
 export class JsonModule {
     static jsonToObject(val): any {
@@ -9,7 +10,7 @@ export class JsonModule {
 
     static objectToJson(val): string {
         enforce(val).isNotNull();
-        return JSON.stringify(val);
+        return util.inspect(val);
     }
 }
 
