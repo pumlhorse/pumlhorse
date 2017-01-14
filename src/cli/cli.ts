@@ -103,7 +103,7 @@ async function buildProfile(args: any[]): Promise<IProfile> {
 }
 
 async function readProfileFile(filePath): Promise<IProfile> {
-    if (!filePath.endsWith('.pumlprofile')) throw new Error('Profile file must be .pumlprofile')
+    if (!filePath.endsWith('.pumlprofile')) filePath += '.pumlprofile';
     
     var fullPath = path.resolve(filePath)
 
