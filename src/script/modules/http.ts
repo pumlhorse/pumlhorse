@@ -1,5 +1,5 @@
 import { pumlhorse } from '../../PumlhorseGlobal';
-import { IScope } from '../IScope';
+import { IScope, IFullScope } from '../IScope';
 import * as http from 'http-client-factory';
 import enforce from '../../util/enforce';
 
@@ -66,6 +66,19 @@ export class HttpRequestModule {
             return response.body
         }
     }
+
+    static dumpResponse(response: IHttpResponse, $scope: IFullScope) {
+        $scope.log(`Response: ${response.statusCode} - ${response.statusMessage}`);
+        $scope.log('---Headers---');
+        for (var x in response.headers)
+        {
+            $scope.log(`"${x}": "${response.headers[x]}"`);
+        }
+        if (response.body != null) {
+            $scope.log('---Body---');
+            $scope.log(response.body);
+        }
+    }
 }
 
 export class HttpAssertionModule
@@ -126,4 +139,6 @@ pumlhorse.module('http')
     .function('isNotFound', HttpAssertionModule.isNotFound)
     .function('isNotAllowed', HttpAssertionModule.isNotAllowed)
     //Serialization
-    .function('body', HttpRequestModule.getJsonBody);
+    .function('body', HttpRequestModule.getJsonBody)
+    //Debugging
+    .function('dump', HttpRequestModule.dumpResponse);

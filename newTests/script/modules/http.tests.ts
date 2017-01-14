@@ -267,5 +267,31 @@ describe('HTTP assertions', function () {
                 expect(err.message).toBe(`Expected status code ${code.code}, actual: ${badCode}`);
             }
         });
-    });   
+    });
+
+    it('will dump information on a response', () => {
+        // Arrange
+        var response: IHttpResponse = {
+            headers: {
+                'header1': 'header 1 value',
+                'header2': 'header 2 value'                
+            },
+            statusCode: 123,
+            statusMessage: 'status message',
+            body: 'some BODY'
+        };
+        var scopeMock = jasmine.createSpyObj('scope', ['log']);
+        
+        // Act
+        HttpRequestModule.dumpResponse(response, scopeMock);
+        
+        // Assert
+        expect(scopeMock.log).toHaveBeenCalledWith('Response: 123 - status message');
+        expect(scopeMock.log).toHaveBeenCalledWith('---Headers---');
+        expect(scopeMock.log).toHaveBeenCalledWith('"header1": "header 1 value"');
+        expect(scopeMock.log).toHaveBeenCalledWith('"header2": "header 2 value"');
+        expect(scopeMock.log).toHaveBeenCalledWith('---Body---');
+        expect(scopeMock.log).toHaveBeenCalledWith('some BODY');
+    });
+       
 });
