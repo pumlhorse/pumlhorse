@@ -3,7 +3,6 @@ import { pumlhorse } from '../PumlhorseGlobal';
 import { ModuleLoader, ModuleLocator } from './ModuleLoader';
 import { ScriptInterrupt } from './ScriptInterrupt';
 import * as _ from 'underscore';
-import * as Bluebird from 'bluebird';
 import { IScriptDefinition } from './IScriptDefinition';
 import { IScriptInternal } from './IScriptInternal';
 import { Guid } from '../util/Guid';
@@ -80,7 +79,7 @@ export class Script implements IScript {
         const moduleLocator = ModuleLoader.getModuleLocator(moduleDescriptor);
 
         const mod = ModuleRepository.lookup[moduleLocator.name];
-        
+
         if (mod == null) throw new Error(`Module "${moduleLocator.name}" does not exist`);
 
         if (moduleLocator.hasNamespace) {
@@ -183,7 +182,9 @@ class InternalScript implements IScriptInternal {
 
         _.extend(scope, this.modules, this.functions);
 
-        await Bluebird.mapSeries(steps, step => this.runStep(step, scope));
+        for (var i = 0; i < steps.length; i++) {
+            await this.runStep(steps[i], scope);
+        }
     }
 
     private async runStep(stepDefinition: any, scope: IScope) {

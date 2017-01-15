@@ -1,4 +1,4 @@
-import * as Bluebird from 'bluebird';
+
 import * as fs from 'fs';
 import * as YAML from 'pumlhorse-yamljs';
 import * as recursiveReaddir from 'recursive-readdir';

@@ -2,8 +2,6 @@ export interface IScope {
 
     $_: Object;
 
-    $Promise: Object;
-
     $cleanup(task: Function): void;
 
     $cleanupAfter(task: Function): void;

@@ -9,7 +9,6 @@ import { IScript } from '../script/IScript';
 import * as loggers from '../script/loggers';
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
-import * as Bluebird from 'bluebird';
 import * as fs from '../util/asyncFs';
 import * as path from 'path';
 import * as Queue from 'promise-queue';
@@ -179,8 +178,6 @@ export class ProfileRunner {
 
     private DEFAULT_QUEUE_SIZE = 15;
     private getMaxConcurrentFiles(): number {
-        if (this.profile.isSynchronous) return 1;
-
         return this.profile.maxConcurrentFiles != null 
             ? this.profile.maxConcurrentFiles
             : this.DEFAULT_QUEUE_SIZE;

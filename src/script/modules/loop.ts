@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 import { IScope } from '../IScope';
-import * as Bluebird from 'bluebird';
 import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
 import * as helpers from '../../util/helpers';
@@ -8,7 +7,7 @@ import * as helpers from '../../util/helpers';
 
 export class LoopModule
 {
-    static for(each: string, inVals: any[], steps: any[], $scope: IScope) {
+    static async for(each: string, inVals: any[], steps: any[], $scope: IScope): Promise<any> {
         enforce(each, 'each').isNotNull();
         enforce(inVals, 'in').isNotNull()
             .isArray()
@@ -18,14 +17,15 @@ export class LoopModule
             .isArray()
             .isNotEmpty();
         
-        return Bluebird.each(inVals, function (item) {
+        for (var i = 0; i < inVals.length; i++) {
+            var item = inVals[i];
             var newScope = $scope.$new()
             helpers.assignObjectByString(newScope, each, item);
-            return $scope.$runSteps(steps, newScope)
-        })
+            await $scope.$runSteps(steps, newScope)
+        }
     }
 
-    static repeat(times: number, steps: any[], $scope: IScope) {
+    static async repeat(times: number, steps: any[], $scope: IScope): Promise<any> {
         enforce(times, 'times').isNotNull();
         enforce(steps, 'steps')
             .isNotNull()
@@ -33,13 +33,13 @@ export class LoopModule
             .isNotEmpty();
 
         let iterations = 0;
-
-        return LoopModule.promiseWhile(
-            () => iterations++ < times,
-            () => $scope.$runSteps(steps, $scope.$new()));
+        let newScope = $scope.$new();
+        while (iterations++ < times) {
+            await $scope.$runSteps(steps, newScope);
+        }
     }
 
-    static scenarios(cases: any[], steps: any[], base: any, $scope: IScope) {
+    static async scenarios(cases: any[], steps: any[], base: any, $scope: IScope): Promise<any> {
         enforce(cases, 'cases').isNotNull();
         enforce(steps)
             .isNotNull()
@@ -54,21 +54,18 @@ export class LoopModule
         
         var keys = _.keys(cases);    
         
-        return Bluebird.each(keys, function (key) {
+        for (var key in cases) {
             var caseVal = cases[key];
             var fullCase = _.extend({}, base, caseVal);
-            return $scope.$runSteps(steps, $scope.$new(fullCase))
-                .catch(function (e) {
-                    e.message = `Scenario "${key}" failed: ${e.message}`;
-                    throw e;
-                });
-        });
+            try {
+                await $scope.$runSteps(steps, $scope.$new(fullCase))
+            }
+            catch (e) {
+                e.message = `Scenario "${key}" failed: ${e.message}`;
+                throw e;
+            };
+        }
     }
-
-    private static promiseWhile = Bluebird.method(function(condition, action) {
-        if (!condition()) return;
-        return action().then(LoopModule.promiseWhile.bind(null, condition, action));
-    });
 }
 
 pumlhorse.module('loop')

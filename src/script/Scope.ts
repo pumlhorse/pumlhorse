@@ -1,6 +1,5 @@
 import { ScriptInterrupt } from './ScriptInterrupt';
 import * as _ from 'underscore';
-import * as Bluebird from 'bluebird';
 import enforce from '../util/enforce';
 import { Guid } from '../util/Guid';
 import { IScope } from './IScope';
@@ -11,12 +10,9 @@ export class Scope implements IScope {
 
     $_: Object;
 
-    $Promise: Object;
-
     constructor(private script: IScriptInternal,
         scope?: IScope) {
         this.$_ = _;
-        this.$Promise = Bluebird;
 
         _.extend(this, scope);
     }

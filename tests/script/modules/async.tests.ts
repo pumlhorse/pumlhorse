@@ -26,7 +26,7 @@ describe('async', () => {
         });
         script.addFunction('logMessageInRandomOrder', function(message) {
             var scope = this;
-            return new scope.$Promise((resolve, reject) => { 
+            return new Promise((resolve, reject) => { 
                 setTimeout(function() { spy(message); resolve(); }, Math.random() * 100) 
             });
         })

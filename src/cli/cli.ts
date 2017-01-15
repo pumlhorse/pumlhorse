@@ -2,7 +2,7 @@ import { IProfile } from '../profile/IProfile';
 import { Profile } from '../profile/Profile';
 import { CliOutput } from './CliOutput';
 import * as path from 'path';
-import * as commandLineArgs from 'command-line-args';
+import * as minimist from 'minimist';
 import * as _ from 'underscore';
 import * as colors from 'colors';
 import { App } from '../App';
@@ -32,72 +32,61 @@ export async function run(args) {
     } 
 }
 
+var cliOptions = {
+    string: ['context', 'profile'],
+    boolean: ['recursive', 'version', 'help'],
+    alias: {
+        context: 'c',
+        profile: 'p',
+        recursive: 'r',
+        version: 'v',
+        help: '?'
+    }
+}
+
+function showUsage() {
+    console.log('Usage: pumlhorse [options] [files_or_dirs]');
+    console.log('Options:');
+    console.log('  --profile, -p [profile_file]\t\tUse the given profile');
+    console.log('  --context, -c [context_files]\t\tUse the given context file(s)');
+    console.log('  --max-concurrent [number]\t\tThe maximum number of files to run at the same time');
+    console.log('  --recursive, -r\t\t\tCheck for .puml files in subdirectories');
+    console.log('  --version, -v\t\t\t\tShow version info');
+    console.log('  --help, -?\t\t\t\tShow this usage info');
+}
+
 async function buildProfile(args: any[]): Promise<IProfile> {
-    var cli = commandLineArgs([
-        {
-            name: 'filesOrDirs',
-            defaultOption: true,
-            multiple: true,
-            type: String
-        },
-        {
-            name: 'context',
-            alias: 'c',
-            multiple: true,
-            type: String,
-            defaultValue: []
-        },
-        {
-            name: 'recursive',
-            alias: 'r',
-            type: Boolean
-        },
-        {
-            name: 'sync',
-            type: Boolean
-        },
-        {
-            name: 'max-concurrent',
-            type: Number
-        },
-        {
-            name: 'profile',
-            alias: 'p',
-            type: String
-        },
-        {
-            name: 'version',
-            alias: 'v',
-            type: Boolean
-        }
-    ])
     
-    var argObj = cli.parse(args);
-    
-    if (argObj.version) {
+    var options = minimist(args, cliOptions);
+
+    if (options.version) {
         loggers.log('Pumlhorse: version ' + require('../../package.json').version)
         return null;
     }
-    
+
+    if (options.help) {
+        showUsage();
+        return null;
+    }
+
     let profile: IProfile;
-    if (argObj.profile == null) {
+    if (options.profile == null) {
         profile = new Profile();
     }
     else {
-        profile = await readProfileFile(argObj.profile);
+        profile = await readProfileFile(options.profile);
     }
     
-    if (profile.include == null && argObj.filesOrDirs == null) {
+    if (profile.include == null && options._ == null) {
         profile.include = ['.'];
     }
     else {
-        profile.include = combine(profile.include, argObj.filesOrDirs);
+        profile.include = combine(profile.include, options._);
     }
 
-    profile.contexts = combine(profile.contexts, argObj.context)
-    profile.isRecursive = override(argObj.recursive, profile.isRecursive)
-    profile.isSynchronous = override(argObj.sync, profile.isSynchronous)
-    profile.maxConcurrentFiles = override(argObj['max-concurrent'], profile.maxConcurrentFiles)
+    profile.contexts = combine(profile.contexts, options.context)
+    profile.isRecursive = override(options.recursive, profile.isRecursive)
+    profile.maxConcurrentFiles = override(options['max-concurrent'], profile.maxConcurrentFiles)
                     
     return profile;
 }
