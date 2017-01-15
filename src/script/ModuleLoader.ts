@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
 
-const requireFromPath = require('../util/requireFromPath');
+const requireFromPath = require('../../util/requireFromPath');
 
 export class ModuleLoader {
 
