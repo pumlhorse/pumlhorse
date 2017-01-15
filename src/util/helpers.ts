@@ -50,7 +50,7 @@ function assignObjectByString(obj: Object, str: string, value: any) {
 
 function getItemCount(obj: any[] | Object) {
     if (_.isArray(obj)) {
-        return obj.length
+        return (<any[]>obj).length;
     }
     
     if (_.isObject(obj)) {

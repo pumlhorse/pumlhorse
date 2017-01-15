@@ -5,7 +5,7 @@
   "main": "./lib/app.js",
   "bin": "bin/cli.js",
   "scripts": {
-    "test": "jasmine"
+    "test": "tsc -p ./configs/tsconfig.test.json && jasmine"
   },
   "repository": {
     "type": "git",

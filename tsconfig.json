@@ -1,19 +1,10 @@
 {
-    "compileOnSave": true,
+    "extends": "./configs/tsconfig.base.json",
     "compilerOptions": {
-        "lib": [ "es2015"],
-        "allowJs": false,
-        "target": "es5",
-        "removeComments": true,
-        "moduleResolution": "node",
-        "sourceMap": true
-    },
-    "typeAcquisition": {
-        "enable": true
+        "outDir": "lib"
     },
     "include": [
-        "./src/**/*",
-        "./newTests/**/*"
+        "./src/**/*"
     ],
     "exclude": [
         "./src/util/requireFromPath.js"
