@@ -1,5 +1,5 @@
 import { pumlhorse } from '../../src/PumlhorseGlobal';
-/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+///<reference path="../../typings/jasmine/jasmine.d.ts" />
 
 import { Script } from '../../src/script/Script';
 import { setLoggers } from '../../src/script/loggers';
