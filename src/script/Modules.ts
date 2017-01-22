@@ -28,6 +28,11 @@ class ModuleBuilder {
     export(): Object {
         return this.module;
     }
+
+    //Deprecated, added for backward compatibility
+    asExport(): Object {
+        return this.export();
+    }
 }
 
 const AliasListKey = '__alias';
