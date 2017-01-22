@@ -61,7 +61,7 @@ export class Script implements IScript {
             await this.internalScript.runSteps(this.scriptDefinition.steps, scope);
         }
         catch (e) {
-            if (e instanceof ScriptInterrupt) {
+            if (e.__nonErrorScriptInterrupt == true) {
                 return;
             }
             throw e;
@@ -178,6 +178,7 @@ class InternalScript implements IScriptInternal {
     async runSteps(steps: any[], scope: IScope): Promise<any> {
         if (steps == null || steps.length == 0) {
             loggers.warn('Script does not contain any steps');
+            return;
         }
 
         _.extend(scope, this.modules, this.functions);
