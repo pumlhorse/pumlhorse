@@ -31,3 +31,5 @@ steps:
     value:
       game: horseshoe 
     partial: true
+- isNull: null
+- isNotNull: 19
