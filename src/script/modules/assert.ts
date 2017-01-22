@@ -70,6 +70,10 @@ export class AssertModule {
         if (!isFound) throw AssertModule.getMessageError('contains', `Array did not contain ${val}`)
     }
 
+    public static fail(message) {
+        throw new Error(message == null ? "Fail called" : message);
+    }
+
     private static getMessageError(command: string, message: string) {
         return new Error(`Assertion '${command}' failed. ${message}`);
     }
@@ -112,4 +116,5 @@ pumlhorse.module('assert')
     .function('areNotEqual', AssertModule.areNotEqual)
     .function('isEmpty', ['$all', AssertModule.isEmpty])
     .function('isNotEmpty', ['$all', AssertModule.isNotEmpty])
-    .function('contains', ['array', 'value', 'partial', AssertModule.contains]);
+    .function('contains', ['array', 'value', 'partial', AssertModule.contains])
+    .function('fail', AssertModule.fail);
