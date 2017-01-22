@@ -11,6 +11,8 @@ export class HttpRequestModule {
 
         var client = http.getClient();
 
+        client.addHeader('User-Agent', 'Pumlhorse HTTP Client');
+
         if (headers != null) {
             for(var x in headers) {
                 client.addHeader(x, headers[x]);
