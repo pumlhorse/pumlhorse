@@ -135,7 +135,7 @@ export class ProfileRunner {
 
     private async runFile(filename: string): Promise<any> {
         var scriptDetails = await LoadedScript.load(filename, this.sessionEvents);
-        this.sessionEvents.onScriptPending(scriptDetails.script.id, filename);
+        this.sessionEvents.onScriptPending(scriptDetails.script.id, filename, scriptDetails.script.name);
         await this.runScript(scriptDetails);
     }
 

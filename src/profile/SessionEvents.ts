@@ -9,7 +9,7 @@ export class SessionEvents implements ISessionOutput {
 
         this.addListener(Event.SessionStart, () => sessionOutput.onSessionStarted());
         this.addListener(Event.SessionFinish, (p, f) => sessionOutput.onSessionFinished(p, f));
-        this.addListener(Event.ScriptPending, (id, n) => sessionOutput.onScriptPending(id, n));
+        this.addListener(Event.ScriptPending, (id, fn, sn) => sessionOutput.onScriptPending(id, fn, sn));
         this.addListener(Event.ScriptStart, (id) => sessionOutput.onScriptStarted(id));
         this.addListener(Event.ScriptFinish, (id, err) => sessionOutput.onScriptFinished(id, err));
         this.addListener(Event.Log, (id, lvl, msg) => sessionOutput.onLog(id, lvl, msg));
@@ -25,8 +25,8 @@ export class SessionEvents implements ISessionOutput {
         this.emitter.emit(Event.SessionFinish, scriptsPassed, scriptsFailed);
     }
 
-    onScriptPending(scriptId: string, scriptName: string) {
-        this.emitter.emit(Event.ScriptPending, scriptId, scriptName);
+    onScriptPending(scriptId: string, fileName: string, scriptName: string) {
+        this.emitter.emit(Event.ScriptPending, scriptId, fileName, scriptName);
     }
 
     onScriptStarted(scriptId: string) {

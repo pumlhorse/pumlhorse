@@ -5,6 +5,7 @@ import * as colors from 'colors';
 export class CliOutput implements ISessionOutput {
 
     private scriptLogs = {};
+    private completedScripts = 0;
 
     onSessionFinished(passed, failures) {
         const totalCount = passed + failures;
@@ -21,8 +22,8 @@ export class CliOutput implements ISessionOutput {
         }
     }
     
-    onScriptPending(id: string, scriptName: string) {
-        this.scriptLogs[id] = new BufferedLogger(scriptName)
+    onScriptPending(id: string, fileName: string, scriptName: string) {
+        this.scriptLogs[id] = new BufferedLogger(fileName, scriptName);
     }
 
     onScriptFinished(id, err) {
@@ -32,7 +33,7 @@ export class CliOutput implements ISessionOutput {
             logger.log('error', lineNumber + (err.message ? err.message : err))
             logger.log('error', 'SCRIPT FAILED')
         }
-        this.scriptLogs[id].flush()
+        this.scriptLogs[id].flush();
     }
 
     onLog(id, level, message) {
@@ -52,15 +53,16 @@ class LogMessage {
 class BufferedLogger {
     private messages: LogMessage[] = [];
 
-    constructor(private scriptName: string) {
+    constructor(private fileName: string, private scriptName: string) {
         
     }
     
     flush() {
         if (this.messages.length > 0) {
-            loggers.log('--------------\r\n## ' + this.scriptName + ' ##')
+            loggers.log('--------------');
+            loggers.log(`## ${this.scriptName} - ${this.fileName} ##`);
             this.messages.forEach(function (m) {
-                m.logger(m.message)
+                m.logger(m.message);
             })
         }
     }
