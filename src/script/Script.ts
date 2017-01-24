@@ -40,7 +40,6 @@ export class Script implements IScript {
     public static readonly StandardModules = Script.DefaultModules.concat(['http', 'stats']);
 
     constructor(private scriptDefinition: IScriptDefinition) {
-
         validateScriptDefinition(this.scriptDefinition);
 
         this.id = new Guid().value;

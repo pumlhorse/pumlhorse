@@ -52,7 +52,12 @@ export class Step {
 
     // Run a step that does not contain any parameters
     private async runSimpleStep() {
-        return await doEval(this.functionName, true, this.scope);
+        try {
+            return await doEval(this.functionName, true, this.scope);
+        }
+        catch (err) {
+            throw new ScriptError(err, this.lineNumber);
+        }
     }
 
     private async runComplexStep() {
@@ -74,7 +79,7 @@ export class Step {
         var definedParameterNames = helpers.getParameters(this.runFunc);
 
         if (definedParameterNames.length == 0) {
-            return [this.evaluateParameter(this.parameters)];
+            return [this.evaluateParameter(this.parameters, null)];
         }
 
         const aliases = StepFunction.getAliases(this.runFunc);
@@ -87,13 +92,13 @@ export class Step {
         
         if (this.isParameterName('$scope', name, aliases)) return this.scope;        
         if (this.isParameterName('$all', name, aliases)) {
-            return this.evaluateParameter(this.parameters);
+            return this.evaluateParameter(this.parameters, name);
         }
 
         let parameterValue = undefined;
         if (index == 0 && 
             (_.isArray(this.parameters) || helpers.isValueType(this.parameters))) {
-            return this.evaluateParameter(this.parameters)
+            return this.evaluateParameter(this.parameters, name)
         }
         else if (this.parameters != null && 
             _.isObject(this.parameters)) {
@@ -105,11 +110,11 @@ export class Step {
 
         return parameterValue == undefined
             ? undefined
-            : this.evaluateParameter(parameterValue);
+            : this.evaluateParameter(parameterValue, name);
     }
 
-    private evaluateParameter(value, key?) {
-        if (StepFunction.hasDeferredParameter(this.runFunc, key)) return value;
+    private evaluateParameter(value, name) {
+        if (StepFunction.hasDeferredParameter(this.runFunc, name)) return value;
             
         return doEval(value, true, this.scope);
     }
