@@ -1,3 +1,4 @@
+import { IProfile } from '../profile/IProfile';
 import { ISessionOutput } from '../profile/ISessionOutput';
 import * as loggers from '../script/loggers';
 import * as colors from 'colors';
@@ -6,6 +7,10 @@ export class CliOutput implements ISessionOutput {
 
     private scriptLogs = {};
     private completedScripts = 0;
+
+    constructor(private profile: IProfile) {
+
+    }
 
     onSessionFinished(passed, failures) {
         const totalCount = passed + failures;
@@ -27,11 +32,14 @@ export class CliOutput implements ISessionOutput {
     }
 
     onScriptFinished(id, err) {
-        var logger = this.scriptLogs[id]
+        var logger = this.scriptLogs[id];
         if (err) {
-            const lineNumber = err.lineNumber ? 'Line ' + err.lineNumber + ': ' : ''
-            logger.log('error', lineNumber + (err.message ? err.message : err))
-            logger.log('error', 'SCRIPT FAILED')
+            const lineNumber = err.lineNumber ? 'Line ' + err.lineNumber + ': ' : '';
+            logger.log('error', lineNumber + (err.message ? err.message : err));
+            if (this.profile.isVerbose && err.stack != null) {
+                logger.log('error', lineNumber + err.stack);
+            }
+            logger.log('error', 'SCRIPT FAILED');
         }
         this.scriptLogs[id].flush();
     }

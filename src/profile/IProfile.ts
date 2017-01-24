@@ -6,6 +6,7 @@ export interface IProfile {
     maxConcurrentFiles?: number;
     modules: Module[];
     settings?: Object;
+    isVerbose: boolean;
 }
 
 export class Module {

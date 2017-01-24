@@ -7,6 +7,7 @@ export class Profile implements IProfile {
     maxConcurrentFiles?: number;
     modules: Module[];
     settings?: Object;
+    isVerbose: boolean;
 
     constructor() {
         this.contexts = [];
@@ -16,5 +17,6 @@ export class Profile implements IProfile {
         this.maxConcurrentFiles = null;
         this.modules = [];
         this.settings = null;
+        this.isVerbose = false;
     }
 }

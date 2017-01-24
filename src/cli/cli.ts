@@ -20,7 +20,7 @@ export async function run(args) {
         try {
             const app = new App();
             configureLoggers();
-            await app.runProfile(profile, new CliOutput());
+            await app.runProfile(profile, new CliOutput(profile));
         }
         catch (err) {
             logError(err);
@@ -34,7 +34,7 @@ export async function run(args) {
 
 var cliOptions = {
     string: ['context', 'profile'],
-    boolean: ['recursive', 'version', 'help'],
+    boolean: ['recursive', 'version', 'help', 'verbose'],
     alias: {
         context: 'c',
         profile: 'p',
@@ -51,6 +51,8 @@ function showUsage() {
     console.log('  --context, -c [context_files]\t\tUse the given context file(s)');
     console.log('  --max-concurrent [number]\t\tThe maximum number of files to run at the same time');
     console.log('  --recursive, -r\t\t\tCheck for .puml files in subdirectories');
+    console.log('  --verbose\t\t\t\tShow more details in output');
+    console.log('');
     console.log('  --version, -v\t\t\t\tShow version info');
     console.log('  --help, -?\t\t\t\tShow this usage info');
 }
@@ -84,9 +86,10 @@ async function buildProfile(args: any[]): Promise<IProfile> {
         profile.include = combine(profile.include, options._);
     }
 
-    profile.contexts = combine(profile.contexts, options.context)
-    profile.isRecursive = override(options.recursive, profile.isRecursive)
-    profile.maxConcurrentFiles = override(options['max-concurrent'], profile.maxConcurrentFiles)
+    profile.contexts = combine(profile.contexts, options.context);
+    profile.isRecursive = override(options.recursive, profile.isRecursive);
+    profile.maxConcurrentFiles = override(options['max-concurrent'], profile.maxConcurrentFiles);
+    profile.isVerbose = options.verbose;
                     
     return profile;
 }
