@@ -116,5 +116,5 @@ pumlhorse.module('assert')
     .function('areNotEqual', AssertModule.areNotEqual)
     .function('isEmpty', ['$all', AssertModule.isEmpty])
     .function('isNotEmpty', ['$all', AssertModule.isNotEmpty])
-    .function('contains', ['array', 'value', 'partial', AssertModule.contains])
+    .function('contains', ['in', 'value', 'partial', AssertModule.contains])
     .function('fail', AssertModule.fail);
