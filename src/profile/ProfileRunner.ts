@@ -134,7 +134,14 @@ export class ProfileRunner {
     }
 
     private async runFile(filename: string): Promise<any> {
-        var scriptDetails = await LoadedScript.load(filename, this.sessionEvents);
+        var scriptDetails: LoadedScript;
+        try {
+            scriptDetails = await LoadedScript.load(filename, this.sessionEvents);
+        }
+        catch (e) {
+            e.message = `Error parsing file ${filename}: ${e.message}`;
+            throw e;
+        }
         this.sessionEvents.onScriptPending(scriptDetails.script.id, filename, scriptDetails.script.name);
         await this.runScript(scriptDetails);
     }
