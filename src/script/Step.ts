@@ -152,9 +152,12 @@ function doEval(input: any, compile: boolean, scope: any): any {
         var parts = stringParser.parse(input)
         parts = parts
             .map((p) => {
-                return compile == true && p.isTokenized
-                    ? Expression.compile(p.value.trim())(scope)
-                    : p.value
+                if (!compile || !p.isTokenized) return p.value;
+
+                var val = Expression.compile(p.value.trim())(scope);
+                return val instanceof String
+                    ? val.toString() //Transform to a normal string
+                    : val;
             })
         return parts.length > 1 
             ? parts.join("")
