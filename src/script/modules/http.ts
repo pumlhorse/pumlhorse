@@ -3,8 +3,6 @@ import { IScope, IFullScope } from '../IScope';
 import * as http from 'http-client-factory';
 import enforce from '../../util/enforce';
 
-const verbs = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
-
 export class HttpRequestModule {
     static async makeRequest(verb: string, url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
         enforce(url, 'url').isNotNull().isNotEmpty();
