@@ -71,7 +71,7 @@ var openingSymbols = {
 }
 
 class SimpleState implements IParseState {
-    private static tokenCharacters = /[\w\d\.\_]/i;
+    private static tokenCharacters = /[\w\d\.\_\$]/i;
 
     value: string = '';
     type: StringType = StringType.tokenized;
