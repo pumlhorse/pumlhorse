@@ -1,8 +1,8 @@
 export interface IScope {
 
-    _cleanup(task: Function): void;
+    _cleanup(task: any): void;
 
-    _cleanupAfter(task: Function): void;
+    _cleanupAfter(task: any): void;
 
     _emit(eventName: string, eventInfo: any): void;
 
