@@ -1,4 +1,3 @@
-import { ScriptInterrupt } from './ScriptInterrupt';
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
 import { Guid } from '../util/Guid';
@@ -8,32 +7,27 @@ import { ModuleRepository } from './Modules';
 
 export class Scope implements IScope {
 
-    $_: Object;
+    scriptId: string;
 
     constructor(private script: IScriptInternal,
         scope?: IScope) {
-        this.$_ = _;
-
         _.extend(this, scope);
+        this.scriptId = script.id;
     }
 
-    $cleanup(task: any): void {
+    _cleanup(task: any): void {
         this.script.addCleanupTask(task);
     }
 
-    $cleanupAfter(task: any): void {
+    _cleanupAfter(task: any): void {
         this.script.addCleanupTask(task, true);
     }
 
-    $emit(eventName: string, eventInfo: any): void {
+    _emit(eventName: string, eventInfo: any): void {
         this.script.emit(eventName, eventInfo);
     }
 
-    $end(): void {
-        throw new ScriptInterrupt();
-    }
-
-    $module(moduleName: string): any {
+    _module(moduleName: string): any {
         enforce(moduleName).isNotNull();
 
         const mod = ModuleRepository.lookup[moduleName];
@@ -45,19 +39,16 @@ export class Scope implements IScope {
         return mod;
     }
 
-    $new(scope?: IScope): IScope {
+    _new(scope?: IScope): IScope {
         return new Scope(this.script, _.extend({}, this, scope));
     }
 
-    async $runSteps(steps: any[], scope: IScope) {
+    async _runSteps(steps: any[], scope: IScope) {
         return await this.script.runSteps(steps, scope);
     }
 
-    $scriptId(): string {
-        return this.script.id;
-    }
-
-    $id(): string {
+    _id(): string {
         return new Guid().value;
     }
+
 }

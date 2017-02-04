@@ -307,7 +307,7 @@ describe('Script', () => {
             
             // Assert
             expect(mock).toHaveBeenCalledWith(456, jasmine.objectContaining({
-                $emit: jasmine.any(Function),
+                _emit: jasmine.any(Function),
                 someVal: 321
             }));
         }));
@@ -336,7 +336,7 @@ describe('Script', () => {
                 testVal: 456,
                 complex: { val: "here"}
             },jasmine.objectContaining({
-                $emit: jasmine.any(Function),
+                _emit: jasmine.any(Function),
                 someVal: 321
             }));
         }));
@@ -539,7 +539,7 @@ describe('Script', () => {
             
             // Assert
 			expect(mock).toHaveBeenCalledWith(jasmine.objectContaining({
-                $emit: jasmine.any(Function),
+                _emit: jasmine.any(Function),
                 someVal: 321
             }));
         }));
@@ -559,19 +559,19 @@ describe('Script', () => {
             
             // Assert
             expect(mock).toHaveBeenCalledWith(jasmine.objectContaining({
-                $emit: jasmine.any(Function),
+                _emit: jasmine.any(Function),
                 someVal: 321
             }), 11, 22);
         }));
 
-        it('allows a module to access another module through $module',testAsync(async () => {
+        it('allows a module to access another module through _module',testAsync(async () => {
             // Arrange
             pumlhorse.module('goodModule')
                 .function('sayHello', function () { mock(); });
             pumlhorse.module('otherModule')
                 .function('callOtherModule', function() {
                     var scope = this;
-                    scope.$module('goodModule').sayHello();
+                    scope._module('goodModule').sayHello();
                 });
             var script = new Script({
                 name: 'test script',
@@ -683,7 +683,7 @@ describe('Script', () => {
                 ]);
             script.addFunction('methodWithCleanup', function () {
                 var scope = this;
-                scope.$cleanup(() => mock('this is in cleanup'));
+                scope._cleanup(() => mock('this is in cleanup'));
             });
             
             // Act
@@ -705,7 +705,7 @@ describe('Script', () => {
             script.addFunction('methodWithCleanup', function () {
                 var scope = this;
                 var num = i++;
-                scope.$cleanup(() => arr.push(num));
+                scope._cleanup(() => arr.push(num));
             });
             
             // Act
@@ -729,7 +729,7 @@ describe('Script', () => {
             script.addFunction('methodWithCleanup', function () {
                 var scope = this;
                 var num = i++;
-                scope.$cleanupAfter(() => arr.push(num));
+                scope._cleanupAfter(() => arr.push(num));
             });
             
             // Act

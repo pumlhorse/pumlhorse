@@ -1,24 +1,20 @@
 export interface IScope {
 
-    $_: Object;
+    _cleanup(task: Function): void;
 
-    $cleanup(task: Function): void;
+    _cleanupAfter(task: Function): void;
 
-    $cleanupAfter(task: Function): void;
+    _emit(eventName: string, eventInfo: any): void;
 
-    $emit(eventName: string, eventInfo: any): void;
+    _module(moduleName: string): any;
 
-    $end(): void;
+    _new(scope?: IScope): IScope;
 
-    $module(moduleName: string): any;
+    _runSteps(steps: any[], scope: IScope): Promise<any>;
 
-    $new(scope?: IScope): IScope;
-
-    $runSteps(steps: any[], scope: IScope): Promise<any>;
-
-    $scriptId(): string;
-
-    $id(): string;
+    _id(): string;
+    
+    scriptId: string;
 
 }
 

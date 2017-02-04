@@ -11,7 +11,7 @@ function runParallel(steps) {
         var scope = this;
         return Promise.all(steps.map(step => {
             var newSteps = _.flatten([step]);
-            return scope.$runSteps(newSteps, scope);
+            return scope._runSteps(newSteps, scope);
         }))
     }
 

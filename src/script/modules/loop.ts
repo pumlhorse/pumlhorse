@@ -19,9 +19,9 @@ export class LoopModule
         
         for (var i = 0; i < inVals.length; i++) {
             var item = inVals[i];
-            var newScope = $scope.$new()
+            var newScope = $scope._new()
             helpers.assignObjectByString(newScope, each, item);
-            await $scope.$runSteps(steps, newScope)
+            await $scope._runSteps(steps, newScope)
         }
     }
 
@@ -33,9 +33,9 @@ export class LoopModule
             .isNotEmpty();
 
         let iterations = 0;
-        let newScope = $scope.$new();
+        let newScope = $scope._new();
         while (iterations++ < times) {
-            await $scope.$runSteps(steps, newScope);
+            await $scope._runSteps(steps, newScope);
         }
     }
 
@@ -58,7 +58,7 @@ export class LoopModule
             var caseVal = cases[key];
             var fullCase = _.extend({}, base, caseVal);
             try {
-                await $scope.$runSteps(steps, $scope.$new(fullCase))
+                await $scope._runSteps(steps, $scope._new(fullCase))
             }
             catch (e) {
                 e.message = `Scenario "${key}" failed: ${e.message}`;

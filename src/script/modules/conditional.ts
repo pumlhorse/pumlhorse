@@ -19,7 +19,7 @@ export class ConditionalModule
             steps = isFalse;
         }
 
-        return $scope.$runSteps(steps, $scope.$new());
+        return $scope._runSteps(steps, $scope._new());
     }
 
 }

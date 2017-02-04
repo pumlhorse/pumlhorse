@@ -8,8 +8,8 @@ describe('Loop module', () => {
         it('repeats function call for the given number of times', testAsync(async () => {
             // Arrange
             const scope = getScope();
-            scope.$runSteps.and.returnValue(Promise.resolve({}));
-            scope.$new.and.returnValue(scope);
+            scope._runSteps.and.returnValue(Promise.resolve({}));
+            scope._new.and.returnValue(scope);
 
             var steps = ['repeatTest'];
             
@@ -17,8 +17,8 @@ describe('Loop module', () => {
             await LoopModule.repeat(4, steps, scope);
             
             // Assert
-            expect(scope.$runSteps).toHaveBeenCalledTimes(4);
-            expect(scope.$runSteps).toHaveBeenCalledWith(steps, scope);            
+            expect(scope._runSteps).toHaveBeenCalledTimes(4);
+            expect(scope._runSteps).toHaveBeenCalledWith(steps, scope);            
         }));
         
     });
@@ -33,14 +33,14 @@ describe('Loop module', () => {
             await LoopModule.for('val', ['val 1', 'val 3', 'val 7'], steps, scope);
             
             // Assert
-            expect(scope.$runSteps).toHaveBeenCalledTimes(3);
-            expect(scope.$runSteps).toHaveBeenCalledWith(steps, jasmine.objectContaining({
+            expect(scope._runSteps).toHaveBeenCalledTimes(3);
+            expect(scope._runSteps).toHaveBeenCalledWith(steps, jasmine.objectContaining({
                 val: 'val 1'
             }));
-            expect(scope.$runSteps).toHaveBeenCalledWith(steps, jasmine.objectContaining({
+            expect(scope._runSteps).toHaveBeenCalledWith(steps, jasmine.objectContaining({
                 val: 'val 3'
             }));
-            expect(scope.$runSteps).toHaveBeenCalledWith(steps, jasmine.objectContaining({
+            expect(scope._runSteps).toHaveBeenCalledWith(steps, jasmine.objectContaining({
                 val: 'val 7'
             }));
             expect(scope.val).toBeUndefined();
@@ -55,8 +55,8 @@ describe('Loop module', () => {
     }
 
     function getScope(): any {
-        const scope = jasmine.createSpyObj('scope', ['$new', '$runSteps']);
-        scope.$new.and.callFake((stack) => _.extend({}, scope, stack));
+        const scope = jasmine.createSpyObj('scope', ['_new', '_runSteps']);
+        scope._new.and.callFake((stack) => _.extend({}, scope, stack));
         
         return scope;
     }
