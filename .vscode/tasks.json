@@ -1,0 +1,37 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "command": "tsc",
+    "tasks": [
+        {
+            "taskName": "Build",
+            "command": "tsc",
+            "isBuildCommand": true,
+            "isShellCommand": true,
+            "args": ["-p", "."],
+            "showOutput": "silent",
+            "problemMatcher": "$tsc-watch"
+        },
+        {
+            "taskName": "Test",
+            "command": "npm",
+            "args": ["test"],
+            "isTestCommand": true,
+            "isShellCommand": true
+        },
+        {
+            "taskName": "Generate d.ts file",
+            "command": "dts-generator",
+            "args": [
+                "--name",
+                "pumlhorse",
+                "--project",
+                ".",
+                "--out",
+                "pumlhorse.d.ts"
+            ],
+            "isShellCommand": true
+        }
+    ]
+}
