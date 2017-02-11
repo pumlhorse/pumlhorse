@@ -4,7 +4,14 @@ import enforce from '../util/enforce';
 import * as helpers from '../util/helpers';
 import * as loggers from '../script/loggers';
 
-class FilterRunner {
+interface IFilterRunner {
+    onSessionStarting(): Promise<boolean>;
+    onScriptStarting(script: IScript): Promise<boolean>;
+    onScriptFinished(script: IScript, isSuccess: boolean): Promise<any>;
+    onSessionFinished(passedScripts: number, failedScripts: number): Promise<any>;
+}
+
+class FilterRunner implements IFilterRunner {
 
     sessionStartingFilters: (() => boolean)[] = [];
     async onSessionStarting(): Promise<boolean> {
@@ -71,34 +78,41 @@ class FilterRunner {
     }
 }
 
-class FilterBuilder {
+export interface IFilterBuilder {
+    onSessionStarting(handler: (() => boolean)): IFilterBuilder;
+    onScriptStarting(handler: ((s: IScript) => boolean)): IFilterBuilder;
+    onScriptFinished(handler: ((s: IScript, success: boolean) => void)): IFilterBuilder;
+    onSessionFinished(handler: ((passed: number, failed: number) => void)): IFilterBuilder;
+}
+
+class FilterBuilder implements IFilterBuilder {
 
     constructor(private runner: FilterRunner) {
 
     }
 
-    onSessionStarting(handler: (() => boolean)): FilterBuilder {
+    onSessionStarting(handler: (() => boolean)): IFilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
         this.runner.sessionStartingFilters.push(handler);
         return this;
     }
 
-    onScriptStarting(handler: ((s: IScript) => boolean)): FilterBuilder {
+    onScriptStarting(handler: ((s: IScript) => boolean)): IFilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
         this.runner.scriptStartingFilters.push(handler);
         return this;
     }
 
-    onScriptFinished(handler: ((s: IScript, success: boolean) => void)): FilterBuilder {
+    onScriptFinished(handler: ((s: IScript, success: boolean) => void)): IFilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
         this.runner.scriptFinishedFilters.push(handler);
         return this;
     }
 
-    onSessionFinished(handler: ((passed: number, failed: number) => void)): FilterBuilder {
+    onSessionFinished(handler: ((passed: number, failed: number) => void)): IFilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
         this.runner.sessionFinishedFilters.push(handler);
@@ -106,10 +120,12 @@ class FilterBuilder {
     }
 }
 
-export const runner: FilterRunner = new FilterRunner();
+const _runner: FilterRunner = new FilterRunner();
 
-export function getFilterBuilder() {
-    return new FilterBuilder(runner);
+export const Runner: IFilterRunner = _runner;
+
+export function getFilterBuilder(): IFilterBuilder {
+    return new FilterBuilder(_runner);
 }
 
 

@@ -4,11 +4,12 @@ import { CliOutput } from './CliOutput';
 import * as path from 'path';
 import * as minimist from 'minimist';
 import * as _ from 'underscore';
-import * as colors from 'colors';
 import { App } from '../App';
 import { IApp } from '../IApp';
 import * as loggers from '../script/loggers';
 import * as fs from '../util/asyncFs';
+
+const colors = require('colors');
 
 export async function run(args) {
     console.time('Total time')

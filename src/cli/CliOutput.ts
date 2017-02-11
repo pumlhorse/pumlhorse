@@ -1,7 +1,7 @@
 import { IProfile } from '../profile/IProfile';
 import { ISessionOutput } from '../profile/ISessionOutput';
 import * as loggers from '../script/loggers';
-import * as colors from 'colors';
+const colors = require('colors');
 
 export class CliOutput implements ISessionOutput {
 

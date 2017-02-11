@@ -14,7 +14,7 @@ export class ModuleRepository {
     }
 }
 
-class ModuleBuilder {
+export class ModuleBuilder {
     constructor(private module: any) {
     }
 

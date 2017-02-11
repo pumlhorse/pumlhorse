@@ -13,7 +13,7 @@ import * as fs from '../util/asyncFs';
 import * as path from 'path';
 import * as Queue from 'promise-queue';
 import * as util from 'util';
-import { runner } from './filters';
+import { Runner } from './filters';
 
 export class ProfileRunner {
     private sessionEvents: ISessionOutput;
@@ -34,7 +34,7 @@ export class ProfileRunner {
         const context = null;
 
         try {
-            if (!await runner.onSessionStarting()) {
+            if (!await Runner.onSessionStarting()) {
                 return;
             }
             this.sessionEvents.onSessionStarted()
@@ -46,7 +46,7 @@ export class ProfileRunner {
             this.sessionEvents.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
         }
         finally {
-            await runner.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
+            await Runner.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
         }
     }
 
@@ -147,7 +147,7 @@ export class ProfileRunner {
     }
 
     private async runScript(scriptContainer: LoadedScript): Promise<any> {
-        if (!await runner.onScriptStarting(scriptContainer.script)) {
+        if (!await Runner.onScriptStarting(scriptContainer.script)) {
             return;
         }
 
@@ -164,12 +164,12 @@ export class ProfileRunner {
             await scriptContainer.script.run(this.context);
             this.passedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, null);
-            runner.onScriptFinished(scriptContainer.script, true);
+            Runner.onScriptFinished(scriptContainer.script, true);
         }
         catch (err) {
             this.failedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, err);
-            runner.onScriptFinished(scriptContainer.script, false);
+            Runner.onScriptFinished(scriptContainer.script, false);
         }
     }
 

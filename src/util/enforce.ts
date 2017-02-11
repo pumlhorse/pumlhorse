@@ -4,7 +4,7 @@ export default function(value: any, parameterName?: string): Enforcement {
     return new Enforcement(value, parameterName);
 }
 
-class Enforcement {
+export class Enforcement {
     value: any;
     parameterName: string;
 

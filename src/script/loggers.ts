@@ -22,7 +22,7 @@ function setLoggers(loggerObj: ILogger) {
     loggers = loggerObj;
 }
 
-interface ILogger {
+export interface ILogger {
     log(...args: string[]): void;
     warn(...args: string[]): void;
     error(...args: string[]): void;

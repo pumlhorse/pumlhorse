@@ -1,5 +1,3 @@
-export { parse };
-
 class StringParser {
     value: string;
     state: IParseState;
@@ -131,12 +129,12 @@ class ComplexState implements IParseState {
     }
 }
 
-enum StringType {
+export enum StringType {
     literal,
     tokenized
 }
 
-class Part {
+export class Part {
     isTokenized: boolean;
 
     constructor(public value: string, type: StringType) {
@@ -146,6 +144,6 @@ class Part {
 
 
 const parser = new StringParser();
-function parse(input: string): Part[] {
+export function parse(input: string): Part[] {
     return parser.parse(input);
 } 
