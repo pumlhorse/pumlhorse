@@ -1,3 +1,7 @@
+# v2.0.0
+* Rewrote engine in TypeScript
+* A bunch of other stuff
+
 # v1.2.1
 * Added ability to call functions on objects
 * Added `$end` function to prematurely end a script without returning an error

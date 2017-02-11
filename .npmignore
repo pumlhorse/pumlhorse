@@ -1,3 +1,8 @@
+.vscode
 spec
 tests
 examples
+src
+configs
+typings
+tsconfig.json

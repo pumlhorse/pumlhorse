@@ -1,0 +1,53 @@
+name: Statistics functionality
+modules:
+  - stats # Must include stats module
+steps:
+  - list = value:
+      - 4
+      - 19
+      - 21
+      - 5
+      - 88
+  - avg = average: $list
+  - areEqual:
+      expected: 27.4
+      actual: $avg
+  - med = median: $list
+  - areEqual:
+      expected: 19
+      actual: $med
+  - min = minimum: $list
+  - areEqual:
+      expected: 4
+      actual: $min
+  - max = maximum: $list
+  - areEqual:
+      expected: 88
+      actual: $max
+#
+# Use complex objects
+#
+  - states = value:
+      - name: California
+        geography:
+          squareMiles: 163696
+          highestPointInFeet: 14505
+      - name: Alaska
+        geography:
+          squareMiles: 663268
+          highestPointInFeet: 20310
+      - name: South Carolina
+        geography:
+          squareMiles: 32020
+          highestPointInFeet: 3560
+      - name: Iowa
+        geography:
+          squareMiles: 56272.81
+          highestPointInFeet: 1671
+  - avgSquareMiles = average: 
+      values: $states
+      field: geography.squareMiles
+  - minSquareMiles = minimum:
+      values: $states
+      field: geography.squareMiles
+  - isTrue: ${avgSquareMiles > minSquareMiles}

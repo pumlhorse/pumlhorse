@@ -19,15 +19,17 @@ steps:
 - isEmpty: ${[]}
 - isNotEmpty: ${[3, 4, 5]}
 - contains: 
-    array: 
+    value: 6
+    in: 
       - 4
       - 5
       - 6
-    value: 6
 - contains:
-    array:
-      - game: horseshoe
-        another: handgrenades
     value:
       game: horseshoe 
+    in:
+      - game: horseshoe
+        another: handgrenades
     partial: true
+- isNull: null
+- isNotNull: 19
