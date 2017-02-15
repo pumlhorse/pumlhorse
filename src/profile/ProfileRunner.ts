@@ -154,8 +154,8 @@ export class ProfileRunner {
         this.sessionEvents.onScriptStarted(scriptContainer.script.id);
         await this.loadModules(scriptContainer);
         scriptContainer.script.addFunction('log', function() { scriptContainer.log.apply(scriptContainer, arguments); });
-        scriptContainer.script.addFunction('warn', function() { scriptContainer.log.apply(scriptContainer, arguments); })
-        scriptContainer.script.addFunction('error', function() { scriptContainer.log.apply(scriptContainer, arguments); })
+        scriptContainer.script.addFunction('warn', function() { scriptContainer.warn.apply(scriptContainer, arguments); })
+        scriptContainer.script.addFunction('error', function() { scriptContainer.error.apply(scriptContainer, arguments); })
 
         const start = new Date();
 
