@@ -31,13 +31,18 @@ export class ModuleLoader {
         throw new Error('Invalid module format: must be a string or an object');
     }
 
+    private static _resolver = requireFromPath;
+    static useResolver(resolver: (modDescriptor: any, directory: string) => any) {
+        ModuleLoader._resolver = resolver;
+    }
+
     private static resolveModule(modDescriptor: any, directory: string): any {
         var moduleLocator = this.getModuleLocator(modDescriptor);
 
         if (_.some(Script.StandardModules, mod => mod == moduleLocator.name)) {
             return undefined;
         }
-        return requireFromPath(moduleLocator.path, directory);
+        return ModuleLoader._resolver(moduleLocator.path, directory);
     }
 }
 
