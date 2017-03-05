@@ -16,3 +16,20 @@ function requireFromPath(moduleName, directory) {
         module.paths = oldPaths;
     }
 }
+
+module.exports.resolve = function(moduleName, directory) {
+    var oldPaths = module.paths;
+    
+    if (directory) module.paths = module.constructor._nodeModulePaths(directory);
+    
+    if (moduleName.constructor === String && typeof moduleName !== "string") {
+        moduleName = moduleName.toString()
+    }
+    
+    try {
+        return require.resolve(moduleName);
+    }
+    finally {
+        module.paths = oldPaths;
+    }
+}
