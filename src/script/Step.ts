@@ -1,8 +1,10 @@
+import { CancellationToken } from '../util/CancellationToken';
 import { ScriptError } from './ScriptError';
 import * as _ from 'underscore';
 import * as Expression from 'angular-expressions';
 import * as helpers from '../util/helpers';
 import * as stringParser from './StringParser';
+import {ICancellationToken} from '../util/ICancellationToken';
 
 const assignmentRegex = /([a-zA-Z0-9_-]+) = (.+)/;
 
@@ -31,7 +33,7 @@ export class Step {
         return this.assignment != null;
     }
 
-    async run() {
+    async run(cancellationToken?: ICancellationToken) {
         if (this.isAssignment() && this.assignment.length == 0) {
             throw new Error('Assignment statement must have a variable name');
         }
@@ -47,7 +49,7 @@ export class Step {
             throw new ScriptError(new Error(`Function "${this.functionName}" does not exist`), this.lineNumber);
         }
 
-        await this.runComplexStep();
+        await this.runComplexStep(cancellationToken);
     }
 
     // Run a step that does not contain any parameters
@@ -60,9 +62,9 @@ export class Step {
         }
     }
 
-    private async runComplexStep() {
+    private async runComplexStep(cancellationToken: ICancellationToken) {
         
-        const params = this.getParameterList(); 
+        const params = this.getParameterList(cancellationToken); 
         
         try {
             var result = await this.runFunc.apply(this.scope, params);
@@ -75,7 +77,7 @@ export class Step {
         return;
     }
 
-    private getParameterList(): any[] {
+    private getParameterList(cancellationToken): any[] {
         var definedParameterNames = helpers.getParameters(this.runFunc);
 
         if (definedParameterNames.length == 0) {
@@ -83,16 +85,21 @@ export class Step {
         }
 
         const aliases = StepFunction.getAliases(this.runFunc);
-        var params = definedParameterNames.map((name, i) => this.getParameter(name, aliases, i));
+        var params = definedParameterNames.map((name, i) => this.getParameter(name, aliases, i, cancellationToken));
         
         return params;
     }
 
-    private getParameter(name: string, aliases: string[], index: number): any {
+    private getParameter(name: string, aliases: string[], index: number, cancellationToken: ICancellationToken): any {
         
         if (this.isParameterName('$scope', name, aliases)) return this.scope;        
         if (this.isParameterName('$all', name, aliases)) {
             return this.evaluateParameter(this.parameters, name);
+        }
+        if (this.isParameterName('$cancellationToken', name, aliases)) {
+            return cancellationToken == null
+                ? CancellationToken.None
+                : cancellationToken;
         }
 
         let parameterValue = undefined;

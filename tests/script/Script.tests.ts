@@ -1,3 +1,4 @@
+import { CancellationTokenHandle } from '../../src/util/CancellationToken';
 import { pumlhorse } from '../../src/PumlhorseGlobal';
 
 import { Script } from '../../src/script/Script';
@@ -72,6 +73,30 @@ describe('Script', () => {
             //Assert
             expect(err.message).toBe('Function "doesNotExistFunc" does not exist');
         }
+	}));
+
+	it('stops execution if cancellationToken is cancelled', testAsync(async () => {
+		//Arrange
+		var script = getScript([
+            'runHangingFunction',
+            'notCalled'
+        ]);
+        script.addFunction('runHangingFunction', () => {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => { resolve(); }, 50);
+            });
+        });
+        var notCalledSpy = jasmine.createSpy('notCalled');
+        script.addFunction('notCalled', notCalledSpy);
+        var cancellationTokenHandle = new CancellationTokenHandle();
+
+        //Act
+        var promise = script.run(null, cancellationTokenHandle.token);
+        cancellationTokenHandle.cancel();
+        await promise;
+        
+        //Assert
+        expect(notCalledSpy).not.toHaveBeenCalled();
 	}));
     
     describe('with parameters', () => {

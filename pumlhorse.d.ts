@@ -27,14 +27,19 @@ export interface ISessionOutput {
 }
 
 export interface IScript {
-	run(context: any): Promise<any>;
+	run(context: any, cancellationToken?: ICancellationToken): Promise<any>;
 	addFunction(name: string, func: Function): void;
 	addModule(moduleDescriptor: string): void;
 	id: string;
 	name: string;
 }
 
+export interface ICancellationToken {
+	isCancellationRequested: boolean;
+	onCancellationRequested: Function;
+}
+
 export class App {
 	getScript(scriptDefinition: string): IScript;
-	runProfile(profile: IProfile, sessionOutput: ISessionOutput): Promise<any>;
+	runProfile(profile: IProfile, sessionOutput: ISessionOutput, cancellationToken?: ICancellationToken): Promise<any>;
 }
