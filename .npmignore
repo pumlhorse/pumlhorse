@@ -3,6 +3,7 @@ spec
 tests
 examples
 src
+lib/**/*.map
 configs
 typings
 tsconfig.json
