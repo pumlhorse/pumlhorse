@@ -20,13 +20,23 @@ export class HttpRequestModule {
         }
 
         try {
-            return await CancellationToken.await<IHttpResponse>(client[verb](url, data), $cancellationToken);
+            var response = await CancellationToken.await<IHttpResponse>(client[verb](url, data), $cancellationToken);
+            HttpRequestModule.handleResponse(response);
+            return response;
         }
         catch (err) {
             if (err.code === 'ENOTFOUND') {
                 throw new Error(`Unable to resolve host "${err.hostname}"`)
             }
             throw err;
+        }
+    }
+
+    private static jsonRegex = /(application|text)\/json/gi;
+    static handleResponse(response: IHttpResponse) {
+        if (response.headers != null &&
+            HttpRequestModule.jsonRegex.test(response.headers['content-type'])) {
+            response.json = HttpRequestModule.getJsonBody(response);        
         }
     }
 
@@ -118,6 +128,7 @@ export interface IHttpResponse {
     statusCode: number;
     statusMessage: string;
     body: any;
+    json?: any; //Populated if content type is */json
 }
 
 pumlhorse.module('http')
