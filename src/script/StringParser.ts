@@ -22,6 +22,12 @@ class StringParser {
         this.parts.push(new Part(value, type));
     }
 
+    peek(index: number): string {
+        if (index === this.value.length) return null;
+
+        return this.value[index];
+    }
+
     setState(state: IParseState) {
         this.state = state;
     }
@@ -69,7 +75,7 @@ var openingSymbols = {
 }
 
 class SimpleState implements IParseState {
-    private static tokenCharacters = /[\w\d\.\_\$]/i;
+    private static tokenCharacters = /[\w\d\.\_\$]{1}/i;
 
     value: string = '';
     type: StringType = StringType.tokenized;
@@ -81,17 +87,26 @@ class SimpleState implements IParseState {
 
     read(character: string, index: number) {
         if (closingSymbols[character] != undefined) {
-            this.remainingClosers.push(closingSymbols[character])
+            this.remainingClosers.push(closingSymbols[character]);
         }
         else if (openingSymbols[character] != undefined) {
-            var expected = this.remainingClosers.pop()
-            if (expected != character) this.remainingClosers.push(expected)
+            var expected = this.remainingClosers.pop();
+            if (expected != character) this.remainingClosers.push(expected);
         } 
         else if (this.remainingClosers.length == 0 && !SimpleState.tokenCharacters.test(character)) {
-            this.parser.push(this.value, StringType.tokenized)
-            this.parser.setState(new LiteralState(this.parser))
-            this.parser.state.read(character, index)
-            return
+            this.parser.push(this.value, StringType.tokenized);
+            this.parser.setState(new LiteralState(this.parser));
+            this.parser.state.read(character, index);
+            return;
+        }
+        else if (character === '.') {
+            const nextChar = this.parser.peek(index + 1);
+            if (nextChar == null || !SimpleState.tokenCharacters.test(nextChar)) {
+                this.parser.push(this.value, StringType.tokenized);
+                this.parser.setState(new LiteralState(this.parser));
+                this.parser.state.read(character, index);
+                return;
+            }
         }
         
         this.value += character

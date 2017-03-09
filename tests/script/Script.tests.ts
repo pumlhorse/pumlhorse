@@ -224,6 +224,57 @@ describe('Script', () => {
 			
         }));
 
+        it('allows variables inside string literals ending with period',testAsync(async () => {
+            // Arrange
+            var script = getScript([
+                'secret = abc12345',
+                {
+                    'testStringLiteral': 'The secret is $secret. Don\'t tell anyone'
+                }
+            ]);
+            script.addFunction('testStringLiteral', function (var1) { mock(var1); });
+            
+            // Act
+            await script.run();
+            
+            // Assert
+			expect(mock).toHaveBeenCalledWith('The secret is abc12345. Don\'t tell anyone');
+        }));
+
+        it('allows variables at the end of string literals',testAsync(async () => {
+            // Arrange
+            var script = getScript([
+                'secret = abc12345',
+                {
+                    'testStringLiteral': 'The secret is $secret'
+                }
+            ]);
+            script.addFunction('testStringLiteral', function (var1) { mock(var1); });
+            
+            // Act
+            await script.run();
+            
+            // Assert
+			expect(mock).toHaveBeenCalledWith('The secret is abc12345');
+        }));
+
+        it('allows variables at the end of string literals with a period',testAsync(async () => {
+            // Arrange
+            var script = getScript([
+                'secret = abc12345',
+                {
+                    'testStringLiteral': 'The secret is $secret.'
+                }
+            ]);
+            script.addFunction('testStringLiteral', function (var1) { mock(var1); });
+            
+            // Act
+            await script.run();
+            
+            // Assert
+			expect(mock).toHaveBeenCalledWith('The secret is abc12345.');
+        }));
+
         it('persists complex type information in variables',testAsync(async () => {
             // Arrange
             var dt = new Date()
