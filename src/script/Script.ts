@@ -38,8 +38,8 @@ export class Script implements IScript {
     
     private internalScript: IScriptInternal;
 
-    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait'];
-    public static readonly StandardModules = Script.DefaultModules.concat(['http', 'stats']);
+    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait', 'http = http'];
+    public static readonly StandardModules = Script.DefaultModules.concat(['stats']);
 
     constructor(private scriptDefinition: IScriptDefinition) {
         validateScriptDefinition(this.scriptDefinition);
