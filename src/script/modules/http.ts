@@ -128,7 +128,7 @@ export interface IHttpResponse {
     statusCode: number;
     statusMessage: string;
     body: any;
-    json?: any; //Populated if content type is */json
+    json?: any; //Populated if content type is json
 }
 
 pumlhorse.module('http')
