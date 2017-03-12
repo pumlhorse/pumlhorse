@@ -9,6 +9,7 @@ import { ProfileRunner } from './Profile/ProfileRunner';
 import { IScript } from './Script/IScript';
 import { Script } from './Script/Script';
 import * as loggers from './Script/loggers';
+import {ICancellationToken} from './util/ICancellationToken';
 const YAML = require('pumlhorse-yamljs');
 
 export class App implements IApp {
@@ -25,12 +26,12 @@ export class App implements IApp {
         return new Script(scriptDefinition);
     }
 
-    async runProfile(profile: IProfile, sessionOutput: ISessionOutput): Promise<any> {
+    async runProfile(profile: IProfile, sessionOutput: ISessionOutput, cancellationToken?: ICancellationToken): Promise<any> {
         _.defaults(profile, this.defaultProfile);
 
         const runner = new ProfileRunner(profile, sessionOutput);
 
-        return await runner.run();
+        return await runner.run(cancellationToken);
     }
 
     /* Obsolete */

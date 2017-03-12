@@ -1,3 +1,5 @@
+import { CancellationToken } from '../util/CancellationToken';
+import {ICancellationToken} from '../util/ICancellationToken';
 import { ModuleLoader } from '../script/ModuleLoader';
 import { SessionEvents } from './SessionEvents';
 import { ISessionOutput } from './ISessionOutput';
@@ -26,7 +28,8 @@ export class ProfileRunner {
         this.sessionEvents = new SessionEvents(sessionOutput);
     }
 
-    async run(): Promise<any> {
+    async run(cancellationToken?: ICancellationToken): Promise<any> {
+        if (cancellationToken == null) cancellationToken = CancellationToken.None;
 
         this.loadGlobalModules();
         this.registerFilters();
@@ -42,7 +45,7 @@ export class ProfileRunner {
                 this.buildContext(),
                 this.buildFileList()
             ]);
-            await this.runFiles();
+            await this.runFiles(cancellationToken);
             this.sessionEvents.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
         }
         finally {
@@ -127,13 +130,15 @@ export class ProfileRunner {
         throw new Error(`"${filePath}" is not a file or directory`);
     }
 
-    private async runFiles(): Promise<any> {
+    private async runFiles(cancellationToken: ICancellationToken): Promise<any> {
         var queue = new Queue(this.getMaxConcurrentFiles(), Infinity);
 
-        await Promise.all(this.files.map((file) => queue.add(() => this.runFile(file))));
+        await Promise.all(this.files.map((file) => queue.add(() => this.runFile(file, cancellationToken))));
     }
 
-    private async runFile(filename: string): Promise<any> {
+    private async runFile(filename: string, cancellationToken: ICancellationToken): Promise<any> {
+        if (cancellationToken.isCancellationRequested) return;
+
         var scriptDetails: LoadedScript;
         try {
             scriptDetails = await LoadedScript.load(filename, this.sessionEvents);
@@ -143,10 +148,12 @@ export class ProfileRunner {
             throw e;
         }
         this.sessionEvents.onScriptPending(scriptDetails.script.id, filename, scriptDetails.script.name);
-        await this.runScript(scriptDetails);
+        await this.runScript(scriptDetails, cancellationToken);
     }
 
-    private async runScript(scriptContainer: LoadedScript): Promise<any> {
+    private async runScript(scriptContainer: LoadedScript, cancellationToken: ICancellationToken): Promise<any> {
+        if (cancellationToken.isCancellationRequested) return;
+
         if (!await Runner.onScriptStarting(scriptContainer.script)) {
             return;
         }
@@ -161,7 +168,7 @@ export class ProfileRunner {
 
         this.context.__filename = scriptContainer.fileName;
         try {
-            await scriptContainer.script.run(this.context);
+            await scriptContainer.script.run(this.context, cancellationToken);
             this.passedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, null);
             Runner.onScriptFinished(scriptContainer.script, true);

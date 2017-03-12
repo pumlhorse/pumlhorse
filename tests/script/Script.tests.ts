@@ -1,3 +1,4 @@
+import { CancellationTokenHandle } from '../../src/util/CancellationToken';
 import { pumlhorse } from '../../src/PumlhorseGlobal';
 
 import { Script } from '../../src/script/Script';
@@ -72,6 +73,30 @@ describe('Script', () => {
             //Assert
             expect(err.message).toBe('Function "doesNotExistFunc" does not exist');
         }
+	}));
+
+	it('stops execution if cancellationToken is cancelled', testAsync(async () => {
+		//Arrange
+		var script = getScript([
+            'runHangingFunction',
+            'notCalled'
+        ]);
+        script.addFunction('runHangingFunction', () => {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => { resolve(); }, 50);
+            });
+        });
+        var notCalledSpy = jasmine.createSpy('notCalled');
+        script.addFunction('notCalled', notCalledSpy);
+        var cancellationTokenHandle = new CancellationTokenHandle();
+
+        //Act
+        var promise = script.run(null, cancellationTokenHandle.token);
+        cancellationTokenHandle.cancel();
+        await promise;
+        
+        //Assert
+        expect(notCalledSpy).not.toHaveBeenCalled();
 	}));
     
     describe('with parameters', () => {
@@ -197,6 +222,57 @@ describe('Script', () => {
             // Assert
 			expect(mock).toHaveBeenCalledWith('String literal with http://example.org/somePath here');
 			
+        }));
+
+        it('allows variables inside string literals ending with period',testAsync(async () => {
+            // Arrange
+            var script = getScript([
+                'secret = abc12345',
+                {
+                    'testStringLiteral': 'The secret is $secret. Don\'t tell anyone'
+                }
+            ]);
+            script.addFunction('testStringLiteral', function (var1) { mock(var1); });
+            
+            // Act
+            await script.run();
+            
+            // Assert
+			expect(mock).toHaveBeenCalledWith('The secret is abc12345. Don\'t tell anyone');
+        }));
+
+        it('allows variables at the end of string literals',testAsync(async () => {
+            // Arrange
+            var script = getScript([
+                'secret = abc12345',
+                {
+                    'testStringLiteral': 'The secret is $secret'
+                }
+            ]);
+            script.addFunction('testStringLiteral', function (var1) { mock(var1); });
+            
+            // Act
+            await script.run();
+            
+            // Assert
+			expect(mock).toHaveBeenCalledWith('The secret is abc12345');
+        }));
+
+        it('allows variables at the end of string literals with a period',testAsync(async () => {
+            // Arrange
+            var script = getScript([
+                'secret = abc12345',
+                {
+                    'testStringLiteral': 'The secret is $secret.'
+                }
+            ]);
+            script.addFunction('testStringLiteral', function (var1) { mock(var1); });
+            
+            // Act
+            await script.run();
+            
+            // Assert
+			expect(mock).toHaveBeenCalledWith('The secret is abc12345.');
         }));
 
         it('persists complex type information in variables',testAsync(async () => {

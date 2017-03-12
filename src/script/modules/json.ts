@@ -1,6 +1,6 @@
 import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
-import * as util from 'util';
+import * as circularJson from 'circular-json';
 
 export class JsonModule {
     static jsonToObject(val): any {
@@ -10,7 +10,7 @@ export class JsonModule {
 
     static objectToJson(val): string {
         enforce(val).isNotNull();
-        return util.inspect(val);
+        return circularJson.stringify(val);
     }
 }
 

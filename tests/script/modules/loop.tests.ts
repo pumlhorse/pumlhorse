@@ -1,3 +1,4 @@
+import { CancellationToken } from '../../../src/util/CancellationToken';
 import { IScope } from '../../../src/script/IScope';
 import * as _ from 'underscore';
 import { LoopModule } from '../../../src/script/modules/loop';
@@ -14,7 +15,7 @@ describe('Loop module', () => {
             var steps = ['repeatTest'];
             
             // Act
-            await LoopModule.repeat(4, steps, scope);
+            await LoopModule.repeat(4, steps, scope, CancellationToken.None);
             
             // Assert
             expect(scope._runSteps).toHaveBeenCalledTimes(4);
@@ -30,7 +31,7 @@ describe('Loop module', () => {
             const steps = ['foreach test'];
             
             // Act
-            await LoopModule.for('val', ['val 1', 'val 3', 'val 7'], steps, scope);
+            await LoopModule.for('val', ['val 1', 'val 3', 'val 7'], steps, scope, CancellationToken.None);
             
             // Assert
             expect(scope._runSteps).toHaveBeenCalledTimes(3);

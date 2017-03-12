@@ -1,10 +1,12 @@
+import { ICancellationToken } from '../../util/ICancellationToken';
+import { CancellationToken } from '../../util/CancellationToken';
 import { pumlhorse } from '../../PumlhorseGlobal';
 import { IScope, IFullScope } from '../IScope';
 import * as http from 'http-client-factory';
 import enforce from '../../util/enforce';
 
 export class HttpRequestModule {
-    static async makeRequest(verb: string, url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
+    static async makeRequest(verb: string, url: string, data: any, headers: Object, $scope: IScope, $cancellationToken?: ICancellationToken): Promise<IHttpResponse> {        
         enforce(url, 'url').isNotNull().isNotEmpty();
 
         var client = http.getClient();
@@ -18,7 +20,9 @@ export class HttpRequestModule {
         }
 
         try {
-            return await client[verb](url, data)
+            var response = await CancellationToken.await<IHttpResponse>(client[verb](url, data), $cancellationToken);
+            HttpRequestModule.handleResponse(response);
+            return response;
         }
         catch (err) {
             if (err.code === 'ENOTFOUND') {
@@ -28,32 +32,40 @@ export class HttpRequestModule {
         }
     }
 
-    static async get(url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('get', url, data, headers, $scope);
+    private static jsonRegex = /(application|text)\/json/gi;
+    static handleResponse(response: IHttpResponse) {
+        if (response.headers != null &&
+            HttpRequestModule.jsonRegex.test(response.headers['content-type'])) {
+            response.json = HttpRequestModule.getJsonBody(response);        
+        }
     }
 
-    static async post(url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('post', url, data, headers, $scope);
+    static async get(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('get', url, data, headers, $scope, $cancellationToken);
     }
 
-    static async put(url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('put', url, data, headers, $scope);
+    static async post(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('post', url, data, headers, $scope, $cancellationToken);
     }
 
-    static async delete(url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('delete', url, data, headers, $scope);
+    static async put(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('put', url, data, headers, $scope, $cancellationToken);
     }
 
-    static async patch(url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('patch', url, data, headers, $scope);
+    static async delete(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('delete', url, data, headers, $scope, $cancellationToken);
     }
 
-    static async options(url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('options', url, data, headers, $scope);
+    static async patch(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('patch', url, data, headers, $scope, $cancellationToken);
     }
 
-    static async head(url: string, data: any, headers: Object, $scope: IScope): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('head', url, data, headers, $scope);
+    static async options(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('options', url, data, headers, $scope, $cancellationToken);
+    }
+
+    static async head(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('head', url, data, headers, $scope, $cancellationToken);
     }
 
     static getJsonBody(response: IHttpResponse): any {
@@ -101,9 +113,16 @@ export class HttpAssertionModule
     static isSuccess(response: IHttpResponse) { HttpAssertionModule.isRange(response, 200, 299); }
     static isRedirect(response: IHttpResponse) { HttpAssertionModule.isRange(response, 300, 399); }
     static isError(response: IHttpResponse) { HttpAssertionModule.isRange(response, 400, 599); }
+    static isClientError(response: IHttpResponse) { HttpAssertionModule.isRange(response, 400, 499); }
+    static isServerError(response: IHttpResponse) { HttpAssertionModule.isRange(response, 500, 599); }
     /* Specific error codes */
     static isOk(response: IHttpResponse) { HttpAssertionModule.isCode(response, 200); }
+    static isCreated(response: IHttpResponse) { HttpAssertionModule.isCode(response, 201); }
+    static isAccepted(response: IHttpResponse) { HttpAssertionModule.isCode(response, 202); }
+    static isNoContent(response: IHttpResponse) { HttpAssertionModule.isCode(response, 204); }
+
     static isNotModified(response: IHttpResponse) { HttpAssertionModule.isCode(response, 304); }
+
     static isBadRequest(response: IHttpResponse) { HttpAssertionModule.isCode(response, 400); }
     static isUnauthorized(response: IHttpResponse) { HttpAssertionModule.isCode(response, 401); }
     static isForbidden(response: IHttpResponse) { HttpAssertionModule.isCode(response, 403); }
@@ -116,22 +135,28 @@ export interface IHttpResponse {
     statusCode: number;
     statusMessage: string;
     body: any;
+    json?: any; //Populated if content type is json
 }
 
 pumlhorse.module('http')
-    .function('get', ['url', 'data', 'headers', '$scope', HttpRequestModule.get])
-    .function('post', ['url', 'data', 'headers', '$scope', HttpRequestModule.post])
-    .function('put', ['url', 'data', 'headers', '$scope', HttpRequestModule.put])
-    .function('delete', ['url', 'data', 'headers', '$scope', HttpRequestModule.delete])
-    .function('patch', ['url', 'data', 'headers', '$scope', HttpRequestModule.patch])
-    .function('options', ['url', 'data', 'headers', '$scope', HttpRequestModule.options])
-    .function('head', ['url', 'data', 'headers', '$scope', HttpRequestModule.head])
+    .function('get', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.get])
+    .function('post', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.post])
+    .function('put', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.put])
+    .function('delete', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.delete])
+    .function('patch', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.patch])
+    .function('options', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.options])
+    .function('head', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.head])
     //Assertions
     .function('isInformational', HttpAssertionModule.isInformational)
     .function('isSuccess', HttpAssertionModule.isSuccess)
     .function('isRedirect', HttpAssertionModule.isRedirect)
     .function('isError', HttpAssertionModule.isError)
+    .function('isClientError', HttpAssertionModule.isClientError)
+    .function('isServerError', HttpAssertionModule.isServerError)
     .function('isOk', HttpAssertionModule.isOk)
+    .function('isCreated', HttpAssertionModule.isCreated)
+    .function('isAccepted', HttpAssertionModule.isAccepted)
+    .function('isNoContent', HttpAssertionModule.isNoContent)
     .function('isNotModified', HttpAssertionModule.isNotModified)
     .function('isBadRequest', HttpAssertionModule.isBadRequest)
     .function('isUnauthorized', HttpAssertionModule.isUnauthorized)

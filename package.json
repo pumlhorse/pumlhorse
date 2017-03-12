@@ -1,6 +1,6 @@
 {
   "name": "pumlhorse",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "Utility for creating readable and reusable scripts",
   "main": "./lib/app.js",
   "bin": "bin/cli.js",
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "angular-expressions": "^0.3.0",
+    "circular-json": "^0.3.1",
     "colors": "^1.1.2",
     "http-client-factory": "^0.3.1",
     "minimist": "^1.2.0",

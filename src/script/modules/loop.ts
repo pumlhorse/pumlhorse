@@ -1,3 +1,4 @@
+import { ICancellationToken } from '../../util/ICancellationToken';
 import * as _ from 'underscore';
 import { IScope } from '../IScope';
 import { pumlhorse } from '../../PumlhorseGlobal';
@@ -7,7 +8,7 @@ import * as helpers from '../../util/helpers';
 
 export class LoopModule
 {
-    static async for(each: string, inVals: any[], steps: any[], $scope: IScope): Promise<any> {
+    static async for(each: string, inVals: any[], steps: any[], $scope: IScope, $cancellationToken: ICancellationToken): Promise<any> {
         enforce(each, 'each').isNotNull();
         enforce(inVals, 'in').isNotNull()
             .isArray()
@@ -17,7 +18,7 @@ export class LoopModule
             .isArray()
             .isNotEmpty();
         
-        for (var i = 0; i < inVals.length; i++) {
+        for (var i = 0; i < inVals.length && !$cancellationToken.isCancellationRequested; i++) {
             var item = inVals[i];
             var newScope = $scope._new()
             helpers.assignObjectByString(newScope, each, item);
@@ -25,7 +26,7 @@ export class LoopModule
         }
     }
 
-    static async repeat(times: number, steps: any[], $scope: IScope): Promise<any> {
+    static async repeat(times: number, steps: any[], $scope: IScope, $cancellationToken: ICancellationToken): Promise<any> {
         enforce(times, 'times').isNotNull();
         enforce(steps, 'steps')
             .isNotNull()
@@ -34,12 +35,12 @@ export class LoopModule
 
         let iterations = 0;
         let newScope = $scope._new();
-        while (iterations++ < times) {
+        while (iterations++ < times && !$cancellationToken.isCancellationRequested) {
             await $scope._runSteps(steps, newScope);
         }
     }
 
-    static async scenarios(cases: any[], steps: any[], base: any, $scope: IScope): Promise<any> {
+    static async scenarios(cases: any[], steps: any[], base: any, $scope: IScope, $cancellationToken: ICancellationToken): Promise<any> {
         enforce(cases, 'cases').isNotNull();
         enforce(steps)
             .isNotNull()
@@ -55,6 +56,7 @@ export class LoopModule
         var keys = _.keys(cases);    
         
         for (var key in cases) {
+            if ($cancellationToken.isCancellationRequested) return;
             var caseVal = cases[key];
             var fullCase = _.extend({}, base, caseVal);
             try {
@@ -69,6 +71,6 @@ export class LoopModule
 }
 
 pumlhorse.module('loop')
-    .function('for', ['each', 'in', '$deferred.steps', '$scope', LoopModule.for])
-    .function('repeat', ['times', '$deferred.steps', '$scope', LoopModule.repeat])
-    .function('scenarios', ['cases', '$deferred.steps', 'base', '$scope', LoopModule.scenarios])
+    .function('for', ['each', 'in', '$deferred.steps', '$scope', '$cancellationToken', LoopModule.for])
+    .function('repeat', ['times', '$deferred.steps', '$scope', '$cancellationToken', LoopModule.repeat])
+    .function('scenarios', ['cases', '$deferred.steps', 'base', '$scope', '$cancellationToken', LoopModule.scenarios])

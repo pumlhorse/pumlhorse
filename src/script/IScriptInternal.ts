@@ -1,4 +1,6 @@
 import { IScope } from './IScope';
+import {ICancellationToken} from '../util/ICancellationToken';
+
 export interface IScriptInternal {
     modules: any[];
     functions: Function[];
@@ -13,5 +15,5 @@ export interface IScriptInternal {
 
     id: string;
 
-    runSteps(steps: any[], scope: IScope): Promise<any>;
+    runSteps(steps: any[], scope: IScope, cancellationToken?: ICancellationToken): Promise<any>;
 }

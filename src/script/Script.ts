@@ -1,3 +1,5 @@
+import { CancellationToken } from '../util/CancellationToken';
+import {ICancellationToken} from '../util/ICancellationToken';
 import { Step } from './Step';
 import { pumlhorse } from '../PumlhorseGlobal';
 import { ModuleLoader, ModuleLocator } from './ModuleLoader';
@@ -36,8 +38,8 @@ export class Script implements IScript {
     
     private internalScript: IScriptInternal;
 
-    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait'];
-    public static readonly StandardModules = Script.DefaultModules.concat(['http', 'stats']);
+    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait', 'http = http'];
+    public static readonly StandardModules = Script.DefaultModules.concat(['stats']);
 
     constructor(private scriptDefinition: IScriptDefinition) {
         validateScriptDefinition(this.scriptDefinition);
@@ -48,7 +50,8 @@ export class Script implements IScript {
 
     }
 
-    async run(context?: any): Promise<any> {
+    async run(context?: any, cancellationToken?: ICancellationToken): Promise<any> {
+        if (cancellationToken == null) cancellationToken = CancellationToken.None;
         this.loadModules();
 
         this.loadFunctions();
@@ -57,7 +60,7 @@ export class Script implements IScript {
         const scope = new Scope(this.internalScript, context);
         
         try {
-            await this.internalScript.runSteps(this.scriptDefinition.steps, scope);
+            await this.internalScript.runSteps(this.scriptDefinition.steps, scope, cancellationToken);
         }
         catch (e) {
             if (e.__nonErrorScriptInterrupt == true) {
@@ -66,7 +69,7 @@ export class Script implements IScript {
             throw e;
         }
         finally {
-            await this.runCleanupTasks(scope);
+            await this.runCleanupTasks(scope, cancellationToken);
         }
     }
 
@@ -128,14 +131,14 @@ export class Script implements IScript {
         this.scriptDefinition.cleanup.map((step) => this.internalScript.cleanup.push(step));
     }
 
-    private async runCleanupTasks(scope: Scope): Promise<any> {
+    private async runCleanupTasks(scope: Scope, cancellationToken: ICancellationToken): Promise<any> {
         if (this.internalScript.cleanup == null) {
             return;
         }
 
         return await Promise.all(this.internalScript.cleanup.map(task => {
             try {
-                return this.internalScript.runSteps([task], scope);
+                return this.internalScript.runSteps([task], scope, cancellationToken);
             }
             catch (e) {
                 loggers.error(`Error in cleanup task: ${e.message}`);
@@ -151,6 +154,7 @@ class InternalScript implements IScriptInternal {
     functions: any[];
     steps: any[];
     cleanup: any[];
+    private cancellationToken: ICancellationToken;
 
     constructor(id: string) {
         this.id = id;
@@ -174,7 +178,11 @@ class InternalScript implements IScriptInternal {
         return this.modules[moduleName];
     }
 
-    async runSteps(steps: any[], scope: IScope): Promise<any> {
+    async runSteps(steps: any[], scope: IScope, cancellationToken: ICancellationToken): Promise<any> {
+        if (cancellationToken != null) {
+            this.cancellationToken = cancellationToken;
+        }
+
         if (steps == null || steps.length == 0) {
             loggers.warn('Script does not contain any steps');
             return;
@@ -183,6 +191,9 @@ class InternalScript implements IScriptInternal {
         _.extend(scope, this.modules, this.functions);
 
         for (var i = 0; i < steps.length; i++) {
+            if (this.cancellationToken.isCancellationRequested) {
+                return;
+            }
             await this.runStep(steps[i], scope);
         }
     }
@@ -205,6 +216,6 @@ class InternalScript implements IScriptInternal {
             step = new Step(functionName, stepDefinition[functionName], scope, lineNumber);
         }
 
-        await step.run();
+        await step.run(this.cancellationToken);
     }
 }

@@ -1,0 +1,11 @@
+name: Basic HTTP Call
+description: Retrieves the version from demo API
+steps:
+  - baseUrl = http://witty-cream.gomix.me/ 
+  - start = startTimer
+  - response = http.get:
+      url: $baseUrl/version
+  - http.isOk: $response
+  - version = http.body: $response
+  - stopTimer: $start
+  - log: Current API version is $version. That took $start.milliseconds milliseconds
