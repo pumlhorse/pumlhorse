@@ -23,22 +23,20 @@ For a complete reference, visit [pumlhorse.com](http://www.pumlhorse.com)
   - [Helpers](#helpers)
 
 <a name="spec"></a>
-#Specification
+
+# Specification
+
 ```yaml
 name: Introduction to PUMLHorse
-description: This is a basic script that provides some information
-author: John Smith
-favoriteColor: mauve
-
-========
-name: Add some steps
-description: A script isn't very useful if it can't do anything
+description: This is a basic script that writes some messages
 steps:
   - log: Hello!
   - log: Goodbye!
 ```
 <a name="parameters"></a>
-##Parameters
+
+## Parameters
+
 ```yaml
 name: Use parameters
 description: Pass some parameters to those steps
@@ -50,7 +48,9 @@ steps:
       text: Au revoir!
 ```
 <a name="variables"></a>
-##Variables
+
+## Variables
+
 ```yaml
 name: Pass variables
 description: Set and use variables from your steps
@@ -58,23 +58,27 @@ steps:
   - myName = John Smith
   - sayGreeting:
       text: Hello, my name is $myName
+```
 
-========
+```yaml
 name: Assign step results to variables
 steps:
   #getMyName is a function that returns a string
   - myName = getMyName 
   - sayGreeting:
       text: Hello, my name is $myName
+```
 
-========
+```yaml
 name: Use complex objects in variables
 steps:
   #getMyInfo is a function that returns { name: 'John Smith' }
   - myInfo = getMyInfo
   - sayGreeting:
       text: Hello, my name is $myInfo.name
-========
+```
+
+```yaml
 name: Create complex objects as variables
 steps:
   - myInfo = value:
@@ -82,27 +86,21 @@ steps:
       age: 34 
   - sayGreeting:
       text: Hello, my name is $myInfo.name
-========
-name: Manipulate variables
-steps:
-  - number1 = 5
-  - number2 = 10
-  - number3 = ${number1 + number2}
-  - log: $number3
-  #logs "15"
 ```
 
-
 <a name="inlineJavaScript"></a>
-##Inline Javascript
+
+## Inline Javascript
+
 ```yaml
 name: Use JavaScript inline
 steps:
   - myMixedCase = aBcDeFg
   - myLowerCase = $myMixedCase.toLowerCase()
   #myLowerCase is now 'abcdefg'
+```
 
-========
+```yaml
 name: Declare JavaScript functions inline
 functions:
   getMyInfo: return { name: 'John Smith', age: 25 }
@@ -119,8 +117,11 @@ steps:
       age: $myInfo.age
   # logs "My name is John Smith and I am 25 years old"
 ```
+
 <a name="conditionals"></a>
-##Conditionals
+
+## Conditionals
+
 ```yaml
 name: Simple if/then example
 functions:
@@ -141,7 +142,9 @@ steps:
               - log: Hang in there, you'll make it to the weekend!
 ```
 <a name="loops"></a>
-##Loops
+
+## Loops
+
 ```yaml
 name: Run some things a few times
 steps:
@@ -152,8 +155,9 @@ steps:
         - log: Starting loop
         - doLoopTasks
         - log: Ending loop
-        
-=====
+```
+
+```yaml
 name: Loop through items in a list
 functions:
   getLoopItems: return ["a", "b", "c"]
@@ -165,7 +169,9 @@ steps:
       steps:
         - log: Working with the letter $item
         - doLoopTasks: $item
-=====
+```
+
+```yaml
 name: Run a loop with varying data
 functions:
   doLogin: #login implementation
@@ -184,16 +190,20 @@ steps:
             password: $password
           #Performs doLogin for "bad password" and "good password" scenarios
 ```
+
 <a name="logging"></a>
-##Logging
+
+## Logging
+
 ```yaml
 name: Basic logging functions
 steps:
   - log: Here's a simple log message
   - warn: Something might be wrong
   - error: Something is definitely wrong!
-  
-========
+```
+
+```yaml
 name: Pass parameters to logging calls
 steps:
   - log: 
@@ -202,11 +212,12 @@ steps:
   #Logs "We can pass some NEAT parameters
   - myFavoriteNumber = 42
   - warn: Every tech thing has to have a $myFavoriteNumber reference
-  
 ```
 
 <a name="assertions"></a>
-##Assertions
+
+## Assertions
+
 ```yaml
 name: Use assertions
 steps:
@@ -244,8 +255,11 @@ steps:
         game: horseshoe 
       partial: true
 ```
+
 <a name="http"></a>
-##HTTP Methods
+
+## HTTP Methods
+
 ```yaml
 name: Use HTTP methods
 steps:
@@ -271,7 +285,9 @@ steps:
 ```
 
 <a name="timers"></a>
-##Timers
+
+## Timers
+
 ```yaml
 name: Wait for an amount of time
 steps: 
@@ -285,8 +301,9 @@ steps:
       hours: 3
   # Waits for four hours...use at your own discretion
   - log: Is anyone even here anymore?
+```
 
-=========
+```yaml
 name: See how long we waited
 steps:
   - timer1 = startTimer
@@ -298,7 +315,9 @@ steps:
 ```
 
 <a name="parallel"></a>
+
 ## Parallel tasks
+
 ```yaml
 name: Run multiple steps in parallel
 steps:
@@ -308,12 +327,14 @@ steps:
       - postUpdateToInstagram: This is a picture of my cat!
 ```
 
-
 <a name="helpers"></a>
+
 ## Helpers
 
 Some miscellaneous helpers
+
 ### JSON serialization
+
 ```yaml
 name: Convert from string to object
 functions:
