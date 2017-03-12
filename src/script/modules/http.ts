@@ -113,9 +113,16 @@ export class HttpAssertionModule
     static isSuccess(response: IHttpResponse) { HttpAssertionModule.isRange(response, 200, 299); }
     static isRedirect(response: IHttpResponse) { HttpAssertionModule.isRange(response, 300, 399); }
     static isError(response: IHttpResponse) { HttpAssertionModule.isRange(response, 400, 599); }
+    static isClientError(response: IHttpResponse) { HttpAssertionModule.isRange(response, 400, 499); }
+    static isServerError(response: IHttpResponse) { HttpAssertionModule.isRange(response, 500, 599); }
     /* Specific error codes */
     static isOk(response: IHttpResponse) { HttpAssertionModule.isCode(response, 200); }
+    static isCreated(response: IHttpResponse) { HttpAssertionModule.isCode(response, 201); }
+    static isAccepted(response: IHttpResponse) { HttpAssertionModule.isCode(response, 202); }
+    static isNoContent(response: IHttpResponse) { HttpAssertionModule.isCode(response, 204); }
+
     static isNotModified(response: IHttpResponse) { HttpAssertionModule.isCode(response, 304); }
+
     static isBadRequest(response: IHttpResponse) { HttpAssertionModule.isCode(response, 400); }
     static isUnauthorized(response: IHttpResponse) { HttpAssertionModule.isCode(response, 401); }
     static isForbidden(response: IHttpResponse) { HttpAssertionModule.isCode(response, 403); }
@@ -144,7 +151,12 @@ pumlhorse.module('http')
     .function('isSuccess', HttpAssertionModule.isSuccess)
     .function('isRedirect', HttpAssertionModule.isRedirect)
     .function('isError', HttpAssertionModule.isError)
+    .function('isClientError', HttpAssertionModule.isClientError)
+    .function('isServerError', HttpAssertionModule.isServerError)
     .function('isOk', HttpAssertionModule.isOk)
+    .function('isCreated', HttpAssertionModule.isCreated)
+    .function('isAccepted', HttpAssertionModule.isAccepted)
+    .function('isNoContent', HttpAssertionModule.isNoContent)
     .function('isNotModified', HttpAssertionModule.isNotModified)
     .function('isBadRequest', HttpAssertionModule.isBadRequest)
     .function('isUnauthorized', HttpAssertionModule.isUnauthorized)
