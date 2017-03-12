@@ -183,8 +183,22 @@ describe('HTTP assertions', function () {
             end: 599,
             success: [400, 401, 499, 500, 501, 599],
             error: [300, 399, 4, 5, 4000, 5000, 600]
+        },
+        {
+            name: 'isClientError',
+            start: 400,
+            end: 499,
+            success: [400, 401, 499],
+            error: [300, 399, 4, 5, 500, 501, 599, 4000, 5000, 600]
+        },
+        {
+            name: 'isServerError',
+            start: 500,
+            end: 599,
+            success: [500, 501, 599],
+            error: [300, 399, 4, 5, 400, 401, 499, 4000, 5000, 600]
         }
-    ]
+    ];
     
     ranges.forEach(function (range) {
         range.success.forEach(function (code) {
@@ -221,6 +235,18 @@ describe('HTTP assertions', function () {
         {
             name: 'isOk',
             code: 200                
+        },
+        {
+            name: 'isCreated',
+            code: 201                
+        },
+        {
+            name: 'isAccepted',
+            code: 202                
+        },
+        {
+            name: 'isNoContent',
+            code: 204               
         },
         {
             name: 'isNotModified',
