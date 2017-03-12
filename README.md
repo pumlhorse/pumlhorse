@@ -109,7 +109,7 @@ functions:
     - age
     - name
     # list function body last
-    - console.log('My name is ' + name + ' and I am ' + age + ' years old')
+    - this.log('My name is ' + name + ' and I am ' + age + ' years old')
 steps:
   - myInfo = getMyInfo
   - logMyInfo:
@@ -153,7 +153,7 @@ steps:
       times: $loopTimes
       steps:
         - log: Starting loop
-        - doLoopTasks
+        # do loop steps
         - log: Ending loop
 ```
 
@@ -174,7 +174,10 @@ steps:
 ```yaml
 name: Run a loop with varying data
 functions:
-  doLogin: #login implementation
+  doLogin: 
+    - username
+    - password
+    - this.log('Login with ' + username + ':' + password)
 steps:
   - scenarios:
       base: # (optional) provides a base set of values for every scenario
@@ -206,10 +209,6 @@ steps:
 ```yaml
 name: Pass parameters to logging calls
 steps:
-  - log: 
-      - We can pass some %s parameters
-      - NEAT
-  #Logs "We can pass some NEAT parameters
   - myFavoriteNumber = 42
   - warn: Every tech thing has to have a $myFavoriteNumber reference
 ```
@@ -242,11 +241,11 @@ steps:
   - isEmpty: ${[]}
   - isNotEmpty: ${[3, 4, 5]}
   - contains: 
-    array: 
-      - 4
-      - 5
-      - 6
-    value: 6
+      array: 
+        - 4
+        - 5
+        - 6
+      value: 6
   - contains:
       array:
         - game: horseshoe
@@ -263,23 +262,24 @@ steps:
 ```yaml
 name: Use HTTP methods
 steps:
-  - get:
-    url: http://www.tempuri.org/api/findUser
-    data: 
-      search: jsmith
-      page: 2
+  - findUserResult = http.get:
+      url: http://www.tempuri.org/api/findUser
+      data: 
+        search: jsmith
+        page: 2
   # Issues GET request to http://www.tempuri.org/api/findUser?search=jsmith&page=2
-  - postResult = post:
-    url: http://www.tempuri.org/api/createUser
-    data: 
-      firstName: John
-      lastName: Smith
-    headers:
-      Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjQyLCJ1c2VybmFtZSI6ImVhc3Rlci5lZ2cifQ.U4nejjGFvXSERKtVWrgXXytXqe9oqdg8ws1AyLCp4o0
+  - log: $findUserResult.json.username
+  # Logs 'username' property of the JSON response body (requires the content-type to be application/json or text/json)
+  - postResult = http.post:
+      url: http://www.tempuri.org/api/createUser
+      data: 
+        firstName: John
+        lastName: Smith
+      headers:
+        Authorization: bearer   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjQyLCJ1c2VybmFtZSI6ImVhc3Rlci5lZ2cifQ.U4nejjGFvXSERKtVWrgXXytXqe9oqdg8ws1AyLCp  4o0
   # Issues POST request to http://www.tempuri.org/api/createUser with a JSON request of { "firstName": "John", "lastName": "Smith" }
-  - areEqual: 
-      expected: 200
-      actual: $postResult.statusCode
+  - http.isOk: $postResult
+  # Asserts that the response was a 200
   - log: $postResult.body #body contains the string content in the response
   # put, delete, patch, head, and options are also available 
 ```
@@ -305,13 +305,14 @@ steps:
 
 ```yaml
 name: See how long we waited
+functions:
+  doLongRunningProcess:
+    - return this.wait(2000)
 steps:
   - timer1 = startTimer
   - doLongRunningProcess
   - stopTimer: $timer1
-  - log:
-      - that took %s seconds
-      - $timer1.seconds
+  - log: That took $timer1.seconds seconds
 ```
 
 <a name="parallel"></a>
@@ -325,6 +326,16 @@ steps:
       - postUpdateToFacebook: This is my new status!
       - postUpdateToTwitter: This is my new tweet!
       - postUpdateToInstagram: This is a picture of my cat!
+functions:
+  postUpdateToFacebook:
+    - status
+    - return this.wait(Math.random() * 1000).then(() => this.log('Updated status to ' + status))
+  postUpdateToTwitter:
+    - tweet
+    - return this.wait(Math.random() * 1000).then(() => this.log('Added new tweet:' + tweet))
+  postUpdateToInstagram:
+    - caption
+    - return this.wait(Math.random() * 1000).then(() => this.log('Added new picture with caption:' + caption))
 ```
 
 <a name="helpers"></a>
