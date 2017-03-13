@@ -1,5 +1,9 @@
 # Pumlhorse Version History
 
+## v2.1.1
+
+* Fixed intermittent issue with JSON data not being populated on HTTP calls. Fun fact, `RegExp.test()` is _not_ idempotent.
+
 ## v2.1.0
 
 * Added CancellationToken support. Calling frameworks can prematurely end a run

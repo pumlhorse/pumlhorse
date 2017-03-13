@@ -133,7 +133,49 @@ describe('HTTP functions', () => {
             //Assert
             expect(result.statusCode).toBe(200);
             expect(result.body).toBe('body');
-        }));       
+        }));   
+        
+        it(`automatically deserializes application/json data from ${verb}`, testAsync(async () => {
+            //Arrange
+            httpClientMock[verb].and
+                .returnValue(Promise.resolve(getMockResponse(200, '', '{ "inner": { "val": 33 } }', {
+                    'content-type': 'application/json'
+                })))
+            
+            //Act
+            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path');
+            
+            //Assert
+            expect(result.json.inner.val).toBe(33);
+        }));    
+        
+        it(`automatically deserializes text/json data from ${verb}`, testAsync(async () => {
+            //Arrange
+            httpClientMock[verb].and
+                .returnValue(Promise.resolve(getMockResponse(200, '', '{ "inner": { "val": 33 } }', {
+                    'content-type': 'text/json'
+                })))
+            
+            //Act
+            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path');
+            
+            //Assert
+            expect(result.json.inner.val).toBe(33);
+        }));     
+        
+        it(`does not deserialize non-json data from ${verb}`, testAsync(async () => {
+            //Arrange
+            httpClientMock[verb].and
+                .returnValue(Promise.resolve(getMockResponse(200, '', '{ "inner": { "val": 33 } }', {
+                    'content-type': 'not/json'
+                })))
+            
+            //Act
+            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path');
+            
+            //Assert
+            expect(result.json).toBeUndefined();
+        }));  
         
     });
     
