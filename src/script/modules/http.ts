@@ -35,7 +35,8 @@ export class HttpRequestModule {
     private static jsonRegex = /(application|text)\/json/gi;
     static handleResponse(response: IHttpResponse) {
         if (response.headers != null &&
-            HttpRequestModule.jsonRegex.test(response.headers['content-type'])) {
+            response.headers['content-type'] != null &&
+            response.headers['content-type'].search(HttpRequestModule.jsonRegex) > -1) {
             response.json = HttpRequestModule.getJsonBody(response);        
         }
     }
