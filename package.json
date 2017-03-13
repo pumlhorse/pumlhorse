@@ -1,11 +1,12 @@
 {
   "name": "pumlhorse",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Utility for creating readable and reusable scripts",
   "main": "./lib/app.js",
   "bin": "bin/cli.js",
   "scripts": {
-    "test": "tsc -p ./configs/tsconfig.test.json && jasmine"
+    "test": "tsc -p ./configs/tsconfig.test.json && jasmine",
+    "prepublish": "tsc -p ./configs/tsconfig.publish.json"
   },
   "repository": {
     "type": "git",
