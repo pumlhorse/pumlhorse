@@ -1,5 +1,5 @@
 import { ModuleRepository } from './script/Modules';
-import { getFilterBuilder } from './Profile/filters';
+import { getFilterBuilder } from './profile/filters';
 
 class PumlhorseGlobal {
     module(name) {
