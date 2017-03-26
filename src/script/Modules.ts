@@ -1,12 +1,13 @@
+import { IScope } from './IScope';
 import enforce from '../util/enforce';
 import * as helpers from '../util/helpers';
 import * as _ from 'underscore';
 
 export class ModuleRepository {
-    static lookup: Object = {};
+    static lookup: {[name: string]: Module} = {};
 
     static addModule(name: string): ModuleBuilder {
-        var module = {};
+        var module = new Module();
 
         ModuleRepository.lookup[name] = module;
 
@@ -14,13 +15,50 @@ export class ModuleRepository {
     }
 }
 
+export type Injector = ($scope: IScope) => void;
+export type InjectorLookup = {[name: string]: Injector};
+export type FunctionLookup = {[name: string]: Function};
+
+export class Module {
+    private injectors: InjectorLookup = {};
+    private functions: FunctionLookup = {};
+
+    getInjectors(): InjectorLookup {
+        return this.injectors;
+    }
+
+    addInjector(name: string, injector: Injector) {
+        enforce(name, 'name').isNotNull().isString();
+        enforce(injector, 'injector').isNotNull().isFunction();
+
+        this.injectors[name] = injector;
+    }
+
+    getFunctions(): FunctionLookup {
+        return this.functions;
+    }
+
+    addFunction(name: string, func: Function) {
+        enforce(name, 'name').isNotNull().isString();
+        enforce(func, 'func').isNotNull().isFunction();
+        
+        this.functions[name] = func;
+    }
+}
+
 export class ModuleBuilder {
-    constructor(private module: any) {
+    constructor(private module: Module) {
     }
 
     function(name: string, func: Function | any[]): ModuleBuilder {
         var f = new ModuleFunction(name, func);
-        this.module[name] = f.declaration;
+        this.module.addFunction(name, f.declaration);
+
+        return this;
+    }
+
+    injector(name: string, func: ($scope: IScope) => void): ModuleBuilder {
+        this.module.addInjector(name, func);
 
         return this;
     }

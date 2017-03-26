@@ -661,6 +661,28 @@ describe('Script', () => {
             // Assert
 			expect(mock).toHaveBeenCalled();
         }));
+
+        it('allows custom injectors',testAsync(async () => {
+            // Arrange
+            pumlhorse.module('goodModule')
+                .function('sayHello', function ($myInjector) { mock($myInjector); })
+                .injector('$myInjector', $scope => $scope['myVal'] * 3);
+
+            var script = new Script({
+                name: 'test script',
+                modules: ['goodModule'],
+                steps: [
+                    'myVal = 33',
+                    'sayHello'
+                ]
+            });
+            
+            // Act
+            await script.run();
+            
+            // Assert
+			expect(mock).toHaveBeenCalledWith(99);
+        }));
     });
 
     describe('with cleanup tasks', () => {

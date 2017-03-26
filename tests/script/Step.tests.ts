@@ -230,4 +230,30 @@ describe('Step', () => {
             expect(mock).toHaveBeenCalledWith(scope, [44, 55, 198]);
         }));
     });
+
+    describe('with custom injectors', () => {
+        let scope: any;
+        let mock;
+
+        beforeEach(() => {
+            mock = jasmine.createSpy('spy');
+            scope = {
+                testFunc: function($myInjector) {
+                    mock($myInjector);
+                }
+            };
+        });
+
+        it('should handle custom injectors', testAsync(async () => {
+            // Arrange
+            scope.myNumber = 5;
+            var step = new Step('testFunc', null, scope, { '$myInjector': ($scope) => $scope['myNumber'] * 3});
+            
+            // Act
+            await step.run();
+            
+            // Assert
+            expect(mock).toHaveBeenCalledWith(15);
+        }));
+    })
 });

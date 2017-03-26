@@ -3,7 +3,7 @@ import enforce from '../util/enforce';
 import { Guid } from '../util/Guid';
 import { IScope } from './IScope';
 import { IScriptInternal } from './IScriptInternal';
-import { ModuleRepository } from './Modules';
+import { FunctionLookup, Module, ModuleRepository } from './Modules';
 
 export class Scope implements IScope {
 
@@ -27,7 +27,7 @@ export class Scope implements IScope {
         this.script.emit(eventName, eventInfo);
     }
 
-    _module(moduleName: string): any {
+    _module(moduleName: string): FunctionLookup {
         enforce(moduleName).isNotNull();
 
         const mod = ModuleRepository.lookup[moduleName];
@@ -36,7 +36,7 @@ export class Scope implements IScope {
             throw new Error(`Module '${moduleName}' has not been registered`);
         }
 
-        return mod;
+        return mod.getFunctions();
     }
 
     _new(scope?: IScope): IScope {

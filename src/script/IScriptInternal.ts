@@ -1,9 +1,11 @@
+import { InjectorLookup, Module } from './Modules';
 import { IScope } from './IScope';
 import {ICancellationToken} from '../util/ICancellationToken';
 
 export interface IScriptInternal {
-    modules: any[];
+    modules: Module[];
     functions: Function[];
+    injectors: InjectorLookup;
     steps: any[];
     cleanup: any[];
 
