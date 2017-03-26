@@ -2,7 +2,7 @@
   "name": "pumlhorse",
   "version": "2.1.2",
   "description": "Utility for creating readable and reusable scripts",
-  "main": "./lib/app.js",
+  "main": "./lib/App.js",
   "bin": "bin/cli.js",
   "scripts": {
     "test": "tsc -p ./configs/tsconfig.test.json && jasmine",
