@@ -4,7 +4,7 @@
 
 * Added `prompt` function to allow soliciting values from the user (#13)
 * Added `date` function to easily generate dates (#20)
-* Added `convert` function to convert to/from base64 and other encodings (#16)
+* Added `convertText` function to convert to/from base64 and other encodings (#16)
 * Added support for customer injectors for module functions (#18)
 * Fixed issue with Pumlhorse not running on platforms with case-sensitive file paths (#19)
 
