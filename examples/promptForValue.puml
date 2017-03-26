@@ -1,0 +1,9 @@
+name: Prompt for a value
+steps:
+  - favoriteColor = green # Comment this out to get prompted
+  - prompt:
+      ask: What's your favorite color?
+      for: favoriteColor
+  # Or you could ask this way
+  # - favoriteColor = prompt: What's your favorite color?
+  - log: You told me that your favorite color is $favoriteColor
