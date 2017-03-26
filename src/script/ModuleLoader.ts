@@ -3,12 +3,13 @@ import { IScriptDefinition } from './IScriptDefinition';
 import * as path from 'path';
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
+import { Module } from "./Modules";
 
 const requireFromPath = require('../../util/requireFromPath');
 
 export class ModuleLoader {
 
-    static load(fileName: string, modules: string[]): any {
+    static load(fileName: string, modules: string[]): Module[] {
         if (modules == null) return [];
 
         const scriptDir = path.dirname(fileName);
@@ -32,11 +33,11 @@ export class ModuleLoader {
     }
 
     private static _resolver = requireFromPath;
-    static useResolver(resolver: (modDescriptor: any, directory: string) => any) {
+    static useResolver(resolver: (modDescriptor: any, directory: string) => Module) {
         ModuleLoader._resolver = resolver;
     }
 
-    private static resolveModule(modDescriptor: any, directory: string): any {
+    private static resolveModule(modDescriptor: any, directory: string): Module {
         var moduleLocator = this.getModuleLocator(modDescriptor);
 
         if (_.some(Script.StandardModules, mod => mod == moduleLocator.name)) {

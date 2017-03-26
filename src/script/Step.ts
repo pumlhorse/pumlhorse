@@ -1,10 +1,12 @@
+import { Injector, InjectorLookup } from './Modules';
 import { CancellationToken } from '../util/CancellationToken';
 import { ScriptError } from './ScriptError';
 import * as _ from 'underscore';
 import * as Expression from 'angular-expressions';
 import * as helpers from '../util/helpers';
 import * as stringParser from './StringParser';
-import {ICancellationToken} from '../util/ICancellationToken';
+import { ICancellationToken } from '../util/ICancellationToken';
+import { IScope } from "./IScope";
 
 const assignmentRegex = /([a-zA-Z0-9_-]+) = (.+)/;
 
@@ -15,7 +17,8 @@ export class Step {
 
     constructor(funcName: string, 
         private parameters: any,
-        private scope,
+        private scope: IScope,
+        private injectors: InjectorLookup = {},
         private lineNumber?: number) {
         const match = funcName.match(assignmentRegex);
 
@@ -27,6 +30,8 @@ export class Step {
             this.assignment = match[1];
             this.functionName = match[2];
         }
+
+        this.injectors['$scope'] = () => scope;
     }
 
     private isAssignment(): boolean {
@@ -92,14 +97,13 @@ export class Step {
 
     private getParameter(name: string, aliases: string[], index: number, cancellationToken: ICancellationToken): any {
         
-        if (this.isParameterName('$scope', name, aliases)) return this.scope;        
-        if (this.isParameterName('$all', name, aliases)) {
-            return this.evaluateParameter(this.parameters, name);
-        }
-        if (this.isParameterName('$cancellationToken', name, aliases)) {
-            return cancellationToken == null
-                ? CancellationToken.None
-                : cancellationToken;
+        this.injectors['$all'] = () => this.evaluateParameter(this.parameters, name);
+        this.injectors['$cancellationToken'] = () => cancellationToken == null ? CancellationToken.None : cancellationToken;
+
+        const injector = this.getInjector(name, aliases);
+
+        if (injector != null) {
+            return injector(this.scope);
         }
 
         let parameterValue = undefined;
@@ -120,14 +124,14 @@ export class Step {
             : this.evaluateParameter(parameterValue, name);
     }
 
+    private getInjector(name: string, aliases: string[] = []): Injector {
+        return this.injectors[name] || this.injectors[aliases[name]];
+    }
+
     private evaluateParameter(value, name) {
         if (StepFunction.hasDeferredParameter(this.runFunc, name)) return value;
             
         return doEval(value, true, this.scope);
-    }
-
-    private isParameterName(expectedName: string, actualName: string, aliases: string[]): boolean {
-        return actualName == expectedName || (aliases != null && aliases[actualName] == expectedName)
     }
 
     private doAssignment(result: any) {

@@ -20,6 +20,7 @@ export async function run(args) {
     if (profile != null) {
         try {
             const app = new App();
+            profile.modules.push({ name: 'cliPrompt', path: require.resolve('./prompt')});
             configureLoggers();
             await app.runProfile(profile, new CliOutput(profile));
         }

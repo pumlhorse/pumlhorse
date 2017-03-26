@@ -4,12 +4,12 @@ export interface IProfile {
     include: string[];
     isRecursive: boolean;
     maxConcurrentFiles?: number;
-    modules: Module[];
+    modules: ModuleDescriptor[];
     settings?: Object;
     isVerbose: boolean;
 }
 
-export class Module {
+export class ModuleDescriptor {
     name: string;
     path: string;
 }

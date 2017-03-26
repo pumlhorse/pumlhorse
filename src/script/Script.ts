@@ -10,7 +10,7 @@ import { IScriptInternal } from './IScriptInternal';
 import { Guid } from '../util/Guid';
 import { IScript } from './IScript';
 import { IScope } from './IScope';
-import { ModuleRepository } from './Modules';
+import { InjectorLookup, Module, ModuleRepository } from './Modules';
 import { Scope } from './Scope';
 import validateScriptDefinition from './scriptDefinitionValidator';
 import * as loggers from './loggers';
@@ -85,11 +85,13 @@ export class Script implements IScript {
         if (mod == null) throw new Error(`Module "${moduleLocator.name}" does not exist`);
 
         if (moduleLocator.hasNamespace) {
-            helpers.assignObjectByString(this.internalScript.modules, moduleLocator.namespace, mod);
+            helpers.assignObjectByString(this.internalScript.modules, moduleLocator.namespace, mod.getFunctions());
         }
         else {
-            _.extend(this.internalScript.modules, mod);
+            _.extend(this.internalScript.modules, mod.getFunctions());
         }
+
+        _.extend(this.internalScript.injectors, mod.getInjectors())
     }
 
     private loadModules() {
@@ -150,7 +152,8 @@ export class Script implements IScript {
 
 class InternalScript implements IScriptInternal {
     id: string;
-    modules: any[];
+    modules: Module[];
+    injectors: InjectorLookup;
     functions: any[];
     steps: any[];
     cleanup: any[];
@@ -159,6 +162,9 @@ class InternalScript implements IScriptInternal {
     constructor(id: string) {
         this.id = id;
         this.modules = [];
+        this.injectors = {
+            '$scope': (scope: IScope) => scope
+        };
         this.functions = [];
         this.steps = [];
         this.cleanup = [];
@@ -209,11 +215,11 @@ class InternalScript implements IScriptInternal {
         let step: Step;
         const lineNumber = stepDefinition.getLineNumber == null ? null : stepDefinition.getLineNumber();
         if (_.isString(stepDefinition)) {
-            step = new Step(stepDefinition, null, scope, lineNumber);
+            step = new Step(stepDefinition, null, scope, this.injectors, lineNumber);
         }
         else {
             var functionName = _.keys(stepDefinition)[0];
-            step = new Step(functionName, stepDefinition[functionName], scope, lineNumber);
+            step = new Step(functionName, stepDefinition[functionName], scope, this.injectors, lineNumber);
         }
 
         await step.run(this.cancellationToken);

@@ -2,13 +2,13 @@
 
 import * as _ from 'underscore';
 import { IApp } from './IApp';
-import { IProfile } from './Profile/IProfile';
-import { Profile } from './Profile/Profile';
-import { ISessionOutput } from './Profile/ISessionOutput';
-import { ProfileRunner } from './Profile/ProfileRunner';
-import { IScript } from './Script/IScript';
-import { Script } from './Script/Script';
-import * as loggers from './Script/loggers';
+import { IProfile } from './profile/IProfile';
+import { Profile } from './profile/Profile';
+import { ISessionOutput } from './profile/ISessionOutput';
+import { ProfileRunner } from './profile/ProfileRunner';
+import { IScript } from './script/IScript';
+import { Script } from './script/Script';
+import * as loggers from './script/loggers';
 import {ICancellationToken} from './util/ICancellationToken';
 const YAML = require('pumlhorse-yamljs');
 

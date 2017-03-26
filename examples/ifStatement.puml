@@ -1,9 +1,7 @@
 name: Simple if/then example
-functions:
-  getTodaysDate:
-    - return new Date().getDay()
 steps:
-  - dayOfWeek = getTodaysDate
+  - today = date
+  - dayOfWeek = $today.getDay()
   - if:
       value: ${ dayOfWeek == 5 }
       is true:
