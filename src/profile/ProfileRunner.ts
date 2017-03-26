@@ -53,12 +53,11 @@ export class ProfileRunner {
         }
     }
 
-    private 
-
     private loadGlobalModules() {
         if (this.profile.modules == null) return;
 
-        this.profile.modules.forEach(m => require(m.path));
+        this.profile.modules
+            .forEach(m => require(m.path));
     }
 
     private registerFilters() {
