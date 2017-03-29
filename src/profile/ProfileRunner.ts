@@ -66,13 +66,14 @@ export class ProfileRunner {
 
     private async buildContext(): Promise<any> {
         this.context = {};
-        if (this.profile.contexts == null ||
-            this.profile.contexts.length == 0) {
+        const contexts = this.profile.contexts;
+        if (contexts == null ||
+            contexts.length == 0) {
             return;
         }
 
-        for (let i in this.profile.contexts) {
-            const path = this.profile.contexts[i];
+        for (let i = 0; i < contexts.length; i++) {
+            const path = contexts[i];
             const context = await this.readContextFile(path);
             _.extend(this.context, context);
         }
