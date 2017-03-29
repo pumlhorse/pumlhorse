@@ -1,8 +1,9 @@
+import * as _ from 'underscore';
+import * as path from 'path';
+import * as minimist from 'minimist';
 import { IProfile } from '../profile/IProfile';
 import { Profile } from '../profile/Profile';
 import { CliOutput } from './CliOutput';
-import * as path from 'path';
-import * as minimist from 'minimist';
 import { App } from '../App';
 import * as loggers from '../script/loggers';
 import * as fs from '../util/asyncFs';
@@ -141,13 +142,13 @@ function override(overrideValue, currentValue) {
 function makeRelative(filePath: string, array) {
     if (array == null) return array;
     
-    return array.map(m => makeRelativePath(filePath, m));
+    return _.map(array, m => makeRelativePath(filePath, m));
 }
 
 function makeModulesRelative(filePath: string, modules: any) {
     if (modules == null) return modules;
 
-    return modules.map((m) => { 
+    return _.map(modules, (m) => { 
         return {
             name: m.name,
             path: makeRelativePath(filePath, m.path)

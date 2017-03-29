@@ -99,7 +99,7 @@ export class ProfileRunner {
 
     private async buildFileList() {
 
-        const fileNames = _.uniq(_.flatten(await Promise.all(this.profile.include.map((include) => this.listFilesForPath(include)))));
+        const fileNames = _.uniq(_.flatten(await Promise.all(_.map(this.profile.include, (include) => this.listFilesForPath(include)))));
 
         this.files = _.filter(fileNames, (name) => name.toLowerCase().endsWith('.puml'));
     }
@@ -121,7 +121,7 @@ export class ProfileRunner {
 
         if (stat.isDirectory()) {
             const dirFiles = await fs.readdir(fullPath, this.profile.isRecursive);
-            return dirFiles.map(f => path.resolve(fullPath, f));
+            return _.map(dirFiles, f => path.resolve(fullPath, f));
         }
 
         throw new Error(`"${filePath}" is not a file or directory`);
@@ -130,7 +130,7 @@ export class ProfileRunner {
     private async runFiles(cancellationToken: ICancellationToken): Promise<any> {
         const queue = new Queue(this.getMaxConcurrentFiles(), Infinity);
 
-        await Promise.all(this.files.map((file) => queue.add(() => this.runFile(file, cancellationToken))));
+        await Promise.all(_.map(this.files, (file) => queue.add(() => this.runFile(file, cancellationToken))));
     }
 
     private async runFile(filename: string, cancellationToken: ICancellationToken): Promise<any> {

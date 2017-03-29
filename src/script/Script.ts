@@ -145,7 +145,7 @@ export class Script implements IScript {
             return;
         }
 
-        return await Promise.all(this.internalScript.cleanup.map(task => {
+        return await Promise.all(_.map(this.internalScript.cleanup, task => {
             try {
                 return this.internalScript.runSteps([task], scope, cancellationToken);
             }

@@ -85,7 +85,7 @@ describe('Assert function', () => {
             ])
     ];
 
-    binary.map((test) => {
+    _.map(binary, (test) => {
         _.map(test.goodValues, vals => {
             const valArray = JSON.stringify(vals);
             it(`should accept ${valArray} for ${test.command}`, () => {

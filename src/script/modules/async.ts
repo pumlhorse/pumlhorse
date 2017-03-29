@@ -8,7 +8,7 @@ function runParallel(steps, $scope: IScope) {
             .isNotNull()
             .isArray();
 
-        return Promise.all(steps.map(step => {
+        return Promise.all(_.map(steps, step => {
             let newSteps = _.flatten([step]);
             return $scope._runSteps(newSteps, $scope);
         }))

@@ -12,7 +12,7 @@ export class ModuleLoader {
         if (modules == null) return [];
 
         const scriptDir = path.dirname(fileName);
-        return modules.map((mod) => this.resolveModule(mod, scriptDir));
+        return _.map(modules, (mod) => this.resolveModule(mod, scriptDir));
     }
 
     static getModuleLocator(moduleDescriptor: string): ModuleLocator {
