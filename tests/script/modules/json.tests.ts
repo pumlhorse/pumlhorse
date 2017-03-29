@@ -31,7 +31,7 @@ describe('Json module', () => {
         obj.inner = inner;
         
         // Act
-        var result = JsonModule.objectToJson(obj);
+        JsonModule.objectToJson(obj);
         
         // Assert
         //Verify no exception was thrown

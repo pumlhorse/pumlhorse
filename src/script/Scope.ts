@@ -3,7 +3,7 @@ import enforce from '../util/enforce';
 import { Guid } from '../util/Guid';
 import { IScope } from './IScope';
 import { IScriptInternal } from './IScriptInternal';
-import { FunctionLookup, Module, ModuleRepository } from './Modules';
+import { FunctionLookup, ModuleRepository } from './Modules';
 
 export class Scope implements IScope {
 

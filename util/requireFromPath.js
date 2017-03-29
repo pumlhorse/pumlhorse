@@ -1,7 +1,7 @@
 module.exports = requireFromPath;
 
 function requireFromPath(moduleName, directory) {
-    var oldPaths = module.paths;
+    const oldPaths = module.paths;
     
     if (directory) module.paths = module.constructor._nodeModulePaths(directory);
     
@@ -18,7 +18,7 @@ function requireFromPath(moduleName, directory) {
 }
 
 module.exports.resolve = function(moduleName, directory) {
-    var oldPaths = module.paths;
+    const oldPaths = module.paths;
     
     if (directory) module.paths = module.constructor._nodeModulePaths(directory);
     

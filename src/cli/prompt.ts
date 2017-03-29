@@ -20,7 +20,7 @@ export function promptForValue(ask: string, forValue: string, $scope: IScope): P
         ask = forValue == null ? 'Enter value: ' : `Enter value for ${forValue}`;
     }
 
-    return new Promise((resolve, reject) => 
+    return new Promise((resolve) => 
     {
         if (forValue != null && $scope[forValue] != null) {
             resolve($scope[forValue]);

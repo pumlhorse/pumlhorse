@@ -72,25 +72,25 @@ export class Step {
         const params = this.getParameterList(cancellationToken); 
         
         try {
-            var result = await this.runFunc.apply(this.scope, params);
+            const result = await this.runFunc.apply(this.scope, params);
+            this.doAssignment(result);
+            return;
         }
         catch (err) {
             throw new ScriptError(err, this.lineNumber);
         }
         
-        this.doAssignment(result);
-        return;
     }
 
     private getParameterList(cancellationToken): any[] {
-        var definedParameterNames = helpers.getParameters(this.runFunc);
+        const definedParameterNames = helpers.getParameters(this.runFunc);
 
         if (definedParameterNames.length == 0) {
             return [this.evaluateParameter(this.parameters, null)];
         }
 
         const aliases = StepFunction.getAliases(this.runFunc);
-        var params = definedParameterNames.map((name, i) => this.getParameter(name, aliases, i, cancellationToken));
+        const params = _.map(definedParameterNames, (name, i) => this.getParameter(name, aliases, i, cancellationToken));
         
         return params;
     }
@@ -160,12 +160,12 @@ function doEval(input: any, compile: boolean, scope: any): any {
     if (input == null) return null;
         
     if (_.isString(input)) {
-        var parts = stringParser.parse(input)
-        parts = parts
-            .map((p) => {
+        let parts = stringParser.parse(input)
+        parts = _.map(parts, 
+            (p) => {
                 if (!compile || !p.isTokenized) return p.value;
 
-                var val = Expression.compile(p.value.trim())(scope);
+                const val = Expression.compile(p.value.trim())(scope);
                 return val instanceof String
                     ? val.toString() //Transform to a normal string
                     : val;
@@ -177,7 +177,7 @@ function doEval(input: any, compile: boolean, scope: any): any {
     
     if (typeof input == "object") {
         return (input.constructor === Array)
-            ? input.map(function (val) { return doEval(val, true, scope) })
+            ? _.map(input, function (val) { return doEval(val, true, scope) })
             : _.mapObject(input, (val) => doEval(val, true, scope));
     }
     

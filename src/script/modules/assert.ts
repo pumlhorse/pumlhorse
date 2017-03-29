@@ -59,14 +59,11 @@ export class AssertModule {
         if (array.length == 0) throw AssertModule.getMessageError('contains', 'Array is empty');
 
         let isFound = false;
-        array.forEach(val => {
-            if (AssertModule.areEqualInternal(expectedValue, val, partial)) {
-                isFound = true;
-                return;
-            }
-        });
+        for (let i = 0; i < array.length && !isFound; i++) {
+            isFound = AssertModule.areEqualInternal(expectedValue, array[i], partial)
+        }
 
-        var val = AssertModule.serializeParameter(expectedValue);
+        let val = AssertModule.serializeParameter(expectedValue);
         if (!isFound) throw AssertModule.getMessageError('contains', `Array did not contain ${val}`)
     }
 

@@ -3,9 +3,7 @@ import { Profile } from '../profile/Profile';
 import { CliOutput } from './CliOutput';
 import * as path from 'path';
 import * as minimist from 'minimist';
-import * as _ from 'underscore';
 import { App } from '../App';
-import { IApp } from '../IApp';
 import * as loggers from '../script/loggers';
 import * as fs from '../util/asyncFs';
 
@@ -34,7 +32,7 @@ export async function run(args) {
     } 
 }
 
-var cliOptions = {
+const cliOptions = {
     string: ['context', 'profile'],
     boolean: ['recursive', 'version', 'help', 'verbose'],
     alias: {
@@ -61,7 +59,7 @@ function showUsage() {
 
 async function buildProfile(args: any[]): Promise<IProfile> {
     
-    var options = minimist(args, cliOptions);
+    const options = minimist(args, cliOptions);
 
     if (options.version) {
         loggers.log('Pumlhorse: version ' + require('../../package.json').version)
@@ -99,7 +97,7 @@ async function buildProfile(args: any[]): Promise<IProfile> {
 async function readProfileFile(filePath): Promise<IProfile> {
     if (!filePath.endsWith('.pumlprofile')) filePath += '.pumlprofile';
     
-    var fullPath = path.resolve(filePath)
+    const fullPath = path.resolve(filePath)
 
     let stat;
     try {
@@ -135,7 +133,7 @@ function combine(arr1, arr2) {
 }
 
 function override(overrideValue, currentValue) {
-    return overrideValue != null && overrideValue != undefined 
+    return overrideValue != null
         ? overrideValue
         : currentValue;
 }
@@ -162,8 +160,8 @@ function makeRelativePath(filePath: string, filename: string) {
 }
 
 function setColor(args, colorFunc) {
-    args[0] = colorFunc(args[0])
-    return args
+    args[0] = colorFunc(args[0]);
+    return args;
 }
 
 function configureLoggers() {
@@ -175,6 +173,6 @@ function configureLoggers() {
 }
 
 function logError(err) {
-    loggers.error(err.message ? err.message : err)
-    throw err
+    loggers.error(err.message ? err.message : err);
+    throw err;
 }

@@ -8,7 +8,7 @@ export { readAsYaml, readFile, readAsJson, readdir, stat };
 function readAsYaml(path): Promise<Object> {
     return new Promise(function (resolve, reject) {
         try{
-            var result = YAML.parseFile(path);
+            const result = YAML.parseFile(path);
             resolve(result);
         }
         catch (e) {
@@ -18,7 +18,7 @@ function readAsYaml(path): Promise<Object> {
 }
 
 async function readAsJson(path): Promise<Object> {
-    var fileContents = await readFile(path);
+    const fileContents = await readFile(path);
     return JSON.parse(fileContents);
 }
 

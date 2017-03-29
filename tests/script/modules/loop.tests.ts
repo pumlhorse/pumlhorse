@@ -1,5 +1,4 @@
 import { CancellationToken } from '../../../src/util/CancellationToken';
-import { IScope } from '../../../src/script/IScope';
 import * as _ from 'underscore';
 import { LoopModule } from '../../../src/script/modules/loop';
 

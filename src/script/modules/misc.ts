@@ -1,9 +1,8 @@
-import { IScope } from '../IScope';
 import enforce from '../../util/enforce';
 import { ScriptInterrupt } from '../ScriptInterrupt';
 import { pumlhorse } from '../../PumlhorseGlobal';
 
-var requireFromPath = require('../../../util/requireFromPath');
+const requireFromPath = require('../../../util/requireFromPath');
 
 function importFunc(moduleName) {
     return requireFromPath(moduleName, this.__filename);

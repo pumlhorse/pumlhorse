@@ -6,7 +6,6 @@ const colors = require('colors');
 export class CliOutput implements ISessionOutput {
 
     private scriptLogs = {};
-    private completedScripts = 0;
 
     constructor(private profile: IProfile) {
 
@@ -32,7 +31,7 @@ export class CliOutput implements ISessionOutput {
     }
 
     onScriptFinished(id, err) {
-        var logger = this.scriptLogs[id];
+        const logger = this.scriptLogs[id];
         if (err) {
             const lineNumber = err.lineNumber ? 'Line ' + err.lineNumber + ': ' : '';
             logger.log('error', lineNumber + (err.message ? err.message : err));
@@ -49,7 +48,7 @@ export class CliOutput implements ISessionOutput {
     }
 
     onSessionStarted() {}
-    onScriptStarted(scriptId: string)  {}
+    onScriptStarted()  {}
     onHttpSent() {}
     onHttpReceived() {}
 }
@@ -69,9 +68,10 @@ class BufferedLogger {
         if (this.messages.length > 0) {
             loggers.log('--------------');
             loggers.log(`## ${this.scriptName} - ${this.fileName} ##`);
-            this.messages.forEach(function (m) {
-                m.logger(m.message);
-            })
+            for (let i = 0; i < this.messages.length; i++) {
+                let m = this.messages[i];
+                m.logger(m.message)
+            }
         }
     }
     

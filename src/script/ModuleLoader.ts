@@ -1,5 +1,4 @@
 import { Script } from './Script';
-import { IScriptDefinition } from './IScriptDefinition';
 import * as path from 'path';
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
@@ -38,7 +37,7 @@ export class ModuleLoader {
     }
 
     private static resolveModule(modDescriptor: any, directory: string): Module {
-        var moduleLocator = this.getModuleLocator(modDescriptor);
+        const moduleLocator = this.getModuleLocator(modDescriptor);
 
         if (_.some(Script.StandardModules, mod => mod == moduleLocator.name)) {
             return undefined;

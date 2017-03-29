@@ -3,7 +3,7 @@ import enforce from '../../util/enforce';
 
 export class TimerModule {
     static startTimer(timer: Timer) {
-        var t: Timer;
+        let t: Timer;
         if (timer == null || !(timer instanceof Timer)) {
             t = new Timer();
         }

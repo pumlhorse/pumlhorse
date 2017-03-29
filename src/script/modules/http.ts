@@ -1,26 +1,26 @@
 import { ICancellationToken } from '../../util/ICancellationToken';
 import { CancellationToken } from '../../util/CancellationToken';
 import { pumlhorse } from '../../PumlhorseGlobal';
-import { IScope, IFullScope } from '../IScope';
+import { IFullScope } from '../IScope';
 import * as http from 'http-client-factory';
 import enforce from '../../util/enforce';
 
 export class HttpRequestModule {
-    static async makeRequest(verb: string, url: string, data: any, headers: Object, $scope: IScope, $cancellationToken?: ICancellationToken): Promise<IHttpResponse> {        
+    static async makeRequest(verb: string, url: string, data: any, headers: Object, $cancellationToken?: ICancellationToken): Promise<IHttpResponse> {        
         enforce(url, 'url').isNotNull().isNotEmpty();
 
-        var client = http.getClient();
+        const client = http.getClient();
 
         client.addHeader('User-Agent', 'Pumlhorse HTTP Client');
 
         if (headers != null) {
-            for(var x in headers) {
+            for(let x in headers) {
                 client.addHeader(x, headers[x]);
             }
         }
 
         try {
-            var response = await CancellationToken.await<IHttpResponse>(client[verb](url, data), $cancellationToken);
+            const response = await CancellationToken.await<IHttpResponse>(client[verb](url, data), $cancellationToken);
             HttpRequestModule.handleResponse(response);
             return response;
         }
@@ -41,32 +41,32 @@ export class HttpRequestModule {
         }
     }
 
-    static async get(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('get', url, data, headers, $scope, $cancellationToken);
+    static async get(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('get', url, data, headers, $cancellationToken);
     }
 
-    static async post(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('post', url, data, headers, $scope, $cancellationToken);
+    static async post(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('post', url, data, headers, $cancellationToken);
     }
 
-    static async put(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('put', url, data, headers, $scope, $cancellationToken);
+    static async put(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('put', url, data, headers, $cancellationToken);
     }
 
-    static async delete(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('delete', url, data, headers, $scope, $cancellationToken);
+    static async delete(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('delete', url, data, headers, $cancellationToken);
     }
 
-    static async patch(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('patch', url, data, headers, $scope, $cancellationToken);
+    static async patch(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('patch', url, data, headers, $cancellationToken);
     }
 
-    static async options(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('options', url, data, headers, $scope, $cancellationToken);
+    static async options(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('options', url, data, headers, $cancellationToken);
     }
 
-    static async head(url: string, data: any, headers: Object, $scope: IScope, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('head', url, data, headers, $scope, $cancellationToken);
+    static async head(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('head', url, data, headers, $cancellationToken);
     }
 
     static getJsonBody(response: IHttpResponse): any {
@@ -83,7 +83,7 @@ export class HttpRequestModule {
     static dumpResponse(response: IHttpResponse, $scope: IFullScope) {
         $scope.log(`Response: ${response.statusCode} - ${response.statusMessage}`);
         $scope.log('---Headers---');
-        for (var x in response.headers)
+        for (let x in response.headers)
         {
             $scope.log(`"${x}": "${response.headers[x]}"`);
         }
@@ -97,7 +97,7 @@ export class HttpRequestModule {
 export class HttpAssertionModule
 {
     static isRange(response: IHttpResponse, start: number, end: number) {
-        var actual = response.statusCode
+        const actual = response.statusCode
         if (actual < start || end < actual) {
             throw new Error(`Expected code between ${start} and ${end}, actual: ${actual}`)
         }
@@ -140,13 +140,13 @@ export interface IHttpResponse {
 }
 
 pumlhorse.module('http')
-    .function('get', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.get])
-    .function('post', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.post])
-    .function('put', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.put])
-    .function('delete', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.delete])
-    .function('patch', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.patch])
-    .function('options', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.options])
-    .function('head', ['url', 'data', 'headers', '$scope', '$cancellationToken', HttpRequestModule.head])
+    .function('get', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.get])
+    .function('post', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.post])
+    .function('put', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.put])
+    .function('delete', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.delete])
+    .function('patch', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.patch])
+    .function('options', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.options])
+    .function('head', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.head])
     //Assertions
     .function('isInformational', HttpAssertionModule.isInformational)
     .function('isSuccess', HttpAssertionModule.isSuccess)

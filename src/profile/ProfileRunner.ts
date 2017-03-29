@@ -5,12 +5,9 @@ import { SessionEvents } from './SessionEvents';
 import { ISessionOutput } from './ISessionOutput';
 import { IScriptDefinition } from '../script/IScriptDefinition';
 import { Script } from '../script/Script';
-import { Profile } from './Profile';
 import { IProfile } from './IProfile';
 import { IScript } from '../script/IScript';
-import * as loggers from '../script/loggers';
 import * as _ from 'underscore';
-import enforce from '../util/enforce';
 import * as fs from '../util/asyncFs';
 import * as path from 'path';
 import * as Queue from 'promise-queue';
@@ -34,8 +31,6 @@ export class ProfileRunner {
         this.loadGlobalModules();
         this.registerFilters();
 
-        const context = null;
-
         try {
             if (!await Runner.onSessionStarting()) {
                 return;
@@ -56,14 +51,17 @@ export class ProfileRunner {
     private loadGlobalModules() {
         if (this.profile.modules == null) return;
 
-        this.profile.modules
-            .forEach(m => require(m.path));
+        for (let i = 0; i < this.profile.modules.length; i++) {
+            require(this.profile.modules[i].path);
+        }
     }
 
     private registerFilters() {
         if (this.profile.filters == null) return;
 
-        this.profile.filters.forEach(path => require(path));
+        for (let i = 0; i < this.profile.filters.length; i++) {
+            require(this.profile.filters[i]);
+        }
     }
 
     private async buildContext(): Promise<any> {
@@ -130,7 +128,7 @@ export class ProfileRunner {
     }
 
     private async runFiles(cancellationToken: ICancellationToken): Promise<any> {
-        var queue = new Queue(this.getMaxConcurrentFiles(), Infinity);
+        const queue = new Queue(this.getMaxConcurrentFiles(), Infinity);
 
         await Promise.all(this.files.map((file) => queue.add(() => this.runFile(file, cancellationToken))));
     }
@@ -138,7 +136,7 @@ export class ProfileRunner {
     private async runFile(filename: string, cancellationToken: ICancellationToken): Promise<any> {
         if (cancellationToken.isCancellationRequested) return;
 
-        var scriptDetails: LoadedScript;
+        let scriptDetails: LoadedScript;
         try {
             scriptDetails = await LoadedScript.load(filename, this.sessionEvents);
         }
@@ -163,8 +161,6 @@ export class ProfileRunner {
         scriptContainer.script.addFunction('warn', function() { scriptContainer.warn.apply(scriptContainer, arguments); })
         scriptContainer.script.addFunction('error', function() { scriptContainer.error.apply(scriptContainer, arguments); })
 
-        const start = new Date();
-
         this.context.__filename = scriptContainer.fileName;
         try {
             await scriptContainer.script.run(this.context, cancellationToken);
@@ -180,10 +176,11 @@ export class ProfileRunner {
     }
 
     private async loadModules(s: LoadedScript): Promise<any> {
-        if (this.profile.modules != null) {
-            this.profile.modules.forEach((m) => {
-                s.script.addModule(m.name)
-            })
+        const modules = this.profile.modules;
+        if (modules != null) {
+            for (let i = 0; i < modules.length; i++) {
+                s.script.addModule(modules[i].name);
+            }
         }
 
         ModuleLoader.load(s.fileName, s.scriptDefinition.modules);
@@ -205,17 +202,17 @@ class LoadedScript {
     }
 
     log() {
-        var message = util.format.apply(util, arguments);
+        const message = util.format.apply(util, arguments);
         this.emitter.onLog(this.script.id, 'log', message);
     }
     
     warn() {
-        var message = util.format.apply(util, arguments);
+        const message = util.format.apply(util, arguments);
         this.emitter.onLog(this.script.id, 'warn', message);
     }
     
     error() {
-        var message = util.format.apply(util, arguments);
+        const message = util.format.apply(util, arguments);
         this.emitter.onLog(this.script.id, 'error', message);
     }
 

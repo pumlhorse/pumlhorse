@@ -82,7 +82,7 @@ describe('Script', () => {
             'notCalled'
         ]);
         script.addFunction('runHangingFunction', () => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 setTimeout(() => { resolve(); }, 50);
             });
         });

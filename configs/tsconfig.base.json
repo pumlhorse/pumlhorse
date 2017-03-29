@@ -6,7 +6,10 @@
         "target": "es5",
         "removeComments": true,
         "moduleResolution": "node",
-        "sourceMap": true
+        "sourceMap": true,
+        "alwaysStrict": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true
     },
     "typeAcquisition": {
         "enable": true

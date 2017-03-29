@@ -88,7 +88,7 @@ describe('HTTP functions', () => {
                 .returnValue(Promise.resolve(getMockResponse(200, '', '', null)))
             
             //Act
-            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body);
+            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body);
             
             //Assert
             expect(httpClientMock[verb]).toHaveBeenCalledWith('http://www.baseurl/some/path', body);
@@ -100,7 +100,7 @@ describe('HTTP functions', () => {
                 .returnValue(Promise.resolve(getMockResponse(200, '', '', null)))
             
             //Act
-            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path', null);
+            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', null);
             
             //Assert
             expect(httpClientMock[verb]).toHaveBeenCalledWith('http://www.baseurl/some/path', null);
@@ -114,7 +114,7 @@ describe('HTTP functions', () => {
                 .returnValue(Promise.resolve(getMockResponse(200, '', '', null)))
             
             //Act
-            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body, headers);
+            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body, headers);
             
             //Assert
             expect(httpClientMock[verb]).toHaveBeenCalledWith('http://www.baseurl/some/path', body);

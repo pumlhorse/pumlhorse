@@ -2,8 +2,7 @@ import { CancellationToken } from '../util/CancellationToken';
 import {ICancellationToken} from '../util/ICancellationToken';
 import { Step } from './Step';
 import { pumlhorse } from '../PumlhorseGlobal';
-import { ModuleLoader, ModuleLocator } from './ModuleLoader';
-import { ScriptInterrupt } from './ScriptInterrupt';
+import { ModuleLoader } from './ModuleLoader';
 import * as _ from 'underscore';
 import { IScriptDefinition } from './IScriptDefinition';
 import { IScriptInternal } from './IScriptInternal';
@@ -95,19 +94,24 @@ export class Script implements IScript {
     }
 
     private loadModules() {
-        let modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
+        const modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
             ? []
             : this.scriptDefinition.modules)
         
-        modules.forEach(def => this.addModule(def));
+        for (let i = 0; i < modules.length; i++) {
+            this.addModule(modules[i]);
+        }
     }
 
     private loadFunctions() {
-        if (this.scriptDefinition.functions == null) {
+        const functions = this.scriptDefinition.functions;
+        if (functions == null) {
             return;
         }
         
-        _.mapObject(this.scriptDefinition.functions, (def, name) => this.addFunction(name, this.createFunction(def)));
+        for(let name in functions) {
+            this.addFunction(name, this.createFunction(functions[name]));
+        }
     }
 
     
@@ -130,7 +134,10 @@ export class Script implements IScript {
         if (this.scriptDefinition.cleanup == null) {
             return;
         }
-        this.scriptDefinition.cleanup.map((step) => this.internalScript.cleanup.push(step));
+        
+        for (let i = 0; i < this.scriptDefinition.cleanup.length; i++) {
+            this.internalScript.cleanup.push(this.scriptDefinition.cleanup[i]);
+        }
     }
 
     private async runCleanupTasks(scope: Scope, cancellationToken: ICancellationToken): Promise<any> {
@@ -171,7 +178,7 @@ class InternalScript implements IScriptInternal {
 
     }
 
-    emit(eventName: string, eventInfo: any): void {
+    emit(): void {
 
     }
 
@@ -196,7 +203,7 @@ class InternalScript implements IScriptInternal {
 
         _.extend(scope, this.modules, this.functions);
 
-        for (var i = 0; i < steps.length; i++) {
+        for (let i = 0; i < steps.length; i++) {
             if (this.cancellationToken.isCancellationRequested) {
                 return;
             }
@@ -218,7 +225,7 @@ class InternalScript implements IScriptInternal {
             step = new Step(stepDefinition, null, scope, this.injectors, lineNumber);
         }
         else {
-            var functionName = _.keys(stepDefinition)[0];
+            const functionName = _.keys(stepDefinition)[0];
             step = new Step(functionName, stepDefinition[functionName], scope, this.injectors, lineNumber);
         }
 

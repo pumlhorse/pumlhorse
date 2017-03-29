@@ -18,9 +18,9 @@ export class LoopModule
             .isArray()
             .isNotEmpty();
         
-        for (var i = 0; i < inVals.length && !$cancellationToken.isCancellationRequested; i++) {
-            var item = inVals[i];
-            var newScope = $scope._new()
+        for (let i = 0; i < inVals.length && !$cancellationToken.isCancellationRequested; i++) {
+            let item = inVals[i];
+            let newScope = $scope._new()
             helpers.assignObjectByString(newScope, each, item);
             await $scope._runSteps(steps, newScope)
         }
@@ -47,18 +47,16 @@ export class LoopModule
             .isArray()
             .isNotEmpty();
                         
-        var caseCount = helpers.getItemCount(cases);
+        const caseCount = helpers.getItemCount(cases);
         
         if (!caseCount || caseCount == 0) {
             throw new Error('Scenarios function must contain at least one case');
         }
-        
-        var keys = _.keys(cases);    
-        
-        for (var key in cases) {
+                
+        for (let key in cases) {
             if ($cancellationToken.isCancellationRequested) return;
-            var caseVal = cases[key];
-            var fullCase = _.extend({}, base, caseVal);
+            const caseVal = cases[key];
+            const fullCase = _.extend({}, base, caseVal);
             try {
                 await $scope._runSteps(steps, $scope._new(fullCase))
             }
