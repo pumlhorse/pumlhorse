@@ -57,12 +57,15 @@ export class Script implements IScript {
 
     async run(context?: any, cancellationToken?: ICancellationToken): Promise<any> {
         if (cancellationToken == null) cancellationToken = CancellationToken.None;
+        
+        this.evaluateExpectations(context);
         this.loadModules();
 
         this.loadFunctions();
         this.loadCleanupSteps();
         
         const scope = new Scope(this.internalScript, context);
+
         
         try {
             await this.internalScript.runSteps(this.scriptDefinition.steps, scope, cancellationToken);
@@ -98,6 +101,18 @@ export class Script implements IScript {
         }
 
         _.extend(this.internalScript.injectors, mod.getInjectors())
+    }
+
+    private evaluateExpectations(context: any) {
+        if (this.scriptDefinition.expects == null) return;
+
+        const missingValues = _.difference(this.scriptDefinition.expects.map(m => m.toString()), _.keys(context));
+
+        if (missingValues.length > 0) {
+            throw new Error(missingValues.length > 1 
+                ? `Expected values "${missingValues.join(', ')}", but they were not passed`
+                : `Expected value "${missingValues[0]}", but it was not passed`)
+        }
     }
 
     private loadModules() {

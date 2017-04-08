@@ -7,6 +7,8 @@ export interface IScriptDefinition {
 
     functions?: Object;
 
+    expects?: string[];
+
     steps: any[];
 
     cleanup?: any[];

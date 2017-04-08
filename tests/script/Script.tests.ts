@@ -685,6 +685,84 @@ describe('Script', () => {
         }));
     });
 
+    describe('with expectations', () => {
+        it('throws an error if single expected value is not passed in the context', testAsync(async () => {
+            // Arrange
+            var script = new Script({
+                name: 'test script',
+                expects: [
+                    'myValue'
+                ],
+                steps: [
+                    {log: '$myValue'}
+                ]
+            });
+
+            try {
+                // Act
+                await script.run();
+                fail();
+            }
+            catch (err) {
+                // Assert
+                expect(err.message).toBe('Expected value "myValue", but it was not passed')
+            }
+
+        }));
+
+        it('throws an error if multiple expected values are not passed in the context', testAsync(async () => {
+            // Arrange
+            var script = new Script({
+                name: 'test script',
+                expects: [
+                    'myValue1',
+                    'myValue2',
+                    'myValue3',
+                    'myValue4',
+                ],
+                steps: [
+                    {log: '$myValue'}
+                ]
+            });
+
+            try {
+                // Act
+                await script.run({ myValue3: 'value'});
+                fail();
+            }
+            catch (err) {
+                // Assert
+                expect(err.message).toBe('Expected values "myValue1, myValue2, myValue4", but they were not passed')
+            }
+
+        }));
+
+        it('does not throw an error if expected values are passed in the context', testAsync(async () => {
+            // Arrange
+            var script = new Script({
+                name: 'test script',
+                expects: [
+                    'myValue1',
+                    'myValue2',
+                    'myValue3',
+                    'myValue4',
+                ],
+                steps: [
+                    'addedVal = ${myValue3 * myValue4}'
+                ]
+            });
+
+            // Act
+            var result = await script.run({ myValue1: 1, myValue2: 2, myValue3: 3, myValue4: 4});
+            
+            // Assert
+            expect(result.addedVal).toBe(12)
+
+        }));
+
+        
+    });
+
     describe('with cleanup tasks', () => {
         it('runs a cleanup task at the end of a script',testAsync(async () => {
             // Arrange
