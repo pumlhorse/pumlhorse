@@ -1,6 +1,12 @@
+import * as path from 'path';
+import { ICancellationToken } from '../../../pumlhorse';
 import enforce from '../../util/enforce';
 import { ScriptInterrupt } from '../ScriptInterrupt';
 import { pumlhorse } from '../../PumlhorseGlobal';
+import { readAsYaml } from "../../util/asyncFs";
+import { Script } from "../Script";
+import { IScriptDefinition } from "../IScriptDefinition";
+import { IScope } from "../IScope";
 
 const requireFromPath = require('../../../util/requireFromPath');
 
@@ -26,9 +32,26 @@ export function convertText(text: string, from: string, to: string) {
     return new Buffer(text, from).toString(to);    
 }
 
+const inheritedFunctions = ['log', 'warn', 'error'];
+export async function runScript(script: string, withScope: any, $scope: IScope, $cancellationToken: ICancellationToken): Promise<any> {
+    enforce(script, 'script').isString().isNotNull();
+    enforce(withScope, 'with').isObject();
+
+    const scriptObj = new Script(<IScriptDefinition>await readAsYaml(path.resolve(path.dirname($scope.__filename), script)));
+
+    inheritedFunctions.forEach(f => scriptObj.addFunction(f, $scope[f]));
+
+    const newScope = withScope == null
+        ? $scope
+        : $scope._new(withScope);
+
+    return scriptObj.run(newScope, $cancellationToken);
+}
+
 pumlhorse.module('misc')
     .function('end', end)
     .function('value', ['$all', (val) => val])
     .function('date', getDate)
     .function('import', importFunc)
-    .function('convertText', convertText);
+    .function('convertText', convertText)
+    .function('run', ['script', 'with', '$scope', '$cancellationToken', runScript]);

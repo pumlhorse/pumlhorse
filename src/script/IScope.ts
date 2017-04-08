@@ -16,6 +16,7 @@ export interface IScope {
     
     scriptId: string;
 
+    __filename: string;
 }
 
 export interface IFullScope extends IScope {

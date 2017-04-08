@@ -10,7 +10,6 @@ import { IScript } from './script/IScript';
 import { Script } from './script/Script';
 import * as loggers from './script/loggers';
 import {ICancellationToken} from './util/ICancellationToken';
-const YAML = require('pumlhorse-yamljs');
 
 export class App implements IApp {
 
@@ -22,8 +21,7 @@ export class App implements IApp {
     }
 
     getScript(scriptText: string): IScript {
-        const scriptDefinition = YAML.parse(scriptText);
-        return new Script(scriptDefinition);
+        return Script.create(scriptText);
     }
 
     async runProfile(profile: IProfile, sessionOutput: ISessionOutput, cancellationToken?: ICancellationToken): Promise<any> {

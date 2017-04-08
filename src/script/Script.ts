@@ -25,6 +25,7 @@ import './modules/stats';
 import './modules/timer';
 import './modules/wait';
 
+const YAML = require('pumlhorse-yamljs');
 
 pumlhorse.module('log')
     .function('log', loggers.log)
@@ -49,6 +50,11 @@ export class Script implements IScript {
 
     }
 
+    static create(scriptText: string): Script {
+        const scriptDefinition = YAML.parse(scriptText);
+        return new Script(scriptDefinition);
+    }
+
     async run(context?: any, cancellationToken?: ICancellationToken): Promise<any> {
         if (cancellationToken == null) cancellationToken = CancellationToken.None;
         this.loadModules();
@@ -60,6 +66,7 @@ export class Script implements IScript {
         
         try {
             await this.internalScript.runSteps(this.scriptDefinition.steps, scope, cancellationToken);
+            return scope;
         }
         catch (e) {
             if (e.__nonErrorScriptInterrupt == true) {

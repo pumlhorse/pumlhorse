@@ -8,6 +8,7 @@ import { FunctionLookup, ModuleRepository } from './Modules';
 export class Scope implements IScope {
 
     scriptId: string;
+    __filename: string;
 
     constructor(private script: IScriptInternal,
         scope?: IScope) {
