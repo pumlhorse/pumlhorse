@@ -42,7 +42,7 @@ export class ModuleLoader {
         if (_.some(Script.StandardModules, mod => mod == moduleLocator.name)) {
             return undefined;
         }
-        return ModuleLoader._resolver(moduleLocator.path, directory);
+        return ModuleLoader._resolver(moduleLocator.path, directory, ['puml_modules']);
     }
 }
 

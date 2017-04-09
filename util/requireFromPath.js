@@ -1,9 +1,14 @@
 module.exports = requireFromPath;
 
-function requireFromPath(moduleName, directory) {
+function requireFromPath(moduleName, directory, alternativeDirectories) {
     const oldPaths = module.paths;
     
-    if (directory) module.paths = module.constructor._nodeModulePaths(directory);
+    if (directory) {
+        let paths = module.constructor._nodeModulePaths(directory);
+
+        addAlternativeDirectories(paths, alternativeDirectories);
+        module.paths = paths;
+    }
     
     if (moduleName.constructor === String && typeof moduleName !== "string") {
         moduleName = moduleName.toString()
@@ -20,7 +25,12 @@ function requireFromPath(moduleName, directory) {
 module.exports.resolve = function(moduleName, directory) {
     const oldPaths = module.paths;
     
-    if (directory) module.paths = module.constructor._nodeModulePaths(directory);
+    if (directory) {
+        let paths = module.constructor._nodeModulePaths(directory);
+
+        addAlternativeDirectories(paths, alternativeDirectories);
+        module.paths = paths;
+    }
     
     if (moduleName.constructor === String && typeof moduleName !== "string") {
         moduleName = moduleName.toString()
@@ -31,5 +41,16 @@ module.exports.resolve = function(moduleName, directory) {
     }
     finally {
         module.paths = oldPaths;
+    }
+}
+
+function addAlternativeDirectories(paths, alternativeDirectories) {
+    if (alternativeDirectories == null) return;
+
+    for (let i = paths.length - 1; i >= 0; i--) {
+        const parentDir = paths[i].substr(0, paths[i].length - 12) //Remove 'node_modules'
+        for (let j = alternativeDirectories.length - 1; j >= 0; j--) { //Respect order of alternativeDirectories
+            paths.splice(i, 0, parentDir + alternativeDirectories[j])
+        }
     }
 }
