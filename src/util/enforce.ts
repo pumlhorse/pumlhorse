@@ -34,6 +34,11 @@ export class Enforcement {
         return this;
     }
 
+    isNumber(): Enforcement {
+        if (this.value != null && !_.isNumber(this.value)) this.throwError('must be a number');
+        return this;
+    }
+
     isObject(): Enforcement {
         if (this.value != null && !_.isObject(this.value)) this.throwError('must be an object');
         return this;

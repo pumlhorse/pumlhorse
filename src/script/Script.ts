@@ -20,6 +20,7 @@ import './modules/conditional';
 import './modules/http';
 import './modules/json';
 import './modules/loop';
+import './modules/math';
 import './modules/misc';
 import './modules/stats';
 import './modules/timer';
@@ -38,7 +39,7 @@ export class Script implements IScript {
     
     private internalScript: IScriptInternal;
 
-    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait', 'http = http'];
+    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'math', 'misc', 'timer', 'wait', 'http = http'];
     public static readonly StandardModules = Script.DefaultModules.concat(['stats']);
 
     constructor(private scriptDefinition: IScriptDefinition) {

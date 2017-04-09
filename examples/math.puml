@@ -1,0 +1,18 @@
+name: Do some math
+steps:
+  - val = +:
+      - 2
+      - 2
+  - areEqual:
+      expected: 4
+      actual: $val
+  - valSquared = *:
+      - $val
+      - $val
+  - areEqual:
+      expected: 16
+      actual: $valSquared
+  - anotherSquare = square: $valSquared
+  - areEqual:
+      expected: 256
+      actual: $anotherSquare
