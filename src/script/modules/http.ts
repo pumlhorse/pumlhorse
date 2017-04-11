@@ -1,23 +1,22 @@
+import * as _ from 'underscore';
+import * as http from 'http-client-factory';
 import { ICancellationToken } from '../../util/ICancellationToken';
 import { CancellationToken } from '../../util/CancellationToken';
 import { pumlhorse } from '../../PumlhorseGlobal';
-import { IFullScope } from '../IScope';
-import * as http from 'http-client-factory';
+import { IFullScope, IScope } from '../IScope';
 import enforce from '../../util/enforce';
 
 export class HttpRequestModule {
-    static async makeRequest(verb: string, url: string, data: any, headers: Object, $cancellationToken?: ICancellationToken): Promise<IHttpResponse> {        
+    static async makeRequest(verb: string, url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {        
         enforce(url, 'url').isNotNull().isNotEmpty();
 
         const client = http.getClient();
 
         client.addHeader('User-Agent', 'Pumlhorse HTTP Client');
 
-        if (headers != null) {
-            for(let x in headers) {
-                client.addHeader(x, headers[x]);
-            }
-        }
+        _.forEach(_.extend($httpDefaultHeaders, headers), (val, key) => {
+            client.addHeader(key, val);
+        });
 
         try {
             const response = await CancellationToken.await<IHttpResponse>(client[verb](url, data), $cancellationToken);
@@ -41,32 +40,32 @@ export class HttpRequestModule {
         }
     }
 
-    static async get(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('get', url, data, headers, $cancellationToken);
+    static async get(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('get', url, data, headers, $cancellationToken, $httpDefaultHeaders);
     }
 
-    static async post(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('post', url, data, headers, $cancellationToken);
+    static async post(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('post', url, data, headers, $cancellationToken, $httpDefaultHeaders);
     }
 
-    static async put(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('put', url, data, headers, $cancellationToken);
+    static async put(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('put', url, data, headers, $cancellationToken, $httpDefaultHeaders);
     }
 
-    static async delete(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('delete', url, data, headers, $cancellationToken);
+    static async delete(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('delete', url, data, headers, $cancellationToken, $httpDefaultHeaders);
     }
 
-    static async patch(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('patch', url, data, headers, $cancellationToken);
+    static async patch(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('patch', url, data, headers, $cancellationToken, $httpDefaultHeaders);
     }
 
-    static async options(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('options', url, data, headers, $cancellationToken);
+    static async options(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('options', url, data, headers, $cancellationToken, $httpDefaultHeaders);
     }
 
-    static async head(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken): Promise<IHttpResponse> {
-        return await HttpRequestModule.makeRequest('head', url, data, headers, $cancellationToken);
+    static async head(url: string, data: any, headers: Object, $cancellationToken: ICancellationToken, $httpDefaultHeaders: Object): Promise<IHttpResponse> {
+        return await HttpRequestModule.makeRequest('head', url, data, headers, $cancellationToken, $httpDefaultHeaders);
     }
 
     static getJsonBody(response: IHttpResponse): any {
@@ -91,6 +90,21 @@ export class HttpRequestModule {
             $scope.log('---Body---');
             $scope.log(response.body);
         }
+    }
+
+    static setDefaultHeaders($all: Object, $httpDefaultHeaders: Object) {
+
+        _.extendOwn($httpDefaultHeaders, $all);
+    }
+
+    private static _headersKey = '__httpDefaultHeaders';
+    static getDefaultHeaders($scope: IScope) {
+        let scopeHeaders = $scope[HttpRequestModule._headersKey];
+        if (scopeHeaders == null) {
+            $scope[HttpRequestModule._headersKey] = scopeHeaders = {}
+        }
+
+        return scopeHeaders;
     }
 }
 
@@ -140,13 +154,15 @@ export interface IHttpResponse {
 }
 
 pumlhorse.module('http')
-    .function('get', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.get])
-    .function('post', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.post])
-    .function('put', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.put])
-    .function('delete', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.delete])
-    .function('patch', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.patch])
-    .function('options', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.options])
-    .function('head', ['url', 'data', 'headers', '$cancellationToken', HttpRequestModule.head])
+    .function('get', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.get])
+    .function('post', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.post])
+    .function('put', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.put])
+    .function('delete', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.delete])
+    .function('patch', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.patch])
+    .function('options', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.options])
+    .function('head', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.head])
+    .function('setDefaultHeaders', HttpRequestModule.setDefaultHeaders)
+    .injector('$httpDefaultHeaders', HttpRequestModule.getDefaultHeaders)
     //Assertions
     .function('isInformational', HttpAssertionModule.isInformational)
     .function('isSuccess', HttpAssertionModule.isSuccess)

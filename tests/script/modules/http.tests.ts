@@ -114,13 +114,60 @@ describe('HTTP functions', () => {
                 .returnValue(Promise.resolve(getMockResponse(200, '', '', null)))
             
             //Act
-            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body, headers);
+            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body, headers, null, {});
             
             //Assert
             expect(httpClientMock[verb]).toHaveBeenCalledWith('http://www.baseurl/some/path', body);
             expect(httpClientMock.addHeader).toHaveBeenCalledWith('key1', 'value1')
             expect(httpClientMock.addHeader).toHaveBeenCalledWith('key2', 'value2')
-        })); 
+        }));
+
+        describe('default headers', () => {
+
+            beforeEach(() => {
+                httpClientMock[verb].and
+                    .returnValue(Promise.resolve(getMockResponse(200, '', '', null)));
+            });
+
+            it(`allows default headers for ${verb}`, testAsync(async () => {
+                //Arrange
+                var defaultHeaders = {
+                    default1: 'default val 1',
+                    Authorization: 'some auth val'
+                };
+                var headers = {
+                    key1: 'value1',
+                    key2: 'value2'
+                };
+
+
+                //Act
+                await http.HttpRequestModule[verb]('http://www.baseurl/some/path', {}, headers, null, defaultHeaders);
+
+                //Assert
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('default1', 'default val 1')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('Authorization', 'some auth val')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('key1', 'value1')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('key2', 'value2')
+            }));
+
+            it(`allows default headers to be overridden for ${verb}`, testAsync(async () => {
+                //Arrange
+                var defaultHeaders = {
+                    Authorization: 'some auth val'
+                };
+                var headers = {
+                    Authorization: 'override header'
+                };
+
+                //Act
+                await http.HttpRequestModule[verb]('http://www.baseurl/some/path', {}, headers, null, defaultHeaders);
+
+                //Assert
+                expect(httpClientMock.addHeader).not.toHaveBeenCalledWith('Authorization', 'some auth val')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('Authorization', 'override header')
+            }));
+        })
         
         it(`returns data from ${verb}`, testAsync(async () => {
             //Arrange
