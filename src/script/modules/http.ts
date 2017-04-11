@@ -93,8 +93,19 @@ export class HttpRequestModule {
     }
 
     static setDefaultHeaders($all: Object, $httpDefaultHeaders: Object) {
-
         _.extendOwn($httpDefaultHeaders, $all);
+    }
+
+    static setAuthorization(val: string, $httpDefaultHeaders: Object) {
+       HttpRequestModule.setDefaultHeaders({ Authorization: val}, $httpDefaultHeaders);
+    }
+
+    static setBasicAuthorization(username: string, password: string, $httpDefaultHeaders: Object) {
+        enforce(username).isNotNull().isString();
+        enforce(password).isNotNull().isString();
+
+        const encoded = new Buffer(`${username}:${password}`, 'utf8').toString('base64');
+        HttpRequestModule.setAuthorization(`Basic ${encoded}`, $httpDefaultHeaders);
     }
 
     private static _headersKey = '__httpDefaultHeaders';
@@ -162,6 +173,8 @@ pumlhorse.module('http')
     .function('options', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.options])
     .function('head', ['url', 'data', 'headers', '$cancellationToken', '$httpDefaultHeaders', HttpRequestModule.head])
     .function('setDefaultHeaders', HttpRequestModule.setDefaultHeaders)
+    .function('setAuthorization', HttpRequestModule.setAuthorization)
+    .function('setBasicAuthorization', HttpRequestModule.setBasicAuthorization)
     .injector('$httpDefaultHeaders', HttpRequestModule.getDefaultHeaders)
     //Assertions
     .function('isInformational', HttpAssertionModule.isInformational)

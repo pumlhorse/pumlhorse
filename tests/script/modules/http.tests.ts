@@ -225,6 +225,58 @@ describe('HTTP functions', () => {
         }));  
         
     });
+
+    describe('default headers', () => {
+        it('sets default headers', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setDefaultHeaders({ key1: 'val1', key2: 'val2'}, defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['key1']).toBe('val1');
+            expect(defaultHeaders['key2']).toBe('val2');
+            
+        });
+
+        it('sets default headers multiple times', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setDefaultHeaders({ key1: 'val1', key2: 'val2'}, defaultHeaders);
+            http.HttpRequestModule.setDefaultHeaders({ key3: 'val3', key2: 'val2 override'}, defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['key1']).toBe('val1');
+            expect(defaultHeaders['key2']).toBe('val2 override');
+            expect(defaultHeaders['key3']).toBe('val3');
+        });
+
+        it('sets authorization', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setAuthorization('auth value', defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['Authorization']).toBe('auth value');
+        });
+
+        it('sets basic authorization', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setBasicAuthorization('Aladdin', 'OpenSesame', defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['Authorization']).toBe('Basic QWxhZGRpbjpPcGVuU2VzYW1l');
+        });
+        
+    })
     
     function testAsync(runAsync) {
         return (done) => {
