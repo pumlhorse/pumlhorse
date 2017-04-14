@@ -1,25 +1,27 @@
+import { ILogger, getLogger } from '../script/loggers';
 import { IScript } from '../script/IScript';
 import enforce from '../util/enforce';
-import * as loggers from '../script/loggers';
 
-interface IFilterRunner {
-    onSessionStarting(): Promise<boolean>;
-    onScriptStarting(script: IScript): Promise<boolean>;
-    onScriptFinished(script: IScript, isSuccess: boolean): Promise<any>;
-    onSessionFinished(passedScripts: number, failedScripts: number): Promise<any>;
-}
+const sessionStartingFilters: (() => boolean)[] = [];
+const scriptStartingFilters: ((s: IScript) => boolean)[] = [];
+const scriptFinishedFilters: ((s: IScript, success: boolean) => void)[] = [];
+const sessionFinishedFilters: ((passed: number, failed: number) => void)[] = [];
 
-class FilterRunner implements IFilterRunner {
+export class FilterRunner {
+    logger: ILogger;
 
-    sessionStartingFilters: (() => boolean)[] = [];
+    constructor() {
+        this.logger = getLogger();
+    }
+
     async onSessionStarting(): Promise<boolean> {
         let shouldContinue: boolean = true;
-        for(let i = 0; i < this.sessionStartingFilters.length && shouldContinue !== false; i++) {
+        for(let i = 0; i < sessionStartingFilters.length && shouldContinue !== false; i++) {
             try {
-                shouldContinue = await this.sessionStartingFilters[i]();
+                shouldContinue = await sessionStartingFilters[i]();
             }
             catch (err) {
-                loggers.error(`SessionStarting filter returned error. ${err.message ? err.message : err}`);
+                this.logger.error(`SessionStarting filter returned error. ${err.message ? err.message : err}`);
                 shouldContinue = false;
             }
         }
@@ -27,15 +29,14 @@ class FilterRunner implements IFilterRunner {
         return shouldContinue !== false;
     }
 
-    scriptStartingFilters: ((s: IScript) => boolean)[] = [];
     async onScriptStarting(script: IScript): Promise<boolean> {
         let shouldContinue: boolean = true;
-        for(let i = 0; i < this.scriptStartingFilters.length && shouldContinue !== false; i++) {
+        for(let i = 0; i < scriptStartingFilters.length && shouldContinue !== false; i++) {
             try {
-                shouldContinue = await this.scriptStartingFilters[i](script);
+                shouldContinue = await scriptStartingFilters[i](script);
             }
             catch (err) {
-                loggers.error(`ScriptStarting filter returned error. ${err.message ? err.message : err}`);
+                this.logger.error(`ScriptStarting filter returned error. ${err.message ? err.message : err}`);
                 shouldContinue = false;
             }
         }
@@ -43,15 +44,14 @@ class FilterRunner implements IFilterRunner {
         return shouldContinue !== false;
     }
 
-    scriptFinishedFilters: ((s: IScript, success: boolean) => void)[] = [];
     async onScriptFinished(script: IScript, isSuccess: boolean): Promise<any> {
         let shouldContinue: boolean = true;
-        for(let i = 0; i < this.scriptFinishedFilters.length && shouldContinue !== false; i++) {
+        for(let i = 0; i < scriptFinishedFilters.length && shouldContinue !== false; i++) {
             try {
-                await this.scriptFinishedFilters[i](script, isSuccess);
+                await scriptFinishedFilters[i](script, isSuccess);
             }
             catch (err) {
-                loggers.error(`ScriptFinished filter returned error. ${err.message ? err.message : err}`);
+                this.logger.error(`ScriptFinished filter returned error. ${err.message ? err.message : err}`);
                 shouldContinue = false;
             }
         }
@@ -59,15 +59,14 @@ class FilterRunner implements IFilterRunner {
         return;
     }
 
-    sessionFinishedFilters: ((passed: number, failed: number) => void)[] = [];
     async onSessionFinished(passedScripts: number, failedScripts: number): Promise<any> {
         let shouldContinue: boolean = true;
-        for(let i = 0; i < this.sessionFinishedFilters.length && shouldContinue !== false; i++) {
+        for(let i = 0; i < sessionFinishedFilters.length && shouldContinue !== false; i++) {
             try {
-                await this.sessionFinishedFilters[i](passedScripts, failedScripts);
+                await sessionFinishedFilters[i](passedScripts, failedScripts);
             }
             catch (err) {
-                loggers.error(`sessionFinished filter returned error. ${err.message ? err.message : err}`);
+                this.logger.error(`sessionFinished filter returned error. ${err.message ? err.message : err}`);
                 shouldContinue = false;
             }
         }
@@ -76,54 +75,35 @@ class FilterRunner implements IFilterRunner {
     }
 }
 
-export interface IFilterBuilder {
-    onSessionStarting(handler: (() => boolean)): IFilterBuilder;
-    onScriptStarting(handler: ((s: IScript) => boolean)): IFilterBuilder;
-    onScriptFinished(handler: ((s: IScript, success: boolean) => void)): IFilterBuilder;
-    onSessionFinished(handler: ((passed: number, failed: number) => void)): IFilterBuilder;
-}
+export class FilterBuilder {
 
-class FilterBuilder implements IFilterBuilder {
-
-    constructor(private runner: FilterRunner) {
-
-    }
-
-    onSessionStarting(handler: (() => boolean)): IFilterBuilder {
+    onSessionStarting(handler: (() => boolean)): FilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
-        this.runner.sessionStartingFilters.push(handler);
+        sessionStartingFilters.push(handler);
         return this;
     }
 
-    onScriptStarting(handler: ((s: IScript) => boolean)): IFilterBuilder {
+    onScriptStarting(handler: ((s: IScript) => boolean)): FilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
-        this.runner.scriptStartingFilters.push(handler);
+        scriptStartingFilters.push(handler);
         return this;
     }
 
-    onScriptFinished(handler: ((s: IScript, success: boolean) => void)): IFilterBuilder {
+    onScriptFinished(handler: ((s: IScript, success: boolean) => void)): FilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
-        this.runner.scriptFinishedFilters.push(handler);
+        scriptFinishedFilters.push(handler);
         return this;
     }
 
-    onSessionFinished(handler: ((passed: number, failed: number) => void)): IFilterBuilder {
+    onSessionFinished(handler: ((passed: number, failed: number) => void)): FilterBuilder {
         enforce(handler, 'handler')
             .isFunction();
-        this.runner.sessionFinishedFilters.push(handler);
+        sessionFinishedFilters.push(handler);
         return this;
     }
-}
-
-const _runner: FilterRunner = new FilterRunner();
-
-export const Runner: IFilterRunner = _runner;
-
-export function getFilterBuilder(): IFilterBuilder {
-    return new FilterBuilder(_runner);
 }
 
 

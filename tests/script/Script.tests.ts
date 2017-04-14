@@ -2,16 +2,14 @@ import { CancellationTokenHandle } from '../../src/util/CancellationToken';
 import { pumlhorse } from '../../src/PumlhorseGlobal';
 
 import { Script } from '../../src/script/Script';
-import { setLoggers } from '../../src/script/loggers';
 
+var loggerMocks;
 describe('Script', () => {
-    var loggerMocks;
     var mock;
 
     beforeEach(() => {
         mock = jasmine.createSpy('mock');
-        loggerMocks = jasmine.createSpyObj('loggers', ['log', 'warn', 'error']);
-        setLoggers(loggerMocks);
+        loggerMocks = jasmine.createSpyObj('loggers', ['debug', 'log', 'warn', 'error']);
     });
 
 
@@ -775,7 +773,7 @@ describe('Script', () => {
                 cleanup: [
                     {log: 'cleanup step'}
                 ]
-            });
+            }, { logger: loggerMocks});
             
             // Act
             await script.run();
@@ -798,7 +796,7 @@ describe('Script', () => {
                 cleanup: [
                     {log: 'cleanup step'}
                 ]
-            });
+            }, { logger: loggerMocks});
             script.addFunction('throwException', function () {
                 throw new Error('Oops!');
             });
@@ -832,7 +830,7 @@ describe('Script', () => {
                     'throwException',
                     {log: 'cleanup step2'}
                 ]
-            });
+            }, { logger: loggerMocks});
             script.addFunction('throwException', function () {
                 throw new Error('Oops!');
             });
@@ -1119,5 +1117,5 @@ function getScript(steps: any[]): Script {
     return new Script({
         name: 'test script',
         steps: steps
-    });
+    }, { logger: loggerMocks});
 }

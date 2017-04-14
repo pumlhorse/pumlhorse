@@ -1,5 +1,5 @@
 import { ModuleRepository } from './script/Modules';
-import { getFilterBuilder } from './profile/filters';
+import { FilterBuilder } from './profile/filters';
 
 class PumlhorseGlobal {
     module(name) {
@@ -7,7 +7,7 @@ class PumlhorseGlobal {
     }
 
     filter() {
-        return getFilterBuilder();
+        return new FilterBuilder();
     }
 };
 

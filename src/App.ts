@@ -1,3 +1,4 @@
+import { ILogger } from './script/loggers';
 
 
 import * as _ from 'underscore';
@@ -14,10 +15,12 @@ import {ICancellationToken} from './util/ICancellationToken';
 export class App implements IApp {
 
     private defaultProfile: IProfile;
+    private logger: ILogger;
 
     constructor() {
         this.defaultProfile = new Profile();
         this.defaultProfile.include = ['.'];
+        this.logger = loggers.getLogger();
     }
 
     getScript(scriptText: string): IScript {
@@ -34,7 +37,7 @@ export class App implements IApp {
 
     /* Obsolete */
     load(scriptDefinition: string): IScript {
-        loggers.warn('Function "load" is obsolete. Use "getScript" instead');
+        this.logger.warn('Function "load" is obsolete. Use "getScript" instead');
         return this.getScript(scriptDefinition);
     }
 }

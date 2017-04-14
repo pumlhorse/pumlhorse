@@ -1,29 +1,37 @@
-export { log, warn, error, setLoggers };
+export { getLogger, setLogger };
 
-let loggers: ILogger = {
-    log : (...args: string[]) => console.log.apply(console, args),
-    warn: (...args: string[]) => console.warn.apply(console, args),
-    error: (...args: string[]) => console.error.apply(console, args),
+class BasicLogger implements ILogger {
+
+    public debug(msg: string): void {
+        console.info(msg);
+    }
+
+    public log(msg: string): void {
+        console.log(msg);
+    }
+
+    public warn(msg: string): void {
+        console.warn(msg);
+    }
+
+    public error(msg: string): void {
+        console.error(msg);
+    }
 }
 
-function log(...args: string[]) {
-    loggers.log.apply(loggers, args);
+let loggers: ILogger = new BasicLogger();
+
+function getLogger(): ILogger {
+    return loggers;
 }
 
-function warn(...args: string[]) {
-    loggers.warn.apply(this, args);
-}
-
-function error(...args: string[]) {
-    loggers.error.apply(this, args);
-}
-
-function setLoggers(loggerObj: ILogger) {
+function setLogger(loggerObj: ILogger) {
     loggers = loggerObj;
 }
 
 export interface ILogger {
-    log(...args: string[]): void;
-    warn(...args: string[]): void;
-    error(...args: string[]): void;
+    debug(msg: string): void;
+    log(msg: string): void;
+    warn(msg: string): void;
+    error(msg: string): void;
 }

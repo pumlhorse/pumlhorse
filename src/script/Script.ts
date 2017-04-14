@@ -1,7 +1,7 @@
+import { ILogger, getLogger } from './loggers';
 import { CancellationToken } from '../util/CancellationToken';
 import {ICancellationToken} from '../util/ICancellationToken';
 import { Step } from './Step';
-import { pumlhorse } from '../PumlhorseGlobal';
 import { ModuleLoader } from './ModuleLoader';
 import * as _ from 'underscore';
 import { IScriptDefinition } from './IScriptDefinition';
@@ -12,7 +12,6 @@ import { IScope } from './IScope';
 import { InjectorLookup, Module, ModuleRepository } from './Modules';
 import { Scope } from './Scope';
 import validateScriptDefinition from './scriptDefinitionValidator';
-import * as loggers from './loggers';
 import * as helpers from '../util/helpers';
 import './modules/assert';
 import './modules/async';
@@ -28,10 +27,9 @@ import './modules/wait';
 
 const YAML = require('pumlhorse-yamljs');
 
-pumlhorse.module('log')
-    .function('log', loggers.log)
-    .function('warn', loggers.warn)
-    .function('error', loggers.error);
+class ScriptOptions {
+    logger: ILogger;
+}
 
 export class Script implements IScript {
     id: string;
@@ -39,21 +37,29 @@ export class Script implements IScript {
     
     private internalScript: IScriptInternal;
 
-    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'math', 'misc', 'timer', 'wait', 'http = http'];
+    private static readonly DefaultModules = ['assert', 'async', 'conditional', 'json', 'loop', 'math', 'misc', 'timer', 'wait', 'http = http'];
     public static readonly StandardModules = Script.DefaultModules.concat(['stats']);
 
-    constructor(private scriptDefinition: IScriptDefinition) {
+    constructor(private scriptDefinition: IScriptDefinition, private scriptOptions?: ScriptOptions) {
         validateScriptDefinition(this.scriptDefinition);
 
         this.id = new Guid().value;
         this.name = scriptDefinition.name;
-        this.internalScript = new InternalScript(this.id);
 
+        if (this.scriptOptions == null) {
+            this.scriptOptions = new ScriptOptions();
+        }
+
+        if (this.scriptOptions.logger == null) {
+            this.scriptOptions.logger = getLogger();
+        }
+
+        this.internalScript = new InternalScript(this.id, this.scriptOptions);
     }
 
-    static create(scriptText: string): Script {
+    static create(scriptText: string, scriptOptions?: ScriptOptions): Script {
         const scriptDefinition = YAML.parse(scriptText);
-        return new Script(scriptDefinition);
+        return new Script(scriptDefinition, scriptOptions);
     }
 
     async run(context?: any, cancellationToken?: ICancellationToken): Promise<any> {
@@ -127,6 +133,12 @@ export class Script implements IScript {
     }
 
     private loadFunctions() {
+
+        this.addFunction('debug', (msg) => this.scriptOptions.logger.debug(msg));
+        this.addFunction('log', (msg) => this.scriptOptions.logger.log(msg));
+        this.addFunction('warn', (msg) => this.scriptOptions.logger.warn(msg));
+        this.addFunction('error', (msg) => this.scriptOptions.logger.error(msg));
+
         const functions = this.scriptDefinition.functions;
         if (functions == null) {
             return;
@@ -173,7 +185,7 @@ export class Script implements IScript {
                 return this.internalScript.runSteps([task], scope, cancellationToken);
             }
             catch (e) {
-                loggers.error(`Error in cleanup task: ${e.message}`);
+                this.scriptOptions.logger.error(`Error in cleanup task: ${e.message}`);
                 return Promise.resolve({});
             }
         }));
@@ -189,11 +201,12 @@ class InternalScript implements IScriptInternal {
     cleanup: any[];
     private cancellationToken: ICancellationToken;
 
-    constructor(id: string) {
+    constructor(id: string, private scriptOptions: ScriptOptions) {
         this.id = id;
         this.modules = [];
         this.injectors = {
-            '$scope': (scope: IScope) => scope
+            '$scope': (scope: IScope) => scope,
+            '$logger': () => this.scriptOptions.logger
         };
         this.functions = [];
         this.steps = [];
@@ -220,7 +233,7 @@ class InternalScript implements IScriptInternal {
         }
 
         if (steps == null || steps.length == 0) {
-            loggers.warn('Script does not contain any steps');
+            this.scriptOptions.logger.warn('Script does not contain any steps');
             return;
         }
 
