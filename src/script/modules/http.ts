@@ -1,9 +1,10 @@
+import { ILogger } from '../loggers';
 import * as _ from 'underscore';
 import * as http from 'http-client-factory';
 import { ICancellationToken } from '../../util/ICancellationToken';
 import { CancellationToken } from '../../util/CancellationToken';
 import { pumlhorse } from '../../PumlhorseGlobal';
-import { IFullScope, IScope } from '../IScope';
+import { IScope } from '../IScope';
 import enforce from '../../util/enforce';
 
 export class HttpRequestModule {
@@ -79,16 +80,16 @@ export class HttpRequestModule {
         }
     }
 
-    static dumpResponse(response: IHttpResponse, $scope: IFullScope) {
-        $scope.log(`Response: ${response.statusCode} - ${response.statusMessage}`);
-        $scope.log('---Headers---');
+    static dumpResponse(response: IHttpResponse, $logger: ILogger) {
+        $logger.log(`Response: ${response.statusCode} - ${response.statusMessage}`);
+        $logger.log('---Headers---');
         for (let x in response.headers)
         {
-            $scope.log(`"${x}": "${response.headers[x]}"`);
+            $logger.log(`"${x}": "${response.headers[x]}"`);
         }
         if (response.body != null) {
-            $scope.log('---Body---');
-            $scope.log(response.body);
+            $logger.log('---Body---');
+            $logger.log(response.body);
         }
     }
 

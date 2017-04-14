@@ -18,10 +18,3 @@ export interface IScope {
 
     __filename: string;
 }
-
-export interface IFullScope extends IScope {
-
-    log(message: string);
-    warn(message: string);
-    error(message: string);
-}
