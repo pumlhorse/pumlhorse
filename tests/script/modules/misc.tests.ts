@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+
 import { convertText, getDate } from '../../../src/script/modules/misc';
 
 describe('Misc module', () => {

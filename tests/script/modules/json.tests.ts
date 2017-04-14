@@ -1,3 +1,4 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
 
 import { JsonModule } from '../../../src/script/modules/json';
 

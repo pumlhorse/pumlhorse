@@ -1,3 +1,5 @@
+/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+
 import { CancellationTokenHandle } from '../../src/util/CancellationToken';
 import { pumlhorse } from '../../src/PumlhorseGlobal';
 

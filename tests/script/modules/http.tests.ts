@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+
 import { HttpAssertionModule, HttpRequestModule, IHttpResponse } from '../../../src/script/modules/http';
 import * as Proxyquire from 'proxyquire';
 

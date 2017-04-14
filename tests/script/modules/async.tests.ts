@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+
 import { Script } from '../../../src/script/Script';
 
 describe('async', () => {

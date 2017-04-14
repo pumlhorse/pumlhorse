@@ -1,4 +1,5 @@
 /// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+
 import * as _ from 'underscore';
 import { AssertModule } from '../../../src/script/modules/assert';
 

@@ -1,3 +1,5 @@
+/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+
 import { Step } from '../../src/script/Step';
 describe('Step', () => {
 

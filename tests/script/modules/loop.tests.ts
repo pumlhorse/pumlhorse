@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+
 import { CancellationToken } from '../../../src/util/CancellationToken';
 import * as _ from 'underscore';
 import { LoopModule } from '../../../src/script/modules/loop';
