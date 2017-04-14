@@ -78,12 +78,6 @@ export class Script implements IScript {
             await this.internalScript.runSteps(this.scriptDefinition.steps, scope, cancellationToken);
             return scope;
         }
-        catch (e) {
-            if (e.__nonErrorScriptInterrupt == true) {
-                return;
-            }
-            throw e;
-        }
         finally {
             await this.runCleanupTasks(scope, cancellationToken);
         }
@@ -196,10 +190,11 @@ class InternalScript implements IScriptInternal {
     id: string;
     modules: Module[];
     injectors: InjectorLookup;
-    functions: any[];
+    functions: {[name: string]: Function};
     steps: any[];
     cleanup: any[];
     private cancellationToken: ICancellationToken;
+    private isEnded: boolean = false;
 
     constructor(id: string, private scriptOptions: ScriptOptions) {
         this.id = id;
@@ -208,7 +203,9 @@ class InternalScript implements IScriptInternal {
             '$scope': (scope: IScope) => scope,
             '$logger': () => this.scriptOptions.logger
         };
-        this.functions = [];
+        this.functions = {
+            'end': () => { this.isEnded = true; }
+        };
         this.steps = [];
         this.cleanup = [];
 
@@ -240,7 +237,7 @@ class InternalScript implements IScriptInternal {
         _.extend(scope, this.modules, this.functions);
 
         for (let i = 0; i < steps.length; i++) {
-            if (this.cancellationToken.isCancellationRequested) {
+            if (this.cancellationToken.isCancellationRequested || this.isEnded) {
                 return;
             }
             await this.runStep(steps[i], scope);

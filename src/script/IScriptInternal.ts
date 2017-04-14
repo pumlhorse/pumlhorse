@@ -4,7 +4,7 @@ import {ICancellationToken} from '../util/ICancellationToken';
 
 export interface IScriptInternal {
     modules: Module[];
-    functions: Function[];
+    functions: {[name: string]: Function};
     injectors: InjectorLookup;
     steps: any[];
     cleanup: any[];

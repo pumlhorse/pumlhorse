@@ -1,7 +1,6 @@
 import * as path from 'path';
 import { ICancellationToken } from '../../../pumlhorse';
 import enforce from '../../util/enforce';
-import { ScriptInterrupt } from '../ScriptInterrupt';
 import { pumlhorse } from '../../PumlhorseGlobal';
 import { readAsYaml } from "../../util/asyncFs";
 import { Script } from "../Script";
@@ -12,10 +11,6 @@ const requireFromPath = require('../../../util/requireFromPath');
 
 function importFunc(moduleName) {
     return requireFromPath(moduleName, this.__filename);
-}
-
-function end(): void {
-    throw new ScriptInterrupt();
 }
 
 export function getDate(dt?: string): Date {
@@ -49,7 +44,6 @@ export async function runScript(script: string, withScope: any, $scope: IScope, 
 }
 
 pumlhorse.module('misc')
-    .function('end', end)
     .function('value', ['$all', (val) => val])
     .function('date', getDate)
     .function('import', importFunc)
