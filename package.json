@@ -1,6 +1,6 @@
 {
   "name": "pumlhorse",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Utility for creating readable and reusable scripts",
   "main": "./lib/App.js",
   "bin": "bin/cli.js",
@@ -17,7 +17,7 @@
     "test",
     "yaml",
     "script",
-    "scratchpad"
+    "workflow"
   ],
   "author": "Matt Dickinson <matt@mdickin.com>",
   "license": "MIT",
