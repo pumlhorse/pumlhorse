@@ -87,7 +87,7 @@ export class Script implements IScript {
         this.internalScript.functions[name] = func;
     }
 
-    addModule(moduleDescriptor: string) {
+    addModule(moduleDescriptor: string | Object) {
         const moduleLocator = ModuleLoader.getModuleLocator(moduleDescriptor);
 
         const mod = ModuleRepository.lookup[moduleLocator.name];

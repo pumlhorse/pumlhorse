@@ -1,12 +1,12 @@
 export interface IProfile {
-    contexts: string[];
-    filters: string[];
-    include: string[];
-    isRecursive: boolean;
+    contexts?: string[];
+    filters?: string[];
+    include?: string[];
+    isRecursive?: boolean;
     maxConcurrentFiles?: number;
-    modules: ModuleDescriptor[];
+    modules?: ModuleDescriptor[];
     settings?: Object;
-    isVerbose: boolean;
+    isVerbose?: boolean;
 }
 
 export class ModuleDescriptor {

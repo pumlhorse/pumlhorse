@@ -1,0 +1,6 @@
+name: Returns existing value in context
+steps:
+  - val = prompt:
+      ask: Something
+      for: existingVal
+  - log: $val

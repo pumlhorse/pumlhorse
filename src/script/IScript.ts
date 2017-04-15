@@ -5,7 +5,7 @@ export interface IScript {
 
     addFunction(name: string, func: Function): void;
 
-    addModule(moduleDescriptor: string): void;
+    addModule(moduleDescriptor: string | Object): void;
 
     id: string;
     name: string;

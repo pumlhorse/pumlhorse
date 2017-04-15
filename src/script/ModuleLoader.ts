@@ -15,17 +15,17 @@ export class ModuleLoader {
         return _.map(modules, (mod) => this.resolveModule(mod, scriptDir));
     }
 
-    static getModuleLocator(moduleDescriptor: string): ModuleLocator {
+    static getModuleLocator(moduleDescriptor: string | Object): ModuleLocator {
         enforce(moduleDescriptor).isNotNull();
 
         if (_.isString(moduleDescriptor)) {
-            return new ModuleLocator(moduleDescriptor);
+            return new ModuleLocator(<string>moduleDescriptor.toString());
         }
         else if (_.isObject(moduleDescriptor)) {
             const keys = Object.keys(moduleDescriptor);
             if (keys.length > 1) throw new Error('Invalid module format: each module must be a separate item');
 
-            return new ModuleLocator(keys[0],moduleDescriptor[keys[0]]);
+            return new ModuleLocator(keys[0].toString(), moduleDescriptor[keys[0]].toString());
         }
 
         throw new Error('Invalid module format: must be a string or an object');

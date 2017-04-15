@@ -1,6 +1,12 @@
+var path = require('path');
 module.exports = requireFromPath;
 
 function requireFromPath(moduleName, directory, alternativeDirectories) {
+
+    if (moduleName[0] == '.') {
+        return require(path.resolve(directory, moduleName));
+    }
+
     const oldPaths = module.paths;
     
     if (directory) {

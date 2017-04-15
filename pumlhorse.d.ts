@@ -5,14 +5,14 @@ export class Module {
 }
 
 export interface IProfile {
-	contexts: string[];
-	filters: string[];
-	include: string[];
-	isRecursive: boolean;
+	contexts?: string[];
+	filters?: string[];
+	include?: string[];
+	isRecursive?: boolean;
 	maxConcurrentFiles?: number;
-	modules: Module[];
+	modules?: Module[];
 	settings?: Object;
-	isVerbose: boolean;
+	isVerbose?: boolean;
 }
 
 export interface ISessionOutput {

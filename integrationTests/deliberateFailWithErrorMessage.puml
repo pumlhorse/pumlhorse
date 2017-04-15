@@ -1,0 +1,5 @@
+name: Deliberate failure with error message
+steps:
+  - log: Beginning
+  - fail: My error message
+  - log: Shouldn't happen
