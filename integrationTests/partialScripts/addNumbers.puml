@@ -1,0 +1,8 @@
+name: Add two numbers
+expect:
+  - number1
+  - number2
+steps:
+  - sum = add:
+      - $number1
+      - $number2

@@ -1,4 +1,5 @@
 /// <reference path="../typings/jasmine/jasmine.d.ts" />
+import * as path from 'path';
 import { IScriptDefinition } from '../src/script/IScriptDefinition';
 import { ILogger } from '../src/script/loggers';
 import { IScript } from '../src/script/IScript';
@@ -10,6 +11,22 @@ function testAsync(runAsync) {
     return (done) => {
         runAsync().then(done, e => { fail(e); done(); });
     };
+}
+
+class Test {
+    context: any;
+    setup: (harness: Harness) => any = () => {};
+    constructor(public name: string) {}
+
+    withSetup(setup: (harness: Harness) => any): Test {
+        this.setup = setup;
+        return this;
+    }
+
+    withContext(context: any): Test {
+        this.context = context;
+        return this;
+    }
 }
 
 describe('Integration test - ', () => {
@@ -60,6 +77,28 @@ describe('Integration test - ', () => {
         }     
     }));
 
+    const selfAssertingScripts = [
+        new Test('partialScripts/runPartial1'), 
+        new Test('math'), 
+        new Test('stats'),
+        new Test('prompt/returnsValue')
+            .withSetup((harness: Harness) => harness.script.addFunction('prompt', promptForValue))
+            .withContext({ existingVal: 'this is an existing value'})
+        ];
+
+    selfAssertingScripts.map((test: Test) => {
+        it(test.name, testAsync(async () => {
+            // Arrange
+            const harness = await Harness.create(test.name);
+            test.setup(harness);
+            
+            // Act
+            await harness.run(test.context);
+            
+            // Assert  
+        }));
+    })
+
     describe('prompt', () => {
         
         it('returns the existing value in the context', testAsync(async () => {
@@ -74,25 +113,32 @@ describe('Integration test - ', () => {
             expect(harness.logger.log).toHaveBeenCalledWith('this is an existing value')
             expect(harness.logger.log).toHaveBeenCalledTimes(1);        
         }));
-    })
+    });
+
+    
 });
 
 class Harness {
 
     script: IScript;
     logger: ILogger;
+    filePath: string;
 
     async run(context?: any): Promise<any> {
+        if (context == null) context = {};
+        context.__filename = this.filePath;
         return await this.script.run(context);
     }
 
     static async create(filename: string): Promise<Harness> {
-        let harness = new Harness();
+        const harness = new Harness();
+        const filePath = path.resolve(`integrationTests/${filename}.puml`);
 
         harness.logger = jasmine.createSpyObj('logger', ['debug', 'log', 'warn', 'error']);
-        harness.script = new Script(<IScriptDefinition> await readAsYaml(`integrationTests/${filename}.puml`), {
+        harness.script = new Script(<IScriptDefinition> await readAsYaml(filePath), {
             logger: harness.logger
         });
+        harness.filePath = filePath;
         return harness;
     }
 }

@@ -1,0 +1,10 @@
+name: My script
+steps:
+  - addNumbersResult = run:
+      script: addNumbers.puml
+      with:
+        number1: 43
+        number2: 11
+  - areEqual:
+      expected: 54
+      actual: $addNumbersResult.sum
