@@ -28,7 +28,7 @@ function requireFromPath(moduleName, directory, alternativeDirectories) {
     }
 }
 
-module.exports.resolve = function(moduleName, directory) {
+module.exports.resolve = function(moduleName, directory, alternativeDirectories) {
     const oldPaths = module.paths;
     
     if (directory) {
