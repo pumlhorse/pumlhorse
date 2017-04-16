@@ -1,5 +1,5 @@
 import { ILogger, getLogger } from '../script/loggers';
-import { IScript } from '../script/IScript';
+import { IScript } from '../script/Script';
 import enforce from '../util/enforce';
 
 const sessionStartingFilters: (() => boolean)[] = [];

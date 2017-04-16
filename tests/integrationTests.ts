@@ -1,9 +1,8 @@
 /// <reference path="../typings/jasmine/jasmine.d.ts" />
 import * as path from 'path';
-import { IScriptDefinition } from '../src/script/IScriptDefinition';
+import {  } from '../src/script/Script';
 import { ILogger } from '../src/script/loggers';
-import { IScript } from '../src/script/IScript';
-import { Script } from '../src/script/Script';
+import { Script, IScript, IScriptDefinition } from '../src/script/Script';
 import {readAsYaml} from '../src/util/asyncFs';
 import { promptForValue } from '../src/cli/prompt';
 

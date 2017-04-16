@@ -5,8 +5,8 @@ import * as _ from 'underscore';
 import * as Expression from 'angular-expressions';
 import * as helpers from '../util/helpers';
 import * as stringParser from './StringParser';
-import { ICancellationToken } from '../util/ICancellationToken';
-import { IScope } from "./IScope";
+import { ICancellationToken } from '../util/CancellationToken';
+import { IScope } from "./Scope";
 
 const assignmentRegex = /([a-zA-Z0-9_-]+) = (.+)/;
 

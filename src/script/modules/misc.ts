@@ -3,9 +3,8 @@ import { ICancellationToken } from '../../../pumlhorse';
 import enforce from '../../util/enforce';
 import { pumlhorse } from '../../PumlhorseGlobal';
 import { readAsYaml } from "../../util/asyncFs";
-import { Script } from "../Script";
-import { IScriptDefinition } from "../IScriptDefinition";
-import { IScope } from "../IScope";
+import { Script, IScriptDefinition } from "../Script";
+import { IScope } from "../Scope";
 
 const requireFromPath = require('../../../util/requireFromPath');
 

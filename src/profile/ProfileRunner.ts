@@ -1,13 +1,11 @@
 import { ILogger } from '../script/loggers';
-import { CancellationToken } from '../util/CancellationToken';
-import {ICancellationToken} from '../util/ICancellationToken';
+import { ICancellationToken, CancellationToken } from '../util/CancellationToken';
 import { ModuleLoader } from '../script/ModuleLoader';
 import { SessionEvents } from './SessionEvents';
 import { ISessionOutput } from './ISessionOutput';
-import { IScriptDefinition } from '../script/IScriptDefinition';
-import { Script } from '../script/Script';
-import { IProfile } from './IProfile';
-import { IScript } from '../script/IScript';
+import {  } from '../script/IScriptDefinition';
+import { Script, IScript, IScriptDefinition } from '../script/Script';
+import { IProfile } from './Profile';
 import * as _ from 'underscore';
 import * as fs from '../util/asyncFs';
 import * as path from 'path';

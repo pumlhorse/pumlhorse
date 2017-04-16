@@ -1,18 +1,14 @@
 import { ILogger } from './script/loggers';
-
-
 import * as _ from 'underscore';
-import { IApp } from './IApp';
-import { IProfile } from './profile/IProfile';
+import { IProfile } from './profile/Profile';
 import { Profile } from './profile/Profile';
 import { ISessionOutput } from './profile/ISessionOutput';
 import { ProfileRunner } from './profile/ProfileRunner';
-import { IScript } from './script/IScript';
-import { Script } from './script/Script';
+import { IScript, Script } from './script/Script';
 import * as loggers from './script/loggers';
-import {ICancellationToken} from './util/ICancellationToken';
+import {ICancellationToken} from './util/CancellationToken';
 
-export class App implements IApp {
+export class App {
 
     private defaultProfile: IProfile;
     private logger: ILogger;

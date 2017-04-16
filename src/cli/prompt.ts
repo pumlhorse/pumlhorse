@@ -1,6 +1,6 @@
 import * as readline from 'readline';
 import enforce from '../util/enforce';
-import { IScope } from '../script/IScope';
+import { IScope } from '../script/Scope';
 import { pumlhorse } from '../PumlhorseGlobal';
 
 pumlhorse.module('cliPrompt')

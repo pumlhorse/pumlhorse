@@ -1,4 +1,4 @@
-import { IScope } from '../IScope';
+import { IScope } from '../Scope';
 import enforce from '../../util/enforce';
 import * as _ from 'underscore';
 import { pumlhorse } from '../../PumlhorseGlobal';

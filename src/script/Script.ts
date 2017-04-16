@@ -1,16 +1,11 @@
 import { ILogger, getLogger } from './loggers';
-import { CancellationToken } from '../util/CancellationToken';
-import {ICancellationToken} from '../util/ICancellationToken';
+import { CancellationToken, ICancellationToken } from '../util/CancellationToken';
 import { Step } from './Step';
 import { ModuleLoader } from './ModuleLoader';
 import * as _ from 'underscore';
-import { IScriptDefinition } from './IScriptDefinition';
-import { IScriptInternal } from './IScriptInternal';
 import { Guid } from '../util/Guid';
-import { IScript } from './IScript';
-import { IScope } from './IScope';
 import { InjectorLookup, Module, ModuleRepository } from './Modules';
-import { Scope } from './Scope';
+import { IScope, Scope } from './Scope';
 import validateScriptDefinition from './scriptDefinitionValidator';
 import * as helpers from '../util/helpers';
 import './modules/assert';
@@ -29,6 +24,33 @@ const YAML = require('pumlhorse-yamljs');
 
 class ScriptOptions {
     logger: ILogger;
+}
+
+export interface IScript {
+    run(context: any, cancellationToken?: ICancellationToken): Promise<any>;
+
+    addFunction(name: string, func: Function): void;
+
+    addModule(moduleDescriptor: string | Object): void;
+
+    id: string;
+    name: string;
+}
+
+export interface IScriptDefinition {
+    name: string;
+
+    description?: string;
+
+    modules?: any[];
+
+    functions?: Object;
+
+    expects?: string[];
+
+    steps: any[];
+
+    cleanup?: any[];
 }
 
 export class Script implements IScript {
@@ -184,6 +206,24 @@ export class Script implements IScript {
             }
         }));
     }
+}
+
+export interface IScriptInternal {
+    modules: Module[];
+    functions: {[name: string]: Function};
+    injectors: InjectorLookup;
+    steps: any[];
+    cleanup: any[];
+
+    emit(eventName: string, eventInfo: any);
+
+    addCleanupTask(task: any, atEnd?: boolean);
+
+    getModule(moduleName: string): any;
+
+    id: string;
+
+    runSteps(steps: any[], scope: IScope, cancellationToken?: ICancellationToken): Promise<any>;
 }
 
 class InternalScript implements IScriptInternal {

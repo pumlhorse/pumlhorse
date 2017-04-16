@@ -1,6 +1,6 @@
-import { ICancellationToken } from '../../util/ICancellationToken';
+import { ICancellationToken } from '../../util/CancellationToken';
 import * as _ from 'underscore';
-import { IScope } from '../IScope';
+import { IScope } from '../Scope';
 import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
 import * as helpers from '../../util/helpers';

@@ -1,5 +1,5 @@
 import { ILogger } from '../script/loggers';
-import { IProfile } from '../profile/IProfile';
+import { IProfile } from '../profile/Profile';
 import { ISessionOutput } from '../profile/ISessionOutput';
 const colors = require('colors');
 

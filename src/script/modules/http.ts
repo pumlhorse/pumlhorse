@@ -1,10 +1,9 @@
 import { ILogger } from '../loggers';
 import * as _ from 'underscore';
 import * as http from 'http-client-factory';
-import { ICancellationToken } from '../../util/ICancellationToken';
-import { CancellationToken } from '../../util/CancellationToken';
+import { CancellationToken, ICancellationToken } from '../../util/CancellationToken';
 import { pumlhorse } from '../../PumlhorseGlobal';
-import { IScope } from '../IScope';
+import { IScope } from '../Scope';
 import enforce from '../../util/enforce';
 
 export class HttpRequestModule {

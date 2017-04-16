@@ -1,8 +1,7 @@
-import { CancellationToken } from '../../util/CancellationToken';
-import { ICancellationToken } from '../../util/ICancellationToken';
+import { ICancellationToken, CancellationToken } from '../../util/CancellationToken';
 import { pumlhorse } from '../../PumlhorseGlobal';
+
 export class WaitModule {
-    //TODO: add implementation, add misc/timer/wait to Script as default modules
     static wait(milliseconds: number, seconds: number, minutes: number, hours: number, $cancellationToken: ICancellationToken): Promise<any> {
         
         const totalMs = WaitModule.convertToMs(milliseconds, 1) +
