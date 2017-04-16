@@ -1,5 +1,16 @@
 # Pumlhorse Version History
 
+## v2.3.0 (April 16, 2017)
+
+* Allow modules to be imported from puml_modules folder (#23)
+* Reference partial scripts (#24)
+* Allow functions to write debug information (#21)
+* Set default headers/authorization on HTTP calls (#30)
+
+### Bugs
+
+* Script won't throw error when calling end (#31)
+
 ## v2.2.0 (March 26, 2017)
 
 * Added `prompt` function to allow soliciting values from the user (#13)
