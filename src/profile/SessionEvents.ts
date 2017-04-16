@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 export class SessionEvents implements ISessionOutput {
     private emitter: EventEmitter;
 
-    constructor(private sessionOutput: ISessionOutput) {
+    constructor(sessionOutput: ISessionOutput) {
         this.emitter = new EventEmitter();
 
         this.addListener(Event.SessionStart, () => sessionOutput.onSessionStarted());

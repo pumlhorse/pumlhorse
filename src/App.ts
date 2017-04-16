@@ -1,29 +1,26 @@
-
-
+import { ILogger } from './script/loggers';
 import * as _ from 'underscore';
-import { IApp } from './IApp';
-import { IProfile } from './profile/IProfile';
+import { IProfile } from './profile/Profile';
 import { Profile } from './profile/Profile';
 import { ISessionOutput } from './profile/ISessionOutput';
 import { ProfileRunner } from './profile/ProfileRunner';
-import { IScript } from './script/IScript';
-import { Script } from './script/Script';
+import { IScript, Script } from './script/Script';
 import * as loggers from './script/loggers';
-import {ICancellationToken} from './util/ICancellationToken';
-const YAML = require('pumlhorse-yamljs');
+import {ICancellationToken} from './util/CancellationToken';
 
-export class App implements IApp {
+export class App {
 
     private defaultProfile: IProfile;
+    private logger: ILogger;
 
     constructor() {
         this.defaultProfile = new Profile();
         this.defaultProfile.include = ['.'];
+        this.logger = loggers.getLogger();
     }
 
     getScript(scriptText: string): IScript {
-        const scriptDefinition = YAML.parse(scriptText);
-        return new Script(scriptDefinition);
+        return Script.create(scriptText);
     }
 
     async runProfile(profile: IProfile, sessionOutput: ISessionOutput, cancellationToken?: ICancellationToken): Promise<any> {
@@ -36,7 +33,7 @@ export class App implements IApp {
 
     /* Obsolete */
     load(scriptDefinition: string): IScript {
-        loggers.warn('Function "load" is obsolete. Use "getScript" instead');
+        this.logger.warn('Function "load" is obsolete. Use "getScript" instead');
         return this.getScript(scriptDefinition);
     }
 }

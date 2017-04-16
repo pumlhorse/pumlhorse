@@ -63,15 +63,15 @@ class LiteralState implements IParseState {
     }
 }
 
-var closingSymbols = {
-    "{": "}",
-    "[": "]",
-    "(": ")"
+const closingSymbols = {
+    '{': '}',
+    '[': ']',
+    '(': ')'
 }
-var openingSymbols = {
-    "}": "{",
-    "]": "[",
-    ")": "("
+const openingSymbols = {
+    '}': '{',
+    ']': '[',
+    ')': '('
 }
 
 class SimpleState implements IParseState {
@@ -90,7 +90,7 @@ class SimpleState implements IParseState {
             this.remainingClosers.push(closingSymbols[character]);
         }
         else if (openingSymbols[character] != undefined) {
-            var expected = this.remainingClosers.pop();
+            const expected = this.remainingClosers.pop();
             if (expected != character) this.remainingClosers.push(expected);
         } 
         else if (this.remainingClosers.length == 0 && !SimpleState.tokenCharacters.test(character)) {
@@ -122,15 +122,15 @@ class ComplexState implements IParseState {
         this.remainingClosers = ['}'];
     }
 
-    read(character: string, index: number) {
-        if (character == "{" && this.value.length == 0) {
+    read(character: string) {
+        if (character == '{' && this.value.length == 0) {
             return; //Expecting an opening curly brace, ignore it
         }
         if (closingSymbols[character] != undefined) {
             this.remainingClosers.push(closingSymbols[character]);
         }
         else if (openingSymbols[character] != undefined) {
-            var expected = this.remainingClosers.pop();
+            const expected = this.remainingClosers.pop();
             if (expected != character) {
                 this.remainingClosers.push(expected);
             }

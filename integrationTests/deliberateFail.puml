@@ -1,0 +1,5 @@
+name: Deliberate failure
+steps:
+  - log: Beginning
+  - fail
+  - log: Shouldn't happen

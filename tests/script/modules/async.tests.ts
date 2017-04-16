@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+
 import { Script } from '../../../src/script/Script';
 
 describe('async', () => {
@@ -25,8 +27,7 @@ describe('async', () => {
             ]
         });
         script.addFunction('logMessageInRandomOrder', function(message) {
-            var scope = this;
-            return new Promise((resolve, reject) => { 
+            return new Promise((resolve) => { 
                 setTimeout(function() { spy(message); resolve(); }, Math.random() * 100) 
             });
         })

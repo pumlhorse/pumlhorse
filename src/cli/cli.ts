@@ -1,18 +1,19 @@
-import { IProfile } from '../profile/IProfile';
-import { Profile } from '../profile/Profile';
-import { CliOutput } from './CliOutput';
+import { CliLogger } from './CliLogger';
+import * as _ from 'underscore';
 import * as path from 'path';
 import * as minimist from 'minimist';
-import * as _ from 'underscore';
+import { IProfile, Profile } from '../profile/Profile';
+import { CliOutput } from './CliOutput';
 import { App } from '../App';
-import { IApp } from '../IApp';
-import * as loggers from '../script/loggers';
 import * as fs from '../util/asyncFs';
+import { setLogger } from "../script/loggers";
 
-const colors = require('colors');
 
 export async function run(args) {
-    console.time('Total time')
+    console.time('Total time');
+
+    const logger = new CliLogger();
+    setLogger(logger);
     if (!args) args = []
     else args = args.slice(2)
 
@@ -21,11 +22,10 @@ export async function run(args) {
         try {
             const app = new App();
             profile.modules.push({ name: 'cliPrompt', path: require.resolve('./prompt')});
-            configureLoggers();
-            await app.runProfile(profile, new CliOutput(profile));
+            await app.runProfile(profile, new CliOutput(profile, logger));
         }
         catch (err) {
-            logError(err);
+            logger.error(err);
         }
         finally
         {
@@ -34,7 +34,7 @@ export async function run(args) {
     } 
 }
 
-var cliOptions = {
+const cliOptions = {
     string: ['context', 'profile'],
     boolean: ['recursive', 'version', 'help', 'verbose'],
     alias: {
@@ -61,10 +61,10 @@ function showUsage() {
 
 async function buildProfile(args: any[]): Promise<IProfile> {
     
-    var options = minimist(args, cliOptions);
+    const options = minimist(args, cliOptions);
 
     if (options.version) {
-        loggers.log('Pumlhorse: version ' + require('../../package.json').version)
+        console.log('Pumlhorse: version ' + require('../../package.json').version)
         return null;
     }
 
@@ -89,6 +89,7 @@ async function buildProfile(args: any[]): Promise<IProfile> {
     }
 
     profile.contexts = combine(profile.contexts, options.context);
+    profile.modules = profile.modules == null ? [] : profile.modules;
     profile.isRecursive = override(options.recursive, profile.isRecursive);
     profile.maxConcurrentFiles = override(options['max-concurrent'], profile.maxConcurrentFiles);
     profile.isVerbose = options.verbose;
@@ -99,7 +100,7 @@ async function buildProfile(args: any[]): Promise<IProfile> {
 async function readProfileFile(filePath): Promise<IProfile> {
     if (!filePath.endsWith('.pumlprofile')) filePath += '.pumlprofile';
     
-    var fullPath = path.resolve(filePath)
+    const fullPath = path.resolve(filePath)
 
     let stat;
     try {
@@ -135,7 +136,7 @@ function combine(arr1, arr2) {
 }
 
 function override(overrideValue, currentValue) {
-    return overrideValue != null && overrideValue != undefined 
+    return overrideValue != null
         ? overrideValue
         : currentValue;
 }
@@ -143,13 +144,13 @@ function override(overrideValue, currentValue) {
 function makeRelative(filePath: string, array) {
     if (array == null) return array;
     
-    return array.map(m => makeRelativePath(filePath, m));
+    return _.map(array, m => makeRelativePath(filePath, m));
 }
 
 function makeModulesRelative(filePath: string, modules: any) {
     if (modules == null) return modules;
 
-    return modules.map((m) => { 
+    return _.map(modules, (m) => { 
         return {
             name: m.name,
             path: makeRelativePath(filePath, m.path)
@@ -159,22 +160,4 @@ function makeModulesRelative(filePath: string, modules: any) {
 
 function makeRelativePath(filePath: string, filename: string) {
     return path.resolve(path.dirname(filePath), filename.toString())
-}
-
-function setColor(args, colorFunc) {
-    args[0] = colorFunc(args[0])
-    return args
-}
-
-function configureLoggers() {
-    loggers.setLoggers({
-        log: function () { console.log.apply(console, arguments) },
-        warn: function () { console.warn.apply(console, setColor(arguments, colors.yellow)) },
-        error: function () { console.error.apply(console, setColor(arguments, colors.red)) }
-    });
-}
-
-function logError(err) {
-    loggers.error(err.message ? err.message : err)
-    throw err
 }

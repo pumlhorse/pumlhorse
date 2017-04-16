@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { IScriptDefinition } from './IScriptDefinition';
+import { IScriptDefinition } from './Script';
 export default validate;
 
 function validate(scriptDefinition: IScriptDefinition) {

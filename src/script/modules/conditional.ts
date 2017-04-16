@@ -1,4 +1,4 @@
-import { IScope } from '../IScope';
+import { IScope } from '../Scope';
 import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
 export class ConditionalModule

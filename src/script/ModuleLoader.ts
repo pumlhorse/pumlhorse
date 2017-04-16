@@ -1,5 +1,4 @@
 import { Script } from './Script';
-import { IScriptDefinition } from './IScriptDefinition';
 import * as path from 'path';
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
@@ -13,20 +12,20 @@ export class ModuleLoader {
         if (modules == null) return [];
 
         const scriptDir = path.dirname(fileName);
-        return modules.map((mod) => this.resolveModule(mod, scriptDir));
+        return _.map(modules, (mod) => this.resolveModule(mod, scriptDir));
     }
 
-    static getModuleLocator(moduleDescriptor: string): ModuleLocator {
+    static getModuleLocator(moduleDescriptor: string | Object): ModuleLocator {
         enforce(moduleDescriptor).isNotNull();
 
         if (_.isString(moduleDescriptor)) {
-            return new ModuleLocator(moduleDescriptor);
+            return new ModuleLocator(<string>moduleDescriptor.toString());
         }
         else if (_.isObject(moduleDescriptor)) {
             const keys = Object.keys(moduleDescriptor);
             if (keys.length > 1) throw new Error('Invalid module format: each module must be a separate item');
 
-            return new ModuleLocator(keys[0],moduleDescriptor[keys[0]]);
+            return new ModuleLocator(keys[0].toString(), moduleDescriptor[keys[0]].toString());
         }
 
         throw new Error('Invalid module format: must be a string or an object');
@@ -38,12 +37,12 @@ export class ModuleLoader {
     }
 
     private static resolveModule(modDescriptor: any, directory: string): Module {
-        var moduleLocator = this.getModuleLocator(modDescriptor);
+        const moduleLocator = this.getModuleLocator(modDescriptor);
 
         if (_.some(Script.StandardModules, mod => mod == moduleLocator.name)) {
             return undefined;
         }
-        return ModuleLoader._resolver(moduleLocator.path, directory);
+        return ModuleLoader._resolver(moduleLocator.path, directory, ['puml_modules']);
     }
 }
 

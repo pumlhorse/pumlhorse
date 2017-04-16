@@ -34,6 +34,16 @@ export class Enforcement {
         return this;
     }
 
+    isNumber(): Enforcement {
+        if (this.value != null && !_.isNumber(this.value)) this.throwError('must be a number');
+        return this;
+    }
+
+    isObject(): Enforcement {
+        if (this.value != null && !_.isObject(this.value)) this.throwError('must be an object');
+        return this;
+    }
+
     isFunction(overrideMessage?: string): Enforcement {
         if (this.value != null && !_.isFunction(this.value)) this.throwError('must be a function', overrideMessage);
         return this;
@@ -42,7 +52,7 @@ export class Enforcement {
     private throwError(message: string, overrideMessage?: string) {
         if (overrideMessage != null) throw new Error(overrideMessage);
         
-        var prefix = this.parameterName == null
+        const prefix = this.parameterName == null
             ? 'Parameter '
             : `Parameter "${this.parameterName}" `;
         throw new Error(prefix + message)

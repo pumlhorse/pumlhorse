@@ -1,4 +1,4 @@
-import { IScope } from './IScope';
+import { IScope } from './Scope';
 import enforce from '../util/enforce';
 import * as helpers from '../util/helpers';
 import * as _ from 'underscore';
@@ -7,7 +7,7 @@ export class ModuleRepository {
     static lookup: {[name: string]: Module} = {};
 
     static addModule(name: string): ModuleBuilder {
-        var module = new Module();
+        const module = new Module();
 
         ModuleRepository.lookup[name] = module;
 
@@ -15,7 +15,7 @@ export class ModuleRepository {
     }
 }
 
-export type Injector = ($scope: IScope) => void;
+export type Injector = ($scope: IScope) => any;
 export type InjectorLookup = {[name: string]: Injector};
 export type FunctionLookup = {[name: string]: Function};
 
@@ -51,7 +51,7 @@ export class ModuleBuilder {
     }
 
     function(name: string, func: Function | any[]): ModuleBuilder {
-        var f = new ModuleFunction(name, func);
+        const f = new ModuleFunction(name, func);
         this.module.addFunction(name, f.declaration);
 
         return this;
@@ -113,9 +113,9 @@ class ModuleFunction {
         this.declaration[DeferredListKey] = [];
         this.declaration[AliasListKey] = {};
 
-        for (var i in funcArray) {
-            var alias = <string>funcArray[i];
-            var actual = actualParams[i];
+        for (let i = 0; i < funcArray.length; i++) {
+            let alias = <string>funcArray[i];
+            const actual = actualParams[i];
 
             if (alias.startsWith(DeferredPrefix)) {
                 alias = alias.substring(DeferredPrefix.length);

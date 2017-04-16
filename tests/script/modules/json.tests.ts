@@ -1,3 +1,4 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
 
 import { JsonModule } from '../../../src/script/modules/json';
 
@@ -31,7 +32,7 @@ describe('Json module', () => {
         obj.inner = inner;
         
         // Act
-        var result = JsonModule.objectToJson(obj);
+        JsonModule.objectToJson(obj);
         
         // Assert
         //Verify no exception was thrown

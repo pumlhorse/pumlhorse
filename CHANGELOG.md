@@ -1,10 +1,21 @@
 # Pumlhorse Version History
 
+## v2.3.0 (April 16, 2017)
+
+* Allow modules to be imported from puml_modules folder (#23)
+* Reference partial scripts (#24)
+* Allow functions to write debug information (#21)
+* Set default headers/authorization on HTTP calls (#30)
+
+### Bugs
+
+* Script won't throw error when calling end (#31)
+
 ## v2.2.0 (March 26, 2017)
 
 * Added `prompt` function to allow soliciting values from the user (#13)
 * Added `date` function to easily generate dates (#20)
-* Added `convert` function to convert to/from base64 and other encodings (#16)
+* Added `convertText` function to convert to/from base64 and other encodings (#16)
 * Added support for customer injectors for module functions (#18)
 * Fixed issue with Pumlhorse not running on platforms with case-sensitive file paths (#19)
 

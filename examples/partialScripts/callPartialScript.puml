@@ -1,0 +1,8 @@
+name: Call a partial script
+steps:
+  - log: Call a partial script and use its value
+  - partialResult = run: 
+      script: ./checkVersion.puml.partial
+      with:
+        url: https://witty-cream.glitch.me/version
+  - log: Version is $partialResult.httpCall.body

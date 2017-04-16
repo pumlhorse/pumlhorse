@@ -1,0 +1,33 @@
+name: Perform some math
+steps:
+  - sum = +:
+      - 43
+      - 11
+      - 99
+  - areEqual:
+      expected: 153
+      actual: $sum
+  - subtraction = -:
+      - 88
+      - 33
+  - areEqual:
+      expected: 55
+      actual: $subtraction
+  - product = *:
+      - 2
+      - 3
+      - 5
+  - areEqual:
+      expected: 30
+      actual: $product
+  - division = /:
+      - 100
+      - 2
+      - 5
+  - areEqual:
+      expected: 10
+      actual: $division
+  - squareResult = square: 4
+  - areEqual:
+      expected: 16
+      actual: $squareResult

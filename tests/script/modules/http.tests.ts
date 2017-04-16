@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+
 import { HttpAssertionModule, HttpRequestModule, IHttpResponse } from '../../../src/script/modules/http';
 import * as Proxyquire from 'proxyquire';
 
@@ -88,7 +90,7 @@ describe('HTTP functions', () => {
                 .returnValue(Promise.resolve(getMockResponse(200, '', '', null)))
             
             //Act
-            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body);
+            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body);
             
             //Assert
             expect(httpClientMock[verb]).toHaveBeenCalledWith('http://www.baseurl/some/path', body);
@@ -100,7 +102,7 @@ describe('HTTP functions', () => {
                 .returnValue(Promise.resolve(getMockResponse(200, '', '', null)))
             
             //Act
-            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path', null);
+            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', null);
             
             //Assert
             expect(httpClientMock[verb]).toHaveBeenCalledWith('http://www.baseurl/some/path', null);
@@ -114,13 +116,60 @@ describe('HTTP functions', () => {
                 .returnValue(Promise.resolve(getMockResponse(200, '', '', null)))
             
             //Act
-            var result = await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body, headers);
+            await http.HttpRequestModule[verb]('http://www.baseurl/some/path', body, headers, null, {});
             
             //Assert
             expect(httpClientMock[verb]).toHaveBeenCalledWith('http://www.baseurl/some/path', body);
             expect(httpClientMock.addHeader).toHaveBeenCalledWith('key1', 'value1')
             expect(httpClientMock.addHeader).toHaveBeenCalledWith('key2', 'value2')
-        })); 
+        }));
+
+        describe('default headers', () => {
+
+            beforeEach(() => {
+                httpClientMock[verb].and
+                    .returnValue(Promise.resolve(getMockResponse(200, '', '', null)));
+            });
+
+            it(`allows default headers for ${verb}`, testAsync(async () => {
+                //Arrange
+                var defaultHeaders = {
+                    default1: 'default val 1',
+                    Authorization: 'some auth val'
+                };
+                var headers = {
+                    key1: 'value1',
+                    key2: 'value2'
+                };
+
+
+                //Act
+                await http.HttpRequestModule[verb]('http://www.baseurl/some/path', {}, headers, null, defaultHeaders);
+
+                //Assert
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('default1', 'default val 1')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('Authorization', 'some auth val')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('key1', 'value1')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('key2', 'value2')
+            }));
+
+            it(`allows default headers to be overridden for ${verb}`, testAsync(async () => {
+                //Arrange
+                var defaultHeaders = {
+                    Authorization: 'some auth val'
+                };
+                var headers = {
+                    Authorization: 'override header'
+                };
+
+                //Act
+                await http.HttpRequestModule[verb]('http://www.baseurl/some/path', {}, headers, null, defaultHeaders);
+
+                //Assert
+                expect(httpClientMock.addHeader).not.toHaveBeenCalledWith('Authorization', 'some auth val')
+                expect(httpClientMock.addHeader).toHaveBeenCalledWith('Authorization', 'override header')
+            }));
+        })
         
         it(`returns data from ${verb}`, testAsync(async () => {
             //Arrange
@@ -178,6 +227,58 @@ describe('HTTP functions', () => {
         }));  
         
     });
+
+    describe('default headers', () => {
+        it('sets default headers', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setDefaultHeaders({ key1: 'val1', key2: 'val2'}, defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['key1']).toBe('val1');
+            expect(defaultHeaders['key2']).toBe('val2');
+            
+        });
+
+        it('sets default headers multiple times', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setDefaultHeaders({ key1: 'val1', key2: 'val2'}, defaultHeaders);
+            http.HttpRequestModule.setDefaultHeaders({ key3: 'val3', key2: 'val2 override'}, defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['key1']).toBe('val1');
+            expect(defaultHeaders['key2']).toBe('val2 override');
+            expect(defaultHeaders['key3']).toBe('val3');
+        });
+
+        it('sets authorization', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setAuthorization('auth value', defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['Authorization']).toBe('auth value');
+        });
+
+        it('sets basic authorization', () => {
+            // Arrange
+            var defaultHeaders = {};
+            
+            // Act
+            http.HttpRequestModule.setBasicAuthorization('Aladdin', 'OpenSesame', defaultHeaders);
+            
+            // Assert
+            expect(defaultHeaders['Authorization']).toBe('Basic QWxhZGRpbjpPcGVuU2VzYW1l');
+        });
+        
+    })
     
     function testAsync(runAsync) {
         return (done) => {

@@ -1,5 +1,9 @@
-import {ICancellationToken} from '../util/ICancellationToken';
 import {EventEmitter} from 'events';
+
+export interface ICancellationToken {
+    onCancellationRequested: Function;
+    isCancellationRequested: boolean;
+}
 
 export class CancellationToken implements ICancellationToken
 {

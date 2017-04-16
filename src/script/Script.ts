@@ -1,19 +1,12 @@
-import { CancellationToken } from '../util/CancellationToken';
-import {ICancellationToken} from '../util/ICancellationToken';
+import { ILogger, getLogger } from './loggers';
+import { CancellationToken, ICancellationToken } from '../util/CancellationToken';
 import { Step } from './Step';
-import { pumlhorse } from '../PumlhorseGlobal';
-import { ModuleLoader, ModuleLocator } from './ModuleLoader';
-import { ScriptInterrupt } from './ScriptInterrupt';
+import { ModuleLoader } from './ModuleLoader';
 import * as _ from 'underscore';
-import { IScriptDefinition } from './IScriptDefinition';
-import { IScriptInternal } from './IScriptInternal';
 import { Guid } from '../util/Guid';
-import { IScript } from './IScript';
-import { IScope } from './IScope';
 import { InjectorLookup, Module, ModuleRepository } from './Modules';
-import { Scope } from './Scope';
+import { IScope, Scope } from './Scope';
 import validateScriptDefinition from './scriptDefinitionValidator';
-import * as loggers from './loggers';
 import * as helpers from '../util/helpers';
 import './modules/assert';
 import './modules/async';
@@ -21,16 +14,44 @@ import './modules/conditional';
 import './modules/http';
 import './modules/json';
 import './modules/loop';
+import './modules/math';
 import './modules/misc';
 import './modules/stats';
 import './modules/timer';
 import './modules/wait';
 
+const YAML = require('pumlhorse-yamljs');
 
-pumlhorse.module('log')
-    .function('log', loggers.log)
-    .function('warn', loggers.warn)
-    .function('error', loggers.error);
+class ScriptOptions {
+    logger: ILogger;
+}
+
+export interface IScript {
+    run(context: any, cancellationToken?: ICancellationToken): Promise<any>;
+
+    addFunction(name: string, func: Function): void;
+
+    addModule(moduleDescriptor: string | Object): void;
+
+    id: string;
+    name: string;
+}
+
+export interface IScriptDefinition {
+    name: string;
+
+    description?: string;
+
+    modules?: any[];
+
+    functions?: Object;
+
+    expects?: string[];
+
+    steps: any[];
+
+    cleanup?: any[];
+}
 
 export class Script implements IScript {
     id: string;
@@ -38,35 +59,46 @@ export class Script implements IScript {
     
     private internalScript: IScriptInternal;
 
-    private static readonly DefaultModules = ['log', 'assert', 'async', 'conditional', 'json', 'loop', 'misc', 'timer', 'wait', 'http = http'];
+    private static readonly DefaultModules = ['assert', 'async', 'conditional', 'json', 'loop', 'math', 'misc', 'timer', 'wait', 'http = http'];
     public static readonly StandardModules = Script.DefaultModules.concat(['stats']);
 
-    constructor(private scriptDefinition: IScriptDefinition) {
+    constructor(private scriptDefinition: IScriptDefinition, private scriptOptions?: ScriptOptions) {
         validateScriptDefinition(this.scriptDefinition);
 
         this.id = new Guid().value;
         this.name = scriptDefinition.name;
-        this.internalScript = new InternalScript(this.id);
 
+        if (this.scriptOptions == null) {
+            this.scriptOptions = new ScriptOptions();
+        }
+
+        if (this.scriptOptions.logger == null) {
+            this.scriptOptions.logger = getLogger();
+        }
+
+        this.internalScript = new InternalScript(this.id, this.scriptOptions);
+    }
+
+    static create(scriptText: string, scriptOptions?: ScriptOptions): Script {
+        const scriptDefinition = YAML.parse(scriptText);
+        return new Script(scriptDefinition, scriptOptions);
     }
 
     async run(context?: any, cancellationToken?: ICancellationToken): Promise<any> {
         if (cancellationToken == null) cancellationToken = CancellationToken.None;
+        
+        this.evaluateExpectations(context);
         this.loadModules();
 
         this.loadFunctions();
         this.loadCleanupSteps();
         
         const scope = new Scope(this.internalScript, context);
+
         
         try {
             await this.internalScript.runSteps(this.scriptDefinition.steps, scope, cancellationToken);
-        }
-        catch (e) {
-            if (e.__nonErrorScriptInterrupt == true) {
-                return;
-            }
-            throw e;
+            return scope;
         }
         finally {
             await this.runCleanupTasks(scope, cancellationToken);
@@ -77,7 +109,7 @@ export class Script implements IScript {
         this.internalScript.functions[name] = func;
     }
 
-    addModule(moduleDescriptor: string) {
+    addModule(moduleDescriptor: string | Object) {
         const moduleLocator = ModuleLoader.getModuleLocator(moduleDescriptor);
 
         const mod = ModuleRepository.lookup[moduleLocator.name];
@@ -94,20 +126,43 @@ export class Script implements IScript {
         _.extend(this.internalScript.injectors, mod.getInjectors())
     }
 
+    private evaluateExpectations(context: any) {
+        if (this.scriptDefinition.expects == null) return;
+
+        const missingValues = _.difference(this.scriptDefinition.expects.map(m => m.toString()), _.keys(context));
+
+        if (missingValues.length > 0) {
+            throw new Error(missingValues.length > 1 
+                ? `Expected values "${missingValues.join(', ')}", but they were not passed`
+                : `Expected value "${missingValues[0]}", but it was not passed`)
+        }
+    }
+
     private loadModules() {
-        let modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
+        const modules = Script.DefaultModules.concat(this.scriptDefinition.modules == null
             ? []
             : this.scriptDefinition.modules)
         
-        modules.forEach(def => this.addModule(def));
+        for (let i = 0; i < modules.length; i++) {
+            this.addModule(modules[i]);
+        }
     }
 
     private loadFunctions() {
-        if (this.scriptDefinition.functions == null) {
+
+        this.addFunction('debug', (msg) => this.scriptOptions.logger.debug(msg));
+        this.addFunction('log', (msg) => this.scriptOptions.logger.log(msg));
+        this.addFunction('warn', (msg) => this.scriptOptions.logger.warn(msg));
+        this.addFunction('error', (msg) => this.scriptOptions.logger.error(msg));
+
+        const functions = this.scriptDefinition.functions;
+        if (functions == null) {
             return;
         }
         
-        _.mapObject(this.scriptDefinition.functions, (def, name) => this.addFunction(name, this.createFunction(def)));
+        for(let name in functions) {
+            this.addFunction(name, this.createFunction(functions[name]));
+        }
     }
 
     
@@ -130,7 +185,10 @@ export class Script implements IScript {
         if (this.scriptDefinition.cleanup == null) {
             return;
         }
-        this.scriptDefinition.cleanup.map((step) => this.internalScript.cleanup.push(step));
+        
+        for (let i = 0; i < this.scriptDefinition.cleanup.length; i++) {
+            this.internalScript.cleanup.push(this.scriptDefinition.cleanup[i]);
+        }
     }
 
     private async runCleanupTasks(scope: Scope, cancellationToken: ICancellationToken): Promise<any> {
@@ -138,40 +196,62 @@ export class Script implements IScript {
             return;
         }
 
-        return await Promise.all(this.internalScript.cleanup.map(task => {
+        return await Promise.all(_.map(this.internalScript.cleanup, task => {
             try {
                 return this.internalScript.runSteps([task], scope, cancellationToken);
             }
             catch (e) {
-                loggers.error(`Error in cleanup task: ${e.message}`);
+                this.scriptOptions.logger.error(`Error in cleanup task: ${e.message}`);
                 return Promise.resolve({});
             }
         }));
     }
 }
 
+export interface IScriptInternal {
+    modules: Module[];
+    functions: {[name: string]: Function};
+    injectors: InjectorLookup;
+    steps: any[];
+    cleanup: any[];
+
+    emit(eventName: string, eventInfo: any);
+
+    addCleanupTask(task: any, atEnd?: boolean);
+
+    getModule(moduleName: string): any;
+
+    id: string;
+
+    runSteps(steps: any[], scope: IScope, cancellationToken?: ICancellationToken): Promise<any>;
+}
+
 class InternalScript implements IScriptInternal {
     id: string;
     modules: Module[];
     injectors: InjectorLookup;
-    functions: any[];
+    functions: {[name: string]: Function};
     steps: any[];
     cleanup: any[];
     private cancellationToken: ICancellationToken;
+    private isEnded: boolean = false;
 
-    constructor(id: string) {
+    constructor(id: string, private scriptOptions: ScriptOptions) {
         this.id = id;
         this.modules = [];
         this.injectors = {
-            '$scope': (scope: IScope) => scope
+            '$scope': (scope: IScope) => scope,
+            '$logger': () => this.scriptOptions.logger
         };
-        this.functions = [];
+        this.functions = {
+            'end': () => { this.isEnded = true; }
+        };
         this.steps = [];
         this.cleanup = [];
 
     }
 
-    emit(eventName: string, eventInfo: any): void {
+    emit(): void {
 
     }
 
@@ -190,14 +270,14 @@ class InternalScript implements IScriptInternal {
         }
 
         if (steps == null || steps.length == 0) {
-            loggers.warn('Script does not contain any steps');
+            this.scriptOptions.logger.warn('Script does not contain any steps');
             return;
         }
 
         _.extend(scope, this.modules, this.functions);
 
-        for (var i = 0; i < steps.length; i++) {
-            if (this.cancellationToken.isCancellationRequested) {
+        for (let i = 0; i < steps.length; i++) {
+            if (this.cancellationToken.isCancellationRequested || this.isEnded) {
                 return;
             }
             await this.runStep(steps[i], scope);
@@ -218,7 +298,7 @@ class InternalScript implements IScriptInternal {
             step = new Step(stepDefinition, null, scope, this.injectors, lineNumber);
         }
         else {
-            var functionName = _.keys(stepDefinition)[0];
+            const functionName = _.keys(stepDefinition)[0];
             step = new Step(functionName, stepDefinition[functionName], scope, this.injectors, lineNumber);
         }
 

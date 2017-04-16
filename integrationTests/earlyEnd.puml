@@ -1,0 +1,5 @@
+name: Early end
+steps:
+  - log: Beginning
+  - end
+  - log: Shouldn't get here

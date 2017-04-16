@@ -1,17 +1,16 @@
-import { IScope } from '../IScope';
+import { IScope } from '../Scope';
 import enforce from '../../util/enforce';
 import * as _ from 'underscore';
 import { pumlhorse } from '../../PumlhorseGlobal';
 
-function runParallel(steps) {        
+function runParallel(steps, $scope: IScope) {        
         enforce(steps, 'steps')
             .isNotNull()
             .isArray();
 
-        var scope = this;
-        return Promise.all(steps.map(step => {
-            var newSteps = _.flatten([step]);
-            return scope._runSteps(newSteps, scope);
+        return Promise.all(_.map(steps, step => {
+            let newSteps = _.flatten([step]);
+            return $scope._runSteps(newSteps, $scope);
         }))
     }
 

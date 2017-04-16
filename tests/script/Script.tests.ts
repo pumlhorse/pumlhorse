@@ -1,17 +1,17 @@
+/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+
 import { CancellationTokenHandle } from '../../src/util/CancellationToken';
 import { pumlhorse } from '../../src/PumlhorseGlobal';
 
 import { Script } from '../../src/script/Script';
-import { setLoggers } from '../../src/script/loggers';
 
+var loggerMocks;
 describe('Script', () => {
-    var loggerMocks;
     var mock;
 
     beforeEach(() => {
         mock = jasmine.createSpy('mock');
-        loggerMocks = jasmine.createSpyObj('loggers', ['log', 'warn', 'error']);
-        setLoggers(loggerMocks);
+        loggerMocks = jasmine.createSpyObj('loggers', ['debug', 'log', 'warn', 'error']);
     });
 
 
@@ -82,7 +82,7 @@ describe('Script', () => {
             'notCalled'
         ]);
         script.addFunction('runHangingFunction', () => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 setTimeout(() => { resolve(); }, 50);
             });
         });
@@ -685,6 +685,84 @@ describe('Script', () => {
         }));
     });
 
+    describe('with expectations', () => {
+        it('throws an error if single expected value is not passed in the context', testAsync(async () => {
+            // Arrange
+            var script = new Script({
+                name: 'test script',
+                expects: [
+                    'myValue'
+                ],
+                steps: [
+                    {log: '$myValue'}
+                ]
+            });
+
+            try {
+                // Act
+                await script.run();
+                fail();
+            }
+            catch (err) {
+                // Assert
+                expect(err.message).toBe('Expected value "myValue", but it was not passed')
+            }
+
+        }));
+
+        it('throws an error if multiple expected values are not passed in the context', testAsync(async () => {
+            // Arrange
+            var script = new Script({
+                name: 'test script',
+                expects: [
+                    'myValue1',
+                    'myValue2',
+                    'myValue3',
+                    'myValue4',
+                ],
+                steps: [
+                    {log: '$myValue'}
+                ]
+            });
+
+            try {
+                // Act
+                await script.run({ myValue3: 'value'});
+                fail();
+            }
+            catch (err) {
+                // Assert
+                expect(err.message).toBe('Expected values "myValue1, myValue2, myValue4", but they were not passed')
+            }
+
+        }));
+
+        it('does not throw an error if expected values are passed in the context', testAsync(async () => {
+            // Arrange
+            var script = new Script({
+                name: 'test script',
+                expects: [
+                    'myValue1',
+                    'myValue2',
+                    'myValue3',
+                    'myValue4',
+                ],
+                steps: [
+                    'addedVal = ${myValue3 * myValue4}'
+                ]
+            });
+
+            // Act
+            var result = await script.run({ myValue1: 1, myValue2: 2, myValue3: 3, myValue4: 4});
+            
+            // Assert
+            expect(result.addedVal).toBe(12)
+
+        }));
+
+        
+    });
+
     describe('with cleanup tasks', () => {
         it('runs a cleanup task at the end of a script',testAsync(async () => {
             // Arrange
@@ -697,7 +775,7 @@ describe('Script', () => {
                 cleanup: [
                     {log: 'cleanup step'}
                 ]
-            });
+            }, { logger: loggerMocks});
             
             // Act
             await script.run();
@@ -720,7 +798,7 @@ describe('Script', () => {
                 cleanup: [
                     {log: 'cleanup step'}
                 ]
-            });
+            }, { logger: loggerMocks});
             script.addFunction('throwException', function () {
                 throw new Error('Oops!');
             });
@@ -754,7 +832,7 @@ describe('Script', () => {
                     'throwException',
                     {log: 'cleanup step2'}
                 ]
-            });
+            }, { logger: loggerMocks});
             script.addFunction('throwException', function () {
                 throw new Error('Oops!');
             });
@@ -1041,5 +1119,5 @@ function getScript(steps: any[]): Script {
     return new Script({
         name: 'test script',
         steps: steps
-    });
+    }, { logger: loggerMocks});
 }

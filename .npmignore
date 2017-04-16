@@ -1,6 +1,7 @@
 .vscode
 spec
 tests
+integrationTests
 examples
 src
 lib/**/*.map

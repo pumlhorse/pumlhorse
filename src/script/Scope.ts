@@ -1,13 +1,34 @@
 import * as _ from 'underscore';
 import enforce from '../util/enforce';
 import { Guid } from '../util/Guid';
-import { IScope } from './IScope';
-import { IScriptInternal } from './IScriptInternal';
-import { FunctionLookup, Module, ModuleRepository } from './Modules';
+import { IScriptInternal } from './Script';
+import { FunctionLookup, ModuleRepository } from './Modules';
+
+export interface IScope {
+
+    _cleanup(task: any): void;
+
+    _cleanupAfter(task: any): void;
+
+    _emit(eventName: string, eventInfo: any): void;
+
+    _module(moduleName: string): any;
+
+    _new(scope?: IScope): IScope;
+
+    _runSteps(steps: any[], scope: IScope): Promise<any>;
+
+    _id(): string;
+    
+    scriptId: string;
+
+    __filename: string;
+}
 
 export class Scope implements IScope {
 
     scriptId: string;
+    __filename: string;
 
     constructor(private script: IScriptInternal,
         scope?: IScope) {

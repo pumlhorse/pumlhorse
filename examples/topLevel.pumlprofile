@@ -1,0 +1,6 @@
+include:
+  - ./
+contexts:
+isRecursive: false
+isVerbose: false
+maxConcurrentFiles: 10

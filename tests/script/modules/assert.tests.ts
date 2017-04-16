@@ -1,5 +1,6 @@
 /// <reference path="../../../typings/jasmine/jasmine.d.ts" />
 
+import * as _ from 'underscore';
 import { AssertModule } from '../../../src/script/modules/assert';
 
 
@@ -20,7 +21,7 @@ class AssertTest {
 
 describe('Assert function', () => {
 
-    var unary = [
+    const unary = [
         new UnaryAssertTest('isTrue', 
             [true, 'true'],
             [false, 'false', 0, 14, {}]),
@@ -41,14 +42,14 @@ describe('Assert function', () => {
             [null, undefined, []])
     ];
 
-    unary.map((test) => {
-        test.goodValues.map(val => {
+    _.map(unary, (test) => {
+        _.map(test.goodValues, val => {
             it(`should accept ${val} for ${test.command}`, () => {
                 AssertModule[test.command](val);
             });
         });
 
-        test.badValues.map(val => {
+        _.map(test.badValues, val => {
             it(`should reject ${val} for ${test.command}`, () => {
                 try {
                     AssertModule[test.command](val);
@@ -61,7 +62,7 @@ describe('Assert function', () => {
         });
     });
 
-    var binary = [
+    const binary = [
         new AssertTest(
             'areEqual',
             [[4, 4], ['a string value', 'a string value'], [{ val: 15}, { val: 15}]],
@@ -85,20 +86,20 @@ describe('Assert function', () => {
             ])
     ];
 
-    binary.map((test) => {
-        test.goodValues.map(vals => {
-            var valArray = JSON.stringify(vals);
+    _.map(binary, (test) => {
+        _.map(test.goodValues, vals => {
+            const valArray = JSON.stringify(vals);
             it(`should accept ${valArray} for ${test.command}`, () => {
-                var cmd = AssertModule[test.command]
+                const cmd = AssertModule[test.command]
                 cmd.apply(cmd, vals);
             });
         });
 
-        test.badValues.map(vals => {
-            var valArray = JSON.stringify(vals);
+        _.map(test.badValues, vals => {
+            const valArray = JSON.stringify(vals);
             it(`should reject ${valArray} for ${test.command}`, () => {
                 try {
-                    var cmd = AssertModule[test.command]
+                    const cmd = AssertModule[test.command]
                     cmd.apply(cmd, vals);
                     fail('Should have thrown an error');
                 }

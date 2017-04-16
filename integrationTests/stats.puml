@@ -1,0 +1,28 @@
+name: Find the median square miles
+modules:
+  - stats
+steps:
+  # Populate an array of states
+  - states = value:
+      - name: California
+        geography:
+          squareMiles: 163696
+          highestPointInFeet: 14505
+      - name: Alaska
+        geography:
+          squareMiles: 663268
+          highestPointInFeet: 20310
+      - name: South Carolina
+        geography:
+          squareMiles: 32020
+          highestPointInFeet: 3560
+      - name: Iowa
+        geography:
+          squareMiles: 56272.81
+          highestPointInFeet: 1671
+  - mid = median: 
+      values: $states
+      field: geography.squareMiles
+  - areEqual:
+      expected: 109984.405
+      actual: $mid

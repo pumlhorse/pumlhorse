@@ -1,21 +1,16 @@
-import { CancellationToken } from '../util/CancellationToken';
-import {ICancellationToken} from '../util/ICancellationToken';
+import { ILogger } from '../script/loggers';
+import { ICancellationToken, CancellationToken } from '../util/CancellationToken';
 import { ModuleLoader } from '../script/ModuleLoader';
 import { SessionEvents } from './SessionEvents';
 import { ISessionOutput } from './ISessionOutput';
-import { IScriptDefinition } from '../script/IScriptDefinition';
-import { Script } from '../script/Script';
-import { Profile } from './Profile';
-import { IProfile } from './IProfile';
-import { IScript } from '../script/IScript';
-import * as loggers from '../script/loggers';
+import {  } from '../script/IScriptDefinition';
+import { Script, IScript, IScriptDefinition } from '../script/Script';
+import { IProfile } from './Profile';
 import * as _ from 'underscore';
-import enforce from '../util/enforce';
 import * as fs from '../util/asyncFs';
 import * as path from 'path';
 import * as Queue from 'promise-queue';
-import * as util from 'util';
-import { Runner } from './filters';
+import { FilterRunner } from './filters';
 
 export class ProfileRunner {
     private sessionEvents: ISessionOutput;
@@ -23,9 +18,11 @@ export class ProfileRunner {
     private files: string[];
     private passedScripts: LoadedScript[] = [];
     private failedScripts: LoadedScript[] = [];
+    private filterRunner: FilterRunner;
 
     constructor(private profile: IProfile, sessionOutput: ISessionOutput) {
         this.sessionEvents = new SessionEvents(sessionOutput);
+        this.filterRunner = new FilterRunner()
     }
 
     async run(cancellationToken?: ICancellationToken): Promise<any> {
@@ -34,10 +31,8 @@ export class ProfileRunner {
         this.loadGlobalModules();
         this.registerFilters();
 
-        const context = null;
-
         try {
-            if (!await Runner.onSessionStarting()) {
+            if (!await this.filterRunner.onSessionStarting()) {
                 return;
             }
             this.sessionEvents.onSessionStarted()
@@ -49,32 +44,36 @@ export class ProfileRunner {
             this.sessionEvents.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
         }
         finally {
-            await Runner.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
+            await this.filterRunner.onSessionFinished(this.passedScripts.length, this.failedScripts.length);
         }
     }
 
     private loadGlobalModules() {
         if (this.profile.modules == null) return;
 
-        this.profile.modules
-            .forEach(m => require(m.path));
+        for (let i = 0; i < this.profile.modules.length; i++) {
+            require(this.profile.modules[i].path);
+        }
     }
 
     private registerFilters() {
         if (this.profile.filters == null) return;
 
-        this.profile.filters.forEach(path => require(path));
+        for (let i = 0; i < this.profile.filters.length; i++) {
+            require(this.profile.filters[i]);
+        }
     }
 
     private async buildContext(): Promise<any> {
         this.context = {};
-        if (this.profile.contexts == null ||
-            this.profile.contexts.length == 0) {
+        const contexts = this.profile.contexts;
+        if (contexts == null ||
+            contexts.length == 0) {
             return;
         }
 
-        for (let i in this.profile.contexts) {
-            const path = this.profile.contexts[i];
+        for (let i = 0; i < contexts.length; i++) {
+            const path = contexts[i];
             const context = await this.readContextFile(path);
             _.extend(this.context, context);
         }
@@ -101,7 +100,7 @@ export class ProfileRunner {
 
     private async buildFileList() {
 
-        const fileNames = _.uniq(_.flatten(await Promise.all(this.profile.include.map((include) => this.listFilesForPath(include)))));
+        const fileNames = _.uniq(_.flatten(await Promise.all(_.map(this.profile.include, (include) => this.listFilesForPath(include)))));
 
         this.files = _.filter(fileNames, (name) => name.toLowerCase().endsWith('.puml'));
     }
@@ -123,22 +122,22 @@ export class ProfileRunner {
 
         if (stat.isDirectory()) {
             const dirFiles = await fs.readdir(fullPath, this.profile.isRecursive);
-            return dirFiles.map(f => path.resolve(fullPath, f));
+            return _.map(dirFiles, f => path.resolve(fullPath, f));
         }
 
         throw new Error(`"${filePath}" is not a file or directory`);
     }
 
     private async runFiles(cancellationToken: ICancellationToken): Promise<any> {
-        var queue = new Queue(this.getMaxConcurrentFiles(), Infinity);
+        const queue = new Queue(this.getMaxConcurrentFiles(), Infinity);
 
-        await Promise.all(this.files.map((file) => queue.add(() => this.runFile(file, cancellationToken))));
+        await Promise.all(_.map(this.files, (file) => queue.add(() => this.runFile(file, cancellationToken))));
     }
 
     private async runFile(filename: string, cancellationToken: ICancellationToken): Promise<any> {
         if (cancellationToken.isCancellationRequested) return;
 
-        var scriptDetails: LoadedScript;
+        let scriptDetails: LoadedScript;
         try {
             scriptDetails = await LoadedScript.load(filename, this.sessionEvents);
         }
@@ -153,37 +152,33 @@ export class ProfileRunner {
     private async runScript(scriptContainer: LoadedScript, cancellationToken: ICancellationToken): Promise<any> {
         if (cancellationToken.isCancellationRequested) return;
 
-        if (!await Runner.onScriptStarting(scriptContainer.script)) {
+        if (!await this.filterRunner.onScriptStarting(scriptContainer.script)) {
             return;
         }
 
         this.sessionEvents.onScriptStarted(scriptContainer.script.id);
         await this.loadModules(scriptContainer);
-        scriptContainer.script.addFunction('log', function() { scriptContainer.log.apply(scriptContainer, arguments); });
-        scriptContainer.script.addFunction('warn', function() { scriptContainer.warn.apply(scriptContainer, arguments); })
-        scriptContainer.script.addFunction('error', function() { scriptContainer.error.apply(scriptContainer, arguments); })
-
-        const start = new Date();
 
         this.context.__filename = scriptContainer.fileName;
         try {
             await scriptContainer.script.run(this.context, cancellationToken);
             this.passedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, null);
-            Runner.onScriptFinished(scriptContainer.script, true);
+            this.filterRunner.onScriptFinished(scriptContainer.script, true);
         }
         catch (err) {
             this.failedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, err);
-            Runner.onScriptFinished(scriptContainer.script, false);
+            this.filterRunner.onScriptFinished(scriptContainer.script, false);
         }
     }
 
     private async loadModules(s: LoadedScript): Promise<any> {
-        if (this.profile.modules != null) {
-            this.profile.modules.forEach((m) => {
-                s.script.addModule(m.name)
-            })
+        const modules = this.profile.modules;
+        if (modules != null) {
+            for (let i = 0; i < modules.length; i++) {
+                s.script.addModule(modules[i].name);
+            }
         }
 
         ModuleLoader.load(s.fileName, s.scriptDefinition.modules);
@@ -200,23 +195,14 @@ export class ProfileRunner {
 class LoadedScript {
     script: IScript;
 
-    constructor(public scriptDefinition: IScriptDefinition, public fileName: string, private emitter: ISessionOutput) {
-        this.script = new Script(scriptDefinition);
-    }
-
-    log() {
-        var message = util.format.apply(util, arguments);
-        this.emitter.onLog(this.script.id, 'log', message);
-    }
-    
-    warn() {
-        var message = util.format.apply(util, arguments);
-        this.emitter.onLog(this.script.id, 'warn', message);
-    }
-    
-    error() {
-        var message = util.format.apply(util, arguments);
-        this.emitter.onLog(this.script.id, 'error', message);
+    constructor(public scriptDefinition: IScriptDefinition, public fileName: string, emitter: ISessionOutput) {
+        const emittingLogger: ILogger = {
+            debug: (msg) => { emitter.onLog(this.script.id, 'debug', msg); },
+            log: (msg) => { emitter.onLog(this.script.id, 'log', msg); },
+            warn: (msg) => { emitter.onLog(this.script.id, 'warn', msg); },
+            error: (msg) => { emitter.onLog(this.script.id, 'error', msg); }
+        }
+        this.script = new Script(scriptDefinition, { logger: emittingLogger });
     }
 
     static async load(filename: string, emitter: ISessionOutput): Promise<LoadedScript> {

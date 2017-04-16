@@ -1,29 +1,26 @@
-import { IProfile } from '../profile/IProfile';
+import { ILogger } from '../script/loggers';
+import { IProfile } from '../profile/Profile';
 import { ISessionOutput } from '../profile/ISessionOutput';
-import * as loggers from '../script/loggers';
 const colors = require('colors');
 
 export class CliOutput implements ISessionOutput {
 
-    private scriptLogs = {};
-    private completedScripts = 0;
+    private scriptLogs: {[id: string]: BufferedLogger} = {};
 
-    constructor(private profile: IProfile) {
+    constructor(private profile: IProfile, private cliLogger: ILogger) {
 
     }
 
     onSessionFinished(passed, failures) {
         const totalCount = passed + failures;
         if (totalCount == 0) {
-            loggers.log('0 scripts run. No .puml files found')
+            this.cliLogger.log('0 scripts run. No .puml files found')
         }
         else {
-            
-            loggers.log('%s scripts run, %s', 
-                totalCount,
-                failures == 0 
-                    ? '0 failures'
-                    : colors.red(failures + (failures == 1 ? ' failure' : ' failures')));
+            const failuresMsg = failures == 0 
+                ? '0 failures'
+                : colors.red(failures + (failures == 1 ? ' failure' : ' failures'));
+            this.cliLogger.log(`${totalCount} scripts run, ${failuresMsg}`);
         }
     }
     
@@ -32,7 +29,7 @@ export class CliOutput implements ISessionOutput {
     }
 
     onScriptFinished(id, err) {
-        var logger = this.scriptLogs[id];
+        const logger = this.scriptLogs[id];
         if (err) {
             const lineNumber = err.lineNumber ? 'Line ' + err.lineNumber + ': ' : '';
             logger.log('error', lineNumber + (err.message ? err.message : err));
@@ -41,7 +38,7 @@ export class CliOutput implements ISessionOutput {
             }
             logger.log('error', 'SCRIPT FAILED');
         }
-        this.scriptLogs[id].flush();
+        this.scriptLogs[id].flush(this.cliLogger);
     }
 
     onLog(id, level, message) {
@@ -49,13 +46,13 @@ export class CliOutput implements ISessionOutput {
     }
 
     onSessionStarted() {}
-    onScriptStarted(scriptId: string)  {}
+    onScriptStarted()  {}
     onHttpSent() {}
     onHttpReceived() {}
 }
 
 class LogMessage {
-    constructor(public message: string, public logger: Function) {}
+    constructor(public message: string, public level: string) {}
 }
 
 class BufferedLogger {
@@ -65,27 +62,18 @@ class BufferedLogger {
         
     }
     
-    flush() {
+    flush(logger: ILogger) {
         if (this.messages.length > 0) {
-            loggers.log('--------------');
-            loggers.log(`## ${this.scriptName} - ${this.fileName} ##`);
-            this.messages.forEach(function (m) {
-                m.logger(m.message);
-            })
+            logger.log('--------------');
+            logger.log(`## ${this.scriptName} - ${this.fileName} ##`);
+            for (let i = 0; i < this.messages.length; i++) {
+                let m = this.messages[i];
+                logger[m.level](m.message)
+            }
         }
     }
     
-    log(level, message) {
-        let logger: Function = loggers.log;
-        if (level == 'log') {
-        }
-        else if (level == 'warn') {
-            logger = loggers.warn;
-        }
-        else if (level == 'error') {
-            logger = loggers.error;
-        }
-                
-        this.messages.push(new LogMessage(message, logger));
+    log(level: string, message: string) {
+        this.messages.push(new LogMessage(message, level));
     }
 }

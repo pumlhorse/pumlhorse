@@ -1,0 +1,6 @@
+name: partial script
+expects:
+  - url
+steps:
+  - httpCall = http.get: $url
+  
