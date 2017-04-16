@@ -1,5 +1,8 @@
 # Pumlhorse Version History
 
+## v2.3.1 (April 16, 2017)
+* Fixed bug with `requireFromPath.resolve`
+
 ## v2.3.0 (April 16, 2017)
 
 * Allow modules to be imported from puml_modules folder (#23)
