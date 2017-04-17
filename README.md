@@ -27,7 +27,7 @@ For a complete reference, visit [pumlhorse.com](http://www.pumlhorse.com)
 # Specification
 
 ```yaml
-name: Introduction to PUMLHorse
+name: Introduction to Pumlhorse
 description: This is a basic script that writes some messages
 steps:
   - log: Hello!
@@ -42,7 +42,7 @@ name: Use parameters
 description: Pass some parameters to those steps
 steps:
   - sayGreeting:
-      text: Hello, and welcome to PumlHorse!
+      text: Hello, and welcome to Pumlhorse!
   - sayGoodbye:
       language: French
       text: Au revoir!
