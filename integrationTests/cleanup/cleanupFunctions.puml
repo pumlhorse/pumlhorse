@@ -1,0 +1,6 @@
+name: Cleanup functions are correctly handled
+modules:
+  - cleanup: ./cleanupModule
+steps:
+  - log: Starting
+  - createCleanupFunction

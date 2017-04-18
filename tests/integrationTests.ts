@@ -6,6 +6,8 @@ import { Script, IScript, IScriptDefinition } from '../src/script/Script';
 import {readAsYaml} from '../src/util/asyncFs';
 import { promptForValue } from '../src/cli/prompt';
 
+require('../integrationTests/cleanup/cleanupModule');
+
 function testAsync(runAsync) {
     return (done) => {
         runAsync().then(done, e => { fail(e); done(); });
@@ -74,6 +76,17 @@ describe('Integration test - ', () => {
             expect(harness.logger.log).toHaveBeenCalledTimes(1);
             expect(err.message).toBe('My error message');  
         }     
+    }));
+    
+    it('correctly handles cleanup functions', testAsync(async () => {
+        // Arrange
+        const harness = await Harness.create('cleanup/cleanupFunctions');
+        
+        // Act
+        await harness.run();
+        
+        // Assert
+        expect(harness.logger.log).toHaveBeenCalledWith('Cleanup finished');    
     }));
 
     const selfAssertingScripts = [
