@@ -288,8 +288,7 @@ class InternalScript implements IScriptInternal {
 
         if (_.isFunction(stepDefinition)) {
             // If we programatically added a function as a step, just shortcut and run it
-            stepDefinition.call(scope);
-            return;
+            return stepDefinition.call(scope);
         }
 
         let step: Step;
