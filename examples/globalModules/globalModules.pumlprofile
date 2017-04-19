@@ -2,4 +2,4 @@ include:
   - ./includeGlobalModules.puml
 modules:
   - name: myCustomModule2
-    path: ../node_modules/myCustomModule2
+    path: ../puml_modules/myCustomModule2
