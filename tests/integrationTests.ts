@@ -78,16 +78,30 @@ describe('Integration test - ', () => {
         }     
     }));
     
-    it('correctly handles cleanup functions', testAsync(async () => {
-        // Arrange
-        const harness = await Harness.create('cleanup/cleanupFunctions');
+    describe('cleanup', () => {
+        it('correctly handles cleanup functions', testAsync(async () => {
+            // Arrange
+            const harness = await Harness.create('cleanup/cleanupFunctions');
+            
+            // Act
+            await harness.run();
+            
+            // Assert
+            expect(harness.logger.log).toHaveBeenCalledWith('Cleanup finished');    
+        }));
         
-        // Act
-        await harness.run();
-        
-        // Assert
-        expect(harness.logger.log).toHaveBeenCalledWith('Cleanup finished');    
-    }));
+        it('performs cleanup steps in order', testAsync(async () => {
+            // Arrange
+            const harness = await Harness.create('cleanup/cleanupOrder');
+            
+            // Act
+            await harness.run();
+            
+            // Assert
+            expect(harness.logger.log).toHaveBeenCalledWith('test');  
+            expect(harness.logger.log).toHaveBeenCalledWith('new value');    
+        }));
+    });
 
     const selfAssertingScripts = [
         new Test('partialScripts/runPartial1'), 

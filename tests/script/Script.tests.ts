@@ -785,6 +785,38 @@ describe('Script', () => {
             expect(loggerMocks.log).toHaveBeenCalledWith('step 2');
             expect(loggerMocks.log).toHaveBeenCalledWith('cleanup step');
         }));
+
+        it('runs a cleanup task at the end of a script',testAsync(async () => {
+            // Arrange
+            var script = new Script({
+                name: 'test script',
+                steps: [
+                    {log: 'step 1'}
+                ],
+                cleanup: [
+                    {logAfterWait: { wait: 100, msg: 'first' }},
+                    {logAfterWait: { wait: 10, msg: 'second' }},
+                    {logAfterWait: { wait: 0, msg: 'third' }}
+                ]
+            }, { logger: loggerMocks});
+            let order = 1;
+            script.addFunction('logAfterWait', (wait, msg) => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        loggerMocks.log(msg + order++);
+                        resolve();
+                    }, wait);
+                });
+            })
+            
+            // Act
+            await script.run();
+            
+            // Assert
+            expect(loggerMocks.log).toHaveBeenCalledWith('first1');
+            expect(loggerMocks.log).toHaveBeenCalledWith('second2');
+            expect(loggerMocks.log).toHaveBeenCalledWith('third3');
+        }));
         
         it('runs a cleanup task even if a step failed',testAsync(async () => {
             // Arrange

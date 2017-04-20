@@ -1,0 +1,10 @@
+name: Performs cleanup steps in order
+modules:
+  - cleanup: cleanupModule
+steps:
+  - log: Beginning
+  - val = Cleanup message
+cleanup:
+  - logOnTimeout
+  - changeValueSync
+  - logOnTimeout
