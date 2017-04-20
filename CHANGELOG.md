@@ -1,9 +1,15 @@
 # Pumlhorse Version History
 
+## v2.3.3 (April 19, 2017)
+
+* Cleanup steps returning promises are performed in order (#42)
+
 ## v2.3.2 (April 18, 2017)
+
 * Property handle steps added through `$scope._cleanup()` that return promises (#40)
 
 ## v2.3.1 (April 16, 2017)
+
 * Fixed bug with `requireFromPath.resolve`
 
 ## v2.3.0 (April 16, 2017)
