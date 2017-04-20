@@ -196,15 +196,15 @@ export class Script implements IScript {
             return;
         }
 
-        return await Promise.all(_.map(this.internalScript.cleanup, task => {
+        for (let i = 0; i < this.internalScript.cleanup.length; i++) {
+            const task = this.internalScript.cleanup[i];
             try {
-                return this.internalScript.runSteps([task], scope, cancellationToken);
+                await this.internalScript.runSteps([task], scope, cancellationToken);
             }
             catch (e) {
                 this.scriptOptions.logger.error(`Error in cleanup task: ${e.message}`);
-                return Promise.resolve({});
             }
-        }));
+        }
     }
 }
 
