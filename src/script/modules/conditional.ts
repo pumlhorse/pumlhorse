@@ -15,11 +15,13 @@ export class ConditionalModule
         if (value && isTrue != null) {
             steps = isTrue;
         }
-        else {
+        else if (isFalse != null) {
             steps = isFalse;
         }
 
-        return $scope._runSteps(steps, $scope._new());
+        return steps != null 
+            ? $scope._runSteps(steps, $scope._new())
+            : Promise.resolve({});
     }
 
 }
