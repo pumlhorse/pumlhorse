@@ -2,7 +2,6 @@ import * as _ from 'underscore';
 import { IScope } from '../Scope';
 import { pumlhorse } from '../../PumlhorseGlobal';
 import enforce from '../../util/enforce';
-// import { doEval } from '../Step';
 import * as Expression from 'angular-expressions';
 
 export class ConditionalModule
