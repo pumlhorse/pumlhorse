@@ -1,5 +1,11 @@
 # Pumlhorse Version History
 
+## v2.4.0 (FIX ME)
+
+* Added `when` statement for conditional execution of steps
+* Fixed issue with modules not being loaded in scripts using `run`
+* Removed erroneous "Script does not contain any steps" message in `if` calls
+
 ## v2.3.3 (April 19, 2017)
 
 * Cleanup steps returning promises are performed in order (#42)
