@@ -3,6 +3,7 @@
 ## v2.4.0 (FIX ME)
 
 * Added `when` statement for conditional execution of steps
+* Pass scope to ScriptStarting and ScriptFinished filters
 * Fixed issue with modules not being loaded in scripts using `run`
 * Removed erroneous "Script does not contain any steps" message in `if` calls
 
