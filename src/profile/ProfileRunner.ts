@@ -152,7 +152,7 @@ export class ProfileRunner {
     private async runScript(scriptContainer: LoadedScript, cancellationToken: ICancellationToken): Promise<any> {
         if (cancellationToken.isCancellationRequested) return;
 
-        if (!await this.filterRunner.onScriptStarting(scriptContainer.script)) {
+        if (!await this.filterRunner.onScriptStarting(scriptContainer.script, this.context)) {
             return;
         }
 
@@ -160,16 +160,17 @@ export class ProfileRunner {
         await this.loadModules(scriptContainer);
 
         this.context.__filename = scriptContainer.fileName;
+        let scope = this.context;
         try {
-            await scriptContainer.script.run(this.context, cancellationToken);
+            scope = await scriptContainer.script.run(scope, cancellationToken);
             this.passedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, null);
-            this.filterRunner.onScriptFinished(scriptContainer.script, true);
+            this.filterRunner.onScriptFinished(scriptContainer.script, scope, true);
         }
         catch (err) {
             this.failedScripts.push(scriptContainer);
             this.sessionEvents.onScriptFinished(scriptContainer.script.id, err);
-            this.filterRunner.onScriptFinished(scriptContainer.script, false);
+            this.filterRunner.onScriptFinished(scriptContainer.script, scope, false);
         }
     }
 
