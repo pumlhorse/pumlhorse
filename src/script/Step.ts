@@ -156,7 +156,7 @@ class StepFunction {
     }
 }
 
-function doEval(input: any, compile: boolean, scope: any): any {
+export function doEval(input: any, compile: boolean, scope: any): any {
     if (input == null) return null;
         
     if (_.isString(input)) {
