@@ -6,6 +6,6 @@ cli.run(process.argv)
     .then(function (isSuccess) { 
         process.exit(isSuccess ? 0 : 1) 
     })
-    .catch(function () { 
+    .catch(function () {
         process.exit(1);
-     })
+     });
