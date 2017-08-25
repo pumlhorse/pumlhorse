@@ -1,6 +1,6 @@
 {
   "name": "pumlhorse",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "Utility for creating readable and reusable scripts",
   "main": "./lib/App.js",
   "bin": "bin/cli.js",
